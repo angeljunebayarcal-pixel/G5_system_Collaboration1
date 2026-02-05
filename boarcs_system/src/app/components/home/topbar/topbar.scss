@@ -1,0 +1,42 @@
+$sidebar-width: 240px;
+$topbar-height: 80px;
+
+.topbar {
+  position: fixed;
+  top: 0;
+  left: $sidebar-width;
+  width: calc(100% - #{$sidebar-width});
+  height: $topbar-height;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 2.5rem;
+
+  // 🔽 NEW BACKGROUND
+  background: #0f172a; // dark blue-gray (matches sidenav theme)
+  color: #e2e8f0;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  z-index: 900;
+
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .topbar-action {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+
+    span {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #cbd5e1;
+    }
+  }
+}
