@@ -1,0 +1,77 @@
+/* CONTAINER */
+.content {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* center horizontally */
+  padding: 40px 20px; /* safe spacing from edges */
+}
+
+/* CARD */
+.appointment-card {
+  width: 100%;
+  max-width: 1300px;
+  background: #cfd8e3;
+  padding: 40px 50px; 
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+/* LABEL */
+.appointment-card label {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+/* INPUTS */
+.appointment-card textarea,
+.appointment-card select,
+.appointment-card input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  background: white;
+  box-sizing: border-box;
+}
+
+/* TEXTAREA */
+.appointment-card textarea {
+  height: 110px;
+  resize: none;
+}
+
+/* DATE + TIME */
+.datetime-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* BUTTON */
+.submit-btn {
+  margin-top: 10px;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  background: #0026ff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  align-self: flex-start; /* button aligned with inputs */
+}
+
+.submit-btn:hover {
+  background:rgb(7, 39, 99);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .datetime-row {
+    grid-template-columns: 1fr;
+  }
+
+}

@@ -1,1 +1,41 @@
-<p>certificaterequest works!</p>
+<div class="content">
+  <h1 class="page-title">Certificate Request</h1>
+
+  <form class="certificate-card">
+
+    <div class="form-group">
+      <label>Certification Type</label>
+      <select required>
+        <option value="">-- Select Certification --</option>
+        <option>Barangay Clearance</option>
+        <option>Certificate of Residency</option>
+        <option>Indigency Certificate</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Purpose</label>
+      <textarea placeholder="Please input your purpose." required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Attach PDF file</label>
+      <input type="file" accept="application/pdf" required />
+    </div>
+
+    <div class="datetime-row">
+      <div class="form-group">
+        <label>Request Date</label>
+        <input type="date" required />
+      </div>
+
+      <div class="form-group">
+        <label>Request Time</label>
+        <input type="time" required />
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Submit Request</button>
+
+  </form>
+</div>

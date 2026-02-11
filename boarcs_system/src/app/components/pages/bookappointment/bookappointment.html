@@ -1,1 +1,52 @@
-<p>bookappointment works!</p>
+<div class="fullpage-container">
+
+  <header class="dashboard-header">
+    <h1>Book Appointment</h1>
+  </header>
+
+  <main class="main-content">
+
+    <!-- butangi lang form -->
+    <form class="appointment-card" id="appointmentForm">
+
+      <label>Purpose</label>
+      <textarea
+        placeholder="Please input your purpose."
+        name="purpose"
+        required
+      ></textarea>
+
+      <label>Barangay Official</label>
+      <select name="official" required>
+        <option value="">-- Select Official --</option>
+        <option>Hon. Peter Santos</option>
+        <option>Hon. Maria Cruz</option>
+        <option>Hon. Juan Dela Cruz</option>
+      </select>
+
+      <label>Attach PDF file</label>
+      <input
+        type="file"
+        name="file"
+        accept="application/pdf"
+        required
+      />
+
+      <div class="datetime-row">
+        <div>
+          <label>Request Date</label>
+          <input type="date" name="date" required />
+        </div>
+        <div>
+          <label>Request Time</label>
+          <input type="time" name="time" required />
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">Submit Appointment</button>
+
+    </form>
+
+  </main>
+
+</div>

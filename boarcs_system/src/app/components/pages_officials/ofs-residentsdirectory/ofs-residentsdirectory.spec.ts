@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Residentsdirectory } from './residentsdirectory';
+import { OfsResidentsdirectory } from './ofs-residentsdirectory';
 
-describe('Residentsdirectory', () => {
-  let component: Residentsdirectory;
-  let fixture: ComponentFixture<Residentsdirectory>;
+describe('OfsResidentsdirectory', () => {
+  let component: OfsResidentsdirectory;
+  let fixture: ComponentFixture<OfsResidentsdirectory>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Residentsdirectory]
+      imports: [OfsResidentsdirectory]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Residentsdirectory);
+    fixture = TestBed.createComponent(OfsResidentsdirectory);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

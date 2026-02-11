@@ -1,0 +1,89 @@
+/* CONTENT AREA (same spacing as book appointment) */
+.content {
+  width: 97%;
+  padding: 2px 5px;
+  background: #eaf6ff; /* gikan sa certificate design */
+}
+
+/* TITLE */
+.page-title {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+/* CARD (design from certificate image, size from appointment) */
+.certificate-card {
+  width: 100%;
+  background:#cfd8e3; /* gray card sa certificate */
+  padding: 40px 50px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  box-sizing: border-box;
+}
+
+/* FORM GROUP */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* LABEL */
+.form-group label {
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+/* INPUTS */
+.form-group textarea,
+.form-group select,
+.form-group input {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* TEXTAREA SIZE */
+.form-group textarea {
+  height: 120px;
+  resize: none;
+}
+
+/* DATE + TIME (same as appointment) */
+.datetime-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* BUTTON */
+.submit-btn {
+  margin-top: 10px;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 12px;
+  background: #0026ff;
+  color: white;
+  font-size: 17px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.submit-btn:hover {
+  background: rgb(7, 39, 99);
+
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .datetime-row {
+    grid-template-columns: 1fr;
+  }
+}

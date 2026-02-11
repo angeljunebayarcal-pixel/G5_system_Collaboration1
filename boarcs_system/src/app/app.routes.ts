@@ -4,12 +4,13 @@ import { Home } from './components/home/home';
 import { Dashboard } from './components/pages/dashboard/dashboard';
 import { Bookappointment } from './components/pages/bookappointment/bookappointment';
 import { Certificaterequest } from './components/pages/certificaterequest/certificaterequest';
-import { Residentsdirectory } from './components/pages/residentsdirectory/residentsdirectory';
 import { Notification } from './components/pages/notification/notification';
 import { Profile } from './components/pages/profile/profile';
-
-
-
+import { OfsHome } from './components/ofs-home/ofs-home';
+import { OfsDashboard } from './components/pages_officials/ofs-dashboard/ofs-dashboard';
+import { OfsResidentsdirectory } from './components/pages_officials/ofs-residentsdirectory/ofs-residentsdirectory';
+import { OfsNotification } from './components/pages_officials/ofs-notification/ofs-notification';
+import { OfsProfile } from './components/pages_officials/ofs-profile/ofs-profile';
 
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full'},
@@ -23,10 +24,21 @@ export const routes: Routes = [
         { path: 'dashboard', component: Dashboard },
         { path: 'bookappointment', component:  Bookappointment},
         { path: 'certificaterequest', component: Certificaterequest },
-        { path: 'residentsdirectory', component: Residentsdirectory },
         { path: 'notification', component: Notification },
         { path: 'profile', component: Profile },
 
         ]
-  }
+  },
+  {
+        path: 'ofs-home',
+        component: OfsHome,
+        children: [
+            { path:'', component: OfsDashboard },
+            { path:'ofs-dashboard', component: OfsDashboard },
+            { path:'ofs-residentsdirectory', component: OfsResidentsdirectory },
+            { path:'ofs-notification', component: OfsNotification },
+            { path:'ofs-profile', component: OfsProfile },
+        ]
+
+    }
 ];

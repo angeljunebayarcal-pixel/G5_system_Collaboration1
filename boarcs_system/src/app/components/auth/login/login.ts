@@ -10,23 +10,27 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.scss'],
 })
 export class Login {
+
   email = '';
   password = '';
-  firstname = '';
-  lastname = '';
-  role = '';
 
-  constructor(private router: Router) {
+  constructor(private router: Router) {}
 
-  }
   login() {
-  if (this.firstname && 
-    this.lastname && 
-    this.role && 
-    this.email && 
-    this.password) {
-    this.router.navigate(['/home']) }
-}
 
+    // OFFICIAL ACCOUNT
+    if (this.email === 'official@gmail.com' && this.password === '123') {
+      this.router.navigate(['/ofs-home']); 
+      return;
+    }
+
+    // RESIDENT ACCOUNT (example)
+    if (this.email === 'ajbayarcal@gmail.com' && this.password === '123') {
+      this.router.navigate(['/home']);  
+      return;
+    }
+
+    // If wrong login
+    alert('Invalid email or password');
+  }
 }
-  
