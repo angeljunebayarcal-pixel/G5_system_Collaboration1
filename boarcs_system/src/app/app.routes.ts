@@ -11,6 +11,10 @@ import { OfsDashboard } from './components/pages_officials/ofs-dashboard/ofs-das
 import { OfsResidentsdirectory } from './components/pages_officials/ofs-residentsdirectory/ofs-residentsdirectory';
 import { OfsNotification } from './components/pages_officials/ofs-notification/ofs-notification';
 import { OfsProfile } from './components/pages_officials/ofs-profile/ofs-profile';
+import { OfsCreateResidentsProfile } from './components/pages_officials/ofs-create-residents-profile/ofs-create-residents-profile';
+import { Settings } from './components/pages/settings/settings';
+import { OfsSettings } from './components/pages_officials/ofs-settings/ofs-settings';
+
 
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full'},
@@ -26,6 +30,7 @@ export const routes: Routes = [
         { path: 'certificaterequest', component: Certificaterequest },
         { path: 'notification', component: Notification },
         { path: 'profile', component: Profile },
+        { path: 'settings', component: Settings },
 
         ]
   },
@@ -36,8 +41,10 @@ export const routes: Routes = [
             { path:'', component: OfsDashboard },
             { path:'ofs-dashboard', component: OfsDashboard },
             { path:'ofs-residentsdirectory', component: OfsResidentsdirectory },
+            { path: 'ofs-createresidentsprofile', component: OfsCreateResidentsProfile },
             { path:'ofs-notification', component: OfsNotification },
             { path:'ofs-profile', component: OfsProfile },
+            { path: 'ofs-settings', component: OfsSettings},
         ]
 
     }

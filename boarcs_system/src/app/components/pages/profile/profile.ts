@@ -13,10 +13,10 @@ export class Profile {
   activeTab: string = 'personal';
 
   personal = {
-    fullname: 'John Cruz',
+    fullname: 'Aj Bayarcal',
     address: 'Zone 4 Katipunan',
     contact: '+63786988992',
-    email: 'johncruz@gmail.com',
+    email: 'ajbayarcal@gmail.com',
     role: 'Resident'
   };
 

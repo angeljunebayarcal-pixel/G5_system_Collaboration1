@@ -1,0 +1,118 @@
+$sidebar-width: 242px;
+$topbar-height: 60px;
+
+/* ================= CONTENT AREA ================= */
+.content {
+  position: fixed;
+  top: $topbar-height;
+  left: $sidebar-width;
+  right: 0;
+  bottom: 0;
+
+  padding: 25px 50px;
+  background: #ffffff;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+}
+
+/* ================= WELCOME ================= */
+.welcome {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+/* ================= CARDS ================= */
+.cards {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.card {
+  flex: 1; /* 🔥 equal size always */
+  height: 150px;
+
+  padding: 25px 30px;
+  border-radius: 14px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items:  flex-start;  
+  font-weight: bold;
+}
+
+/* CARD COLORS */
+.certificate {
+  background: #3fb4d6;
+}
+
+.appointment {
+  background: #1a2fff;
+  color: white;
+}
+
+/* ================= CARD TEXT ================= */
+.card .text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card h3 {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.card p {
+  font-size: 20px;
+  margin: 0;
+}
+
+.card strong {
+  font-size: 22px;
+}
+
+.icon {
+  font-size: 45px;
+}
+
+/* ================= SECTIONS ================= */
+.section {
+  margin-bottom: 35px;
+}
+
+.section h2 {
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+
+/* ================= TABLE ================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+thead {
+  background: rgb(126, 105, 79);
+  color: white;
+}
+
+th,
+td {
+  padding: 14px;
+  font-size: 14px;
+  text-align: left;
+}
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}

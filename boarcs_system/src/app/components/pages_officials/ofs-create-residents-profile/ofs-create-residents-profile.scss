@@ -1,0 +1,84 @@
+.resident-form-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  .form-title {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+  }
+
+  .resident-form {
+    display: flex;
+    flex-direction: column;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+
+      label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #34495e;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      input[type="date"] {
+        padding: 0.6rem 0.8rem;
+        border-radius: 6px;
+        border: 1px solid #bdc3c7;
+        font-size: 1rem;
+        transition: border 0.2s;
+      }
+
+      input:focus {
+        border-color: #3498db;
+        outline: none;
+      }
+
+      .gender-options {
+        display: flex;
+        gap: 1.5rem;
+        label {
+          font-weight: 400;
+          input {
+            margin-right: 0.3rem;
+          }
+        }
+      }
+    }
+
+    .submit-btn {
+      padding: 0.8rem 1rem;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.3s;
+
+      &:hover {
+        background-color: #0f2f44;
+      }
+    }
+  }
+}
+
+/* Optional: responsive */
+@media (max-width: 600px) {
+  .resident-form-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+}

@@ -1,0 +1,50 @@
+.notifications {
+  margin-bottom: 35px;
+  font-family: Arial, sans-serif;
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 14px;
+    color: #0f172a;
+  }
+
+  .notification {
+  max-width: 90%; // maximum width sa box
+  width: 100%;      // or fixed width: 400px
+}
+
+  .notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .notification {
+    background: white;
+    padding: 18px 24px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+
+    &.new {
+      border-left: 4px solid #4caf50; /* highlight new notifications */
+      font-weight: 600;
+    }
+
+    .time {
+      font-size: 12px;
+      color: #888;
+      white-space: nowrap;
+      margin-left: 12px;
+    }
+
+    p {
+      margin: 0;
+      flex: 1; /* take remaining space */
+    }
+  }
+}

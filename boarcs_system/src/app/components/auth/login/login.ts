@@ -31,6 +31,6 @@ export class Login {
     }
 
     // If wrong login
-    alert('Invalid email or password');
+    alert('Invalid please try again');
   }
 }
