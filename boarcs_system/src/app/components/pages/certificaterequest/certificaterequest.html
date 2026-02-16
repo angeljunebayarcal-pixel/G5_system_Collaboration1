@@ -1,11 +1,14 @@
-<div class="content">
-  <h1 class="page-title">Certificate Request</h1>
+<div class="certificate-wrapper">
 
-  <form class="certificate-card">
+  <h2 class="page-title">Certificate Request</h2>
 
+  <form id="certificateForm">
+
+    <!-- CERTIFICATE TYPE -->
     <div class="form-group">
-      <label>Certification Type</label>
-      <select required>
+      <label>Certificate Type</label>
+      <select id="certType" required>
+        <option value="">-- Select Certificate --</option>
         <option>Barangay Clearance</option>
         <option>Certificate of Indigency</option>
         <option> Business Clearance</option>
@@ -14,33 +17,84 @@
         <option>Blotter / Incident Certification</option>
         <option>Certificate of Household</option>
         <option>Certificate of Solo Parent</option>
-
       </select>
     </div>
 
+    <!-- PURPOSE -->
     <div class="form-group">
       <label>Purpose</label>
-      <textarea placeholder="Please input your purpose." required></textarea>
+      <textarea 
+        id="purpose"
+        placeholder="Enter purpose"
+        required></textarea>
     </div>
 
+    <!-- PDF ATTACH -->
     <div class="form-group">
-      <label>Attach PDF file</label>
-      <input type="file" accept="application/pdf" required />
+      <label>Attach Supporting Document (PDF Only)</label>
+      <input 
+        type="file"
+        id="pdfFile"
+        accept="application/pdf"
+        required>
+      <small id="filePreview"></small>
     </div>
 
-    <div class="datetime-row">
+    <!-- DATE + TIME -->
+    <div class="form-row">
       <div class="form-group">
         <label>Request Date</label>
-        <input type="date" required />
+        <input type="date" id="date" required>
       </div>
 
       <div class="form-group">
         <label>Request Time</label>
-        <input type="time" required />
+        <input type="time" id="time" required>
       </div>
     </div>
 
-    <button type="submit" class="submit-btn">Submit Request</button>
+    <!-- SUBMIT -->
+    <button type="submit" class="submit-btn">
+      Submit Request
+    </button>
 
   </form>
 </div>
+
+<script>
+const form = document.getElementById("certificateForm");
+const fileInput = document.getElementById("pdfFile");
+const preview = document.getElementById("filePreview");
+
+// Show uploaded filename
+fileInput.addEventListener("change", () => {
+  if (fileInput.files.length > 0) {
+    preview.textContent = "Uploaded: " + fileInput.files[0].name;
+  }
+});
+
+// Submit Validation
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const type = document.getElementById("certType").value;
+  const purpose = document.getElementById("purpose").value.trim();
+  const date = document.getElementById("date").value;
+  const time = document.getElementById("time").value;
+  const file = fileInput.files[0];
+
+  if (!type || !purpose || !date || !time || !file) {
+    alert("Please complete all fields.");
+    return;
+  }
+
+  if (file.type !== "application/pdf") {
+    alert("PDF files only allowed.");
+    return;
+  }
+
+  alert("Certificate Request Submitted!");
+  form.reset();
+  preview.textContent = "";
+});
+</script>

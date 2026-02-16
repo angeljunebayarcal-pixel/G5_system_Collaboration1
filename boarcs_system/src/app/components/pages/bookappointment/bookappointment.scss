@@ -1,77 +1,100 @@
-/* CONTAINER */
-.content {
-  width: 100%;
-  display: flex;
-  justify-content: center; /* center horizontally */
-  padding: 40px 20px; /* safe spacing from edges */
-}
-
-/* CARD */
-.appointment-card {
-  width: 100%;
-  max-width: 1300px;
-  background: #cfd8e3;
-  padding: 40px 50px; 
+.appointment-wrapper {
+  width: 85%;
+  margin-left: auto;
+  margin-right: 0;
+  padding: 50px 100px;
+  background: #e2e8f0;
   border-radius: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  box-sizing: border-box;
-}
+  min-height: 90vh;
 
-/* LABEL */
-.appointment-card label {
-  font-weight: 700;
-  font-size: 20px;
-}
-
-/* INPUTS */
-.appointment-card textarea,
-.appointment-card select,
-.appointment-card input {
-  width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  border: none;
-  font-size: 15px;
-  background: white;
-  box-sizing: border-box;
-}
-
-/* TEXTAREA */
-.appointment-card textarea {
-  height: 110px;
-  resize: none;
-}
-
-/* DATE + TIME */
-.datetime-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-/* BUTTON */
-.submit-btn {
-  margin-top: 10px;
-  padding: 15px;
-  border: none;
-  border-radius: 10px;
-  background: #0026ff;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  align-self: flex-start; /* button aligned with inputs */
-}
-
-.submit-btn:hover {
-  background:rgb(7, 39, 99);
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-  .datetime-row {
-    grid-template-columns: 1fr;
+  .page-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #0f172a;
   }
 
+  form {
+    background: white;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    min-height: 80vh;
+
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1e293b;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font-size: 14px;
+      transition: 0.7s;
+      margin-bottom: 30px;
+
+      &:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+      }
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    small {
+      margin-top: 6px;
+      color: #475569;
+      font-size: 13px;
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 20px;
+
+    .form-group {
+      flex: 1;
+    }
+  }
+
+  .submit-btn {
+    width: 60%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s;
+
+    display: block;
+    margin: 25px auto;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(37,99,235,0.35);
+    }
+
+    &:active {
+      transform: scale(0.98);
+      background: linear-gradient(135deg, #1e40af, #1e3a8a);
+    }
+  }
 }

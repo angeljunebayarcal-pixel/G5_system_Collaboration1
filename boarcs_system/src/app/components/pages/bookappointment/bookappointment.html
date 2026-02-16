@@ -1,52 +1,97 @@
-<div class="fullpage-container">
+<div class="appointment-wrapper">
 
-  <header class="dashboard-header">
-    <h1>Book Appointment</h1>
-  </header>
+  <h2 class="page-title">Book Appointment</h2>
 
-  <main class="main-content">
+  <form id="appointmentForm">
 
-    <!-- butangi lang form -->
-    <form class="appointment-card" id="appointmentForm">
-
+    <!-- PURPOSE -->
+    <div class="form-group">
       <label>Purpose</label>
-      <textarea
-        placeholder="Please input your purpose."
-        name="purpose"
-        required
-      ></textarea>
+      <textarea 
+        id="purpose"
+        placeholder="Enter purpose of appointment"
+        required></textarea>
+    </div>
 
-      <label>Barangay Official</label>
-      <select name="official" required>
+    <!-- BARANGAY OFFICIALS -->
+    <div class="form-group">
+      <label>Select Barangay Official</label>
+      <select id="official" required>
         <option value="">-- Select Official --</option>
-        <option>Hon. Peter Santos</option>
+         <option>Hon. Peter Santos</option>
         <option>Hon. Maria Cruz</option>
         <option>Hon. Juan Dela Cruz</option>
       </select>
+    </div>
 
-      <label>Attach PDF file</label>
-      <input
-        type="file"
-        name="file"
+    <!-- VALID ID PDF UPLOAD -->
+    <div class="form-group">
+      <label>Upload Valid ID (PDF Only)</label>
+      <input 
+        type="file" 
+        id="validId"
         accept="application/pdf"
-        required
-      />
+        required>
+      <small id="fileName"></small>
+    </div>
 
-      <div class="datetime-row">
-        <div>
-          <label>Request Date</label>
-          <input type="date" name="date" required />
-        </div>
-        <div>
-          <label>Request Time</label>
-          <input type="time" name="time" required />
-        </div>
+    <!-- DATE -->
+    <div class="form-row">
+      <div class="form-group">
+        <label>Request Date</label>
+        <input type="date" id="date" required>
       </div>
 
-      <button type="submit" class="submit-btn">Submit Appointment</button>
+      <!-- TIME -->
+      <div class="form-group">
+        <label>Request Time</label>
+        <input type="time" id="time" required>
+      </div>
+    </div>
 
-    </form>
+    <!-- SUBMIT BUTTON -->
+    <button type="submit" class="submit-btn">
+      Submit Appointment
+    </button>
 
-  </main>
+  </form>
 
 </div>
+
+<script>
+const form = document.getElementById("appointmentForm");
+const fileInput = document.getElementById("validId");
+const fileNameText = document.getElementById("fileName");
+
+// Show uploaded filename
+fileInput.addEventListener("change", () => {
+  if (fileInput.files.length > 0) {
+    fileNameText.textContent = "Uploaded: " + fileInput.files[0].name;
+  }
+});
+
+// Simple submit validation
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const purpose = document.getElementById("purpose").value.trim();
+  const official = document.getElementById("official").value;
+  const date = document.getElementById("date").value;
+  const time = document.getElementById("time").value;
+  const file = fileInput.files[0];
+
+  if (!purpose || !official || !date || !time || !file) {
+    alert("Please complete all fields.");
+    return;
+  }
+
+  if (file.type !== "application/pdf") {
+    alert("Only PDF files are allowed.");
+    return;
+  }
+
+  alert("Appointment Submitted Successfully!");
+  form.reset();
+  fileNameText.textContent = "";
+});
+</script>
