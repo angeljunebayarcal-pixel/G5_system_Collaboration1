@@ -12,8 +12,8 @@ import { OfsResidentsdirectory } from './components/pages_officials/ofs-resident
 import { OfsNotification } from './components/pages_officials/ofs-notification/ofs-notification';
 import { OfsProfile } from './components/pages_officials/ofs-profile/ofs-profile';
 import { OfsCreateResidentsProfile } from './components/pages_officials/ofs-create-residents-profile/ofs-create-residents-profile';
-import { Settings } from './components/pages/settings/settings';
 import { OfsSettings } from './components/pages_officials/ofs-settings/ofs-settings';
+import { Settings } from './components/pages/settings/settings';
 
 
 export const routes: Routes = [
