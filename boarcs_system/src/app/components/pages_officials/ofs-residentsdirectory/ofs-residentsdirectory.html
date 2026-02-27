@@ -2,68 +2,94 @@
 
   <h1 class="page-title">Barangay Official</h1>
 
+  <!-- NOTIFICATION POPUP -->
+  <div *ngIf="notificationMessage" class="popup">
+    {{ notificationMessage }}
+  </div>
+
+  <!-- PENDING APPOINTMENTS -->
   <div class="card">
-
-    <h2 class="section-title">Residents Directory</h2>
-
+    <h2 class="section-title">Pending Appointments</h2>
     <div class="request-list">
 
-      <!-- ITEM -->
-      <div class="request-item">
+      <div class="request-item" *ngFor="let app of pendingAppointments">
         <span class="request-text">
-          John Cruz will request a Certificate of Solo Parents on 2/5/26.
+          Resident ID: {{ app.residentId }} 
+          | Date: {{ app.details.date || 'Not set' }} 
+          | Time: {{ app.details.time || 'Not set' }} 
+          | Description: {{ app.details.description || 'No description' }}
         </span>
 
         <div class="actions">
-          <button class="approve">Approved</button>
-          <button class="decline">Declined</button>
+          <button class="reschedule" (click)="openReschedule(app.id)">Reschedule</button>
+          <button class="approve" (click)="approveAppointment(app.id)">Approve</button>
+          <button class="decline" (click)="cancelAppointment(app.id)">Decline</button>
         </div>
       </div>
 
-      <div class="request-item">
+      <div *ngIf="pendingAppointments.length === 0" class="no-requests">
+        No pending appointments.
+      </div>
+    </div>
+  </div>
+
+  <!-- PENDING CERTIFICATE REQUESTS -->
+  <div class="card">
+    <h2 class="section-title">Pending Certificate Requests</h2>
+    <div class="request-list">
+
+      <div class="request-item" *ngFor="let cert of pendingCertificates">
         <span class="request-text">
-          Anna Flores will request a Certificate of Indigency on 2/7/26.
+          Resident ID: {{ cert.residentId }} 
+          | Certificate: {{ cert.details.type || 'Not set' }} 
+          | Purpose: {{ cert.details.purpose || 'No purpose' }} 
+          | Date: {{ cert.details.date || 'Not set' }} 
+          | Time: {{ cert.details.time || 'Not set' }}
         </span>
 
         <div class="actions">
-          <button class="approve">Approved</button>
-          <button class="decline">Declined</button>
+          <button class="reschedule" (click)="openCertificateReschedule(cert.id)">Reschedule</button>
+          <button class="approve" (click)="approveCertificate(cert.id)">Approve</button>
+          <button class="decline" (click)="cancelCertificate(cert.id)">Decline</button>
         </div>
       </div>
 
-      <div class="request-item">
-        <span class="request-text">
-          Rey Gomez will request a Blotter Report Certification on 2/9/26.
-        </span>
-
-        <div class="actions">
-          <button class="approve">Approved</button>
-          <button class="decline">Declined</button>
-        </div>
+      <div *ngIf="pendingCertificates.length === 0" class="no-requests">
+        No pending certificate requests.
       </div>
+    </div>
+  </div>
 
-      <div class="request-item">
-        <span class="request-text">
-          Juan Carlo booked an appointment on 2/13/26.
-        </span>
+</div>
 
-        <div class="actions">
-          <button class="approve">Approved</button>
-          <button class="decline">Declined</button>
-        </div>
-      </div>
+<!-- RESCHEDULE MODAL FOR APPOINTMENTS -->
+<div class="modal-overlay" *ngIf="showAppointmentModal">
+  <div class="modal">
+    <h3>Reschedule Appointment</h3>
+    <label>New Date:</label>
+    <input type="date" [(ngModel)]="newDate">
+    <label>New Time:</label>
+    <input type="time" [(ngModel)]="newTime">
 
-      <div class="request-item">
-        <span class="request-text">
-          James Dogong booked an appointment on 2/15/26.
-        </span>
+    <div class="modal-actions">
+      <button class="save" (click)="saveReschedule()">Save</button>
+      <button class="cancel" (click)="closeRescheduleModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
-        <div class="actions">
-          <button class="approve">Approved</button>
-          <button class="decline">Declined</button>
-        </div>
-      </div>
+<!-- RESCHEDULE MODAL FOR CERTIFICATE REQUESTS -->
+<div class="modal-overlay" *ngIf="showCertificateModal">
+  <div class="modal">
+    <h3>Reschedule Certificate Request</h3>
+    <label>New Date:</label>
+    <input type="date" [(ngModel)]="newCertDate">
+    <label>New Time:</label>
+    <input type="time" [(ngModel)]="newCertTime">
 
+    <div class="modal-actions">
+      <button class="save" (click)="saveCertificateReschedule()">Save</button>
+      <button class="cancel" (click)="closeCertificateModal()">Cancel</button>
     </div>
   </div>
 </div>

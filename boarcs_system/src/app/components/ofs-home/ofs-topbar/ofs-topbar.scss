@@ -14,29 +14,63 @@ $topbar-height: 80px;
 
   padding: 0 2.5rem;
 
-  // 🔽 NEW BACKGROUND
-  background: #002a8b; // dark blue-gray (matches sidenav theme)
-  color: #e2e8f0;
+  background: linear-gradient(90deg, #001f6b, #002a8b);
+  color: #ffffff;
 
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   z-index: 900;
 
-  h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #ffffff;
+  // LEFT SIDE
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    img {
+      height: 48px;
+      width: 48px;
+      border-radius: 50%;
+      border: 3px solid #ffffff;
+      object-fit: cover;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+
+      h1 {
+        margin: 0;
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      span {
+        font-size: 0.75rem;
+        color: #cbd5e1;
+        font-weight: 500;
+      }
+    }
   }
 
+  // RIGHT SIDE
   .topbar-action {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding: 2rem 4rem;
 
-    span {
-      font-weight: 600;
-      font-size: 1rem;
-      color: #cbd5e1;
+      .name {
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .role {
+        font-size: 0.75rem;
+        color: #cbd5e1;
+      }
     }
   }
 }

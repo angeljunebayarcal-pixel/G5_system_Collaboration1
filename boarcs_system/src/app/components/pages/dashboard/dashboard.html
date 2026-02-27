@@ -1,84 +1,68 @@
 <div class="content">
-
-  <h1 class="welcome">Welcome to BOACRS!</h1>
-
-  <!-- CARDS -->
-  <div class="cards">
-    <div class="card certificate">
-      <div class="text">
-        <h3>Certificate request</h3>
-        <p><strong>3</strong> Total</p>
+  <div class="dashboard">
+    <div class="dashboard-frame">
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <div class="header-text">
+          <h2>Resident Dashboard</h2>
+          <p>Welcome back! Here's what's happening today.</p>
+        </div>
+        <button class="refresh" (click)="refreshData()">🔄 Refresh Stats</button>
       </div>
-      <span class="icon">📁</span>
-    </div>
 
-    <div class="card appointment">
-      <div class="text">
-        <h3>Book appointment</h3>
-        <p><strong>1</strong> Total</p>
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card active-appointments">
+          <p>Active Appointments</p>
+          <h3>2</h3>
+          <button class="appointments" (click)="viewAppointments()">View Details →</button>
+        </div>
+
+        <div class="stat-card pending-certificates">
+          <p>Pending Certificates</p>
+          <h3>1</h3>
+          <button class="certificates" (click)="viewCertificates()">Check Status →</button>
+        </div>
+
+        <div class="stat-card new-notifications">
+          <p>New Notifications</p>
+          <h3>5</h3>
+          <button class="notifications" (click)="viewNotifications()">Read All →</button>
+        </div>
       </div>
-      <span class="icon">📒</span>
+
+      <!-- Recent Activities & Quick Actions -->
+      <div class="dashboard-grid">
+        <!-- Recent Activities -->
+        <div class="recent-activity">
+          <h3>Recent Activities</h3>
+          <div class="activity-list">
+            <div class="activity-item appointment">
+              <div class="icon">📅</div>
+              <div>
+                <p class="title">Appointment Scheduled</p>
+                <p class="time">March 15, 2026 at 10:00 AM</p>
+              </div>
+            </div>
+            <div class="activity-item certificate">
+              <div class="icon">📜</div>
+              <div>
+                <p class="title">Certificate Request Submitted</p>
+                <p class="time">Yesterday at 2:45 PM</p>
+              </div>
+            </div>
+          </div>
+          <button class="view-all" (click)="viewAllActivity()">View All Activity</button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <h3>Quick Actions</h3>
+          <button class="new-appointment" (click)="newAppointment()">➕ New Appointment</button>
+          <button class="request-certificate" (click)="newRequest()">📝 Request Certificate</button>
+          <button class="update-profile" (click)="updateProfile()">👤 Update Profile</button>
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- RECENT CERTIFICATE -->
-  <div class="section">
-    <h2>Recent Certificate Request</h2>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Purpose</th>
-          <th>Request date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Barangay Clearance</td>
-          <td>Employment</td>
-          <td>2/1/26</td>
-          <td>Approved</td>
-        </tr>
-        <tr>
-          <td>Certificate of Indigency</td>
-          <td>School</td>
-          <td>2/3/26</td>
-          <td>Approved</td>
-        </tr>
-        <tr>
-          <td>Certificate of Solo Parent</td>
-          <td>Programs</td>
-          <td>2/5/26</td>
-          <td>Pending</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- UPCOMING APPOINTMENT -->
-  <div class="section">
-    <h2>Upcoming Appointment</h2>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Purpose</th>
-          <th>Barangay Official</th>
-          <th>Date</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Meeting</td>
-          <td>Hon. Peter Santos</td>
-          <td>2/7/26</td>
-          <td>9:00am</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
 </div>

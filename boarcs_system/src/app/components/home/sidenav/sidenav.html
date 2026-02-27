@@ -1,17 +1,48 @@
 <div class="sidenav">
 
-  <div class="logo">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s" alt="Logo">
+  <!-- Header -->
+  <div class="nav-header">
+    <p>Main Menu</p>
   </div>
   
-    <nav>
-         <ul>
-            <li><a routerLink="/home/dashboard">Dashboard</a></li>
-            <li><a routerLink="/home/bookappointment">Book Appointment</a></li>
-            <li><a routerLink="/home/certificaterequest">Certificate Request</a></li>
-            <li><a routerLink="/home/notification">Notification</a></li>
-            <li><a routerLink="/home/profile">Profile</a></li>
-            <li><a routerLink="/home/settings">Settings</a></li>
-        </ul>
-    </nav>
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li>
+        <a routerLink="/home/dashboard" routerLinkActive="active">
+          <span>📊</span> Dashboard
+        </a>
+      </li>
+      <li>
+        <a routerLink="/home/bookappointment" routerLinkActive="active">
+          <span>📅</span> Appointments
+        </a>
+      </li>
+      <li>
+        <a routerLink="/home/certificaterequest" routerLinkActive="active">
+          <span>📜</span> Certificates
+        </a>
+      </li>
+      <li>
+        <a routerLink="/home/notification" routerLinkActive="active">
+          <span>🔔</span> Notifications
+        </a>
+      </li>
+      <li>
+        <a routerLink="/home/profile" routerLinkActive="active">
+          <span>👤</span> My Profile
+        </a>
+      </li>
+      <li>
+        <a routerLink="/home/settings" routerLinkActive="active">
+          <span>⚙️</span> Settings
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidenav-footer">
+    © 2026 Villanueva BOARCS
+  </div>
 </div>

@@ -1,17 +1,30 @@
 <div class="certificate-wrapper">
 
+  <!-- ✅ SUCCESS FRAME -->
+  <div class="success-frame" *ngIf="requestSubmitted">
+    <div class="success-content">
+      <div class="check-icon">✓</div>
+      <h3>Request Submitted Successfully!</h3>
+      <p>Your certificate request has been sent for processing.</p>
+    </div>
+  </div>
+
   <h2 class="page-title">Certificate Request</h2>
 
-  <form id="certificateForm">
+  <!-- OPTIONAL: Hide form after submit -->
+  <form 
+    *ngIf="!requestSubmitted"
+    (ngSubmit)="submitRequest()" 
+    #certificateForm="ngForm">
 
     <!-- CERTIFICATE TYPE -->
     <div class="form-group">
       <label>Certificate Type</label>
-      <select id="certType" required>
+      <select [(ngModel)]="type" name="type" required class="form-control">
         <option value="">-- Select Certificate --</option>
         <option>Barangay Clearance</option>
         <option>Certificate of Indigency</option>
-        <option> Business Clearance</option>
+        <option>Business Clearance</option>
         <option>Cedula</option>
         <option>Certificate of Good Moral Character</option>
         <option>Blotter / Incident Certification</option>
@@ -23,78 +36,30 @@
     <!-- PURPOSE -->
     <div class="form-group">
       <label>Purpose</label>
-      <textarea 
-        id="purpose"
-        placeholder="Enter purpose"
-        required></textarea>
+      <textarea [(ngModel)]="purpose" name="purpose" placeholder="Enter purpose" required class="form-control"></textarea>
     </div>
 
     <!-- PDF ATTACH -->
     <div class="form-group">
       <label>Attach Supporting Document (PDF Only)</label>
-      <input 
-        type="file"
-        id="pdfFile"
-        accept="application/pdf"
-        required>
-      <small id="filePreview"></small>
+      <input type="file" (change)="onFileChange($event)" accept="application/pdf" required class="form-control">
+      <small>{{ uploadedFileName }}</small>
     </div>
 
     <!-- DATE + TIME -->
     <div class="form-row">
       <div class="form-group">
         <label>Request Date</label>
-        <input type="date" id="date" required>
+        <input type="date" [(ngModel)]="date" name="date" required class="form-control">
       </div>
 
       <div class="form-group">
         <label>Request Time</label>
-        <input type="time" id="time" required>
+        <input type="time" [(ngModel)]="time" name="time" required class="form-control">
       </div>
     </div>
 
-    <!-- SUBMIT -->
-    <button type="submit" class="submit-btn">
-      Submit Request
-    </button>
+    <button type="submit" class="submit-btn">Submit Request</button>
 
   </form>
 </div>
-
-<script>
-const form = document.getElementById("certificateForm");
-const fileInput = document.getElementById("pdfFile");
-const preview = document.getElementById("filePreview");
-
-// Show uploaded filename
-fileInput.addEventListener("change", () => {
-  if (fileInput.files.length > 0) {
-    preview.textContent = "Uploaded: " + fileInput.files[0].name;
-  }
-});
-
-// Submit Validation
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const type = document.getElementById("certType").value;
-  const purpose = document.getElementById("purpose").value.trim();
-  const date = document.getElementById("date").value;
-  const time = document.getElementById("time").value;
-  const file = fileInput.files[0];
-
-  if (!type || !purpose || !date || !time || !file) {
-    alert("Please complete all fields.");
-    return;
-  }
-
-  if (file.type !== "application/pdf") {
-    alert("PDF files only allowed.");
-    return;
-  }
-
-  alert("Certificate Request Submitted!");
-  form.reset();
-  preview.textContent = "";
-});
-</script>

@@ -4,6 +4,7 @@
   min-height: 90vh;
   border-radius: 18px;
   width: 89%;
+  font-family: 'Segoe UI', sans-serif; // ✅ added font
 
   /* PROFILE TITLE */
   .profile-title {
@@ -11,6 +12,7 @@
     font-weight: 700;
     margin-bottom: 25px;
     color: #0f172a;
+    font-family: inherit;
   }
 
   /* TABS */
@@ -27,6 +29,7 @@
       background: transparent;
       cursor: pointer;
       transition: 0.2s;
+      font-family: inherit;
 
       &.active {
         background: #d1d5db;
@@ -47,11 +50,13 @@
     max-width: 90%;
     width: 100%;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    font-family: inherit;
   }
 
   /* FORM */
   form {
     width: 100%;
+    font-family: inherit;
   }
 
   .form-group {
@@ -71,6 +76,7 @@
       font-size: 20px;
       color: white;
       transition: 0.2s;
+      font-family: inherit;
 
       &:hover {
         transform: scale(1.1);
@@ -85,6 +91,7 @@
         font-size: 15px;
         font-weight: 600;
         margin-bottom: 6px;
+        font-family: inherit;
       }
 
       input {
@@ -96,6 +103,7 @@
         font-size: 16px;
         outline: none;
         transition: 0.2s;
+        font-family: inherit;
 
         &:focus {
           background: #ffffff;
@@ -116,6 +124,7 @@
     color: white;
     cursor: pointer;
     transition: 0.2s;
+    font-family: inherit;
 
     &:hover {
       background: #1d4ed8;

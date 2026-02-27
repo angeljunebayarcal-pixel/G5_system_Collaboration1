@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,26 +12,24 @@ import { Router } from '@angular/router';
 })
 export class Login {
 
-  email = '';
+ email = '';
   password = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   login() {
+    const success = this.authService.login(this.email, this.password);
 
-    // OFFICIAL ACCOUNT
-    if (this.email === 'official@gmail.com' && this.password === '123') {
-      this.router.navigate(['/ofs-home']); 
+    if (!success) {
+      alert('Invalid email or password');
       return;
     }
 
-    // RESIDENT ACCOUNT (example)
-    if (this.email === 'ajbayarcal@gmail.com' && this.password === '123') {
-      this.router.navigate(['/home']);  
-      return;
+    // Redirect based on role
+    if (this.authService.isOfficial()) {
+      this.router.navigate(['/ofs-home']); // Officials dashboard
+    } else if (this.authService.isResident()) {
+      this.router.navigate(['/home']); // Residents dashboard
     }
-
-    // If wrong login
-    alert('Invalid please try again');
   }
 }

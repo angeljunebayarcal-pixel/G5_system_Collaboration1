@@ -27,6 +27,7 @@
   border-radius: 14px;
   padding: 25px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  margin-bottom: 30px;
 }
 
 /* LIST */
@@ -93,4 +94,139 @@ button {
 
 .decline:hover {
   background: #dc2626;
+}
+
+.reschedule {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  /* IMPORTANT: prevents overlap issue */
+  position: relative;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.reschedule:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #ffffff;
+  width: 400px;
+  max-width: 90%;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  animation: fadeInScale 0.25s ease;
+}
+
+.modal h3 {
+  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: center;
+}
+
+/* LABELS */
+.modal label {
+  font-size: 14px;
+  font-weight: 500;
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  color: #475569;
+}
+
+/* INPUTS */
+.modal input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.modal input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+}
+
+/* MODAL BUTTONS */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+  gap: 10px;
+}
+
+.modal-actions .save {
+  flex: 1;
+  background: #22c55e;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.modal-actions .save:hover {
+  background: #16a34a;
+}
+
+.modal-actions .cancel {
+  flex: 1;
+  background: #ef4444;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.modal-actions .cancel:hover {
+  background: #dc2626;
+}
+
+/* ANIMATION */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #0f172a;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 8px;
+  z-index: 9999;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }

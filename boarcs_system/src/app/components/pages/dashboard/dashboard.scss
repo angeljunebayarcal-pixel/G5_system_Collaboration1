@@ -1,118 +1,255 @@
-$sidebar-width: 242px;
-$topbar-height: 60px;
-
 /* ================= CONTENT AREA ================= */
 .content {
   position: fixed;
-  top: $topbar-height;
-  left: $sidebar-width;
+  top: 60px;               
+  left: 242px;            
   right: 0;
   bottom: 0;
 
-  padding: 25px 50px;
-  background: #ffffff;
+  padding: 0;              
+  background: transparent; 
   overflow-y: auto;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-/* ================= WELCOME ================= */
-.welcome {
-  font-size: 30px;
-  font-weight: 700;
-  margin-bottom: 30px;
-}
+/* ================= DASHBOARD FRAME ================= */
+.dashboard-frame {
+  position: relative;    
+  top: 20px;             
+  left: -10px;           
 
-/* ================= CARDS ================= */
-.cards {
-  display: flex;
-  gap: 30px;
-  margin-bottom: 40px;
-  width: 100%;
-}
-
-.card {
-  flex: 1; /* 🔥 equal size always */
-  height: 150px;
-
-  padding: 25px 30px;
-  border-radius: 14px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items:  flex-start;  
-  font-weight: bold;
-}
-
-/* CARD COLORS */
-.certificate {
-  background: #3fb4d6;
-}
-
-.appointment {
-  background: #1a2fff;
-  color: white;
-}
-
-/* ================= CARD TEXT ================= */
-.card .text {
+  width: calc(95% - 2rem);
+  height: 100%;
+  margin: 1rem;
+  padding: 2rem;
+  background: #f8fafc;
+  border-radius: 2%;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 2rem;
+}
+/* ================= DASHBOARD HEADER ================= */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  h2 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0.5rem 0 0 0;
+    color: #64748b;
+  }
+
+  button.refresh {
+    padding: 0.6rem 1.2rem;
+    background: #0b1f5e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: 0.3s;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
 }
 
-.card h3 {
-  font-size: 40px;
-  margin-bottom: 8px;
+/* ================= STATS GRID ================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  .stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-top: 4px solid;
+
+    &.active-appointments {
+      border-top-color: #3b82f6;
+    }
+    &.pending-certificates {
+      border-top-color: #10b981;
+    }
+    &.new-notifications {
+      border-top-color: #f59e0b;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    h3 {
+      font-size: 2rem;
+      color: #1e293b;
+      margin: 0.5rem 0;
+    }
+
+    button {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+
+      &.appointments {
+        color: #3b82f6;
+      }
+      &.certificates {
+        color: #10b981;
+      }
+      &.notifications {
+        color: #f59e0b;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
 }
 
-.card p {
-  font-size: 20px;
-  margin: 0;
+/* ================= GRID SECTIONS ================= */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+
+  .recent-activity, .quick-actions {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+
+    h3 {
+      margin: 0 0 1.5rem 0;
+      color: #1e293b;
+    }
+  }
 }
 
-.card strong {
-  font-size: 22px;
+/* ================= RECENT ACTIVITIES ================= */
+.recent-activity {
+  .activity-item {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    &.appointment {
+      .icon {
+        background: #eff6ff;
+        color: #3b82f6;
+      }
+    }
+
+    &.certificate {
+      .icon {
+        background: #ecfdf5;
+        color: #10b981;
+      }
+    }
+
+    div {
+      p {
+        margin: 0;
+        &.title {
+          font-weight: 600;
+          color: #1e293b;
+        }
+        &.time {
+          font-size: 0.85rem;
+          color: #64748b;
+        }
+      }
+    }
+  }
+
+  button.view-all {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #64748b;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      background: #e2e8f0;
+    }
+  }
 }
 
-.icon {
-  font-size: 45px;
-}
+/* ================= QUICK ACTIONS ================= */
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 
-/* ================= SECTIONS ================= */
-.section {
-  margin-bottom: 35px;
-}
+  button {
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 
-.section h2 {
-  font-size: 20px;
-  margin-bottom: 14px;
-}
+    &.new-appointment {
+      background: #0b1f5e;
+      color: white;
+    }
 
-/* ================= TABLE ================= */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
-}
+    &.request-certificate {
+      background: #1e293b;
+      color: white;
+    }
 
-thead {
-  background: rgb(126, 105, 79);
-  color: white;
-}
+    &.update-profile {
+      background: #f1f5f9;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
+    }
 
-th,
-td {
-  padding: 14px;
-  font-size: 14px;
-  text-align: left;
-}
-.card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    &:hover {
+      opacity: 0.9;
+    }
+  }
 }

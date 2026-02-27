@@ -1,18 +1,53 @@
 <div class="sidenav">
 
-  <div class="logo">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s" alt="Logo">
+  <!-- Header -->
+  <div class="nav-header">
+    <p>Main Menu</p>
   </div>
   
-    <nav>
-         <ul>
-            <li><a routerLink="/ofs-home/ofs-dashboard">Dashboard</a></li>
-            <li><a routerLink="/ofs-home/ofs-residentsdirectory">Residents directory</a></li>
-            <li><a routerLink="/ofs-home/ofs-createresidentsprofile">Create residents profile</a></li>
-             <li><a routerLink="/ofs-home/ofs-notification">Notification</a></li>
-              <li><a routerLink="/ofs-home/ofs-profile">Profile</a></li>
-              <li><a routerLink="/ofs-home/ofs-settings">Settings</a></li>
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li>
+        <a routerLink="/ofs-home/ofs-dashboard" routerLinkActive="active">
+          <span>📊</span> Dashboard
+        </a>
+      </li>
 
-        </ul>
-    </nav>
+      <li>
+        <a routerLink="/ofs-home/ofs-residentsdirectory" routerLinkActive="active">
+          <span>📂</span> Residents Directory
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/ofs-home/ofs-createresidentsprofile" routerLinkActive="active">
+          <span>📝</span> Create Resident Profile
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/ofs-home/ofs-notification" routerLinkActive="active">
+          <span>🔔</span> Notification
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/ofs-home/ofs-profile" routerLinkActive="active">
+          <span>👤</span> Profile
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/ofs-home/ofs-settings" routerLinkActive="active">
+          <span>⚙️</span> Settings
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidenav-footer">
+    © 2026 Villanueva BOARCS
+  </div>
 </div>

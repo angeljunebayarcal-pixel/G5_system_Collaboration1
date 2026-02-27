@@ -1,21 +1,36 @@
-<!-- NOTIFICATIONS -->
+<!-- Popup toast notification -->
+<div *ngIf="currentPopup" class="toast-popup">
+  {{ currentPopup.message }}
+</div>
+
+<!-- Persistent notifications section -->
 <div class="section notifications">
   <h2>Notifications</h2>
 
+  <!-- Delete all button -->
+  <button class="btn-delete" (click)="clearAll()">
+    🗑️ Clear All
+  </button>
+
   <div class="notification-list">
-    <div class="notification new">
-      <p><strong>New:</strong> Your Certificate of Solo Parent has been approved!</p>
-      <span class="time">2 mins ago</span>
+
+    <!-- Dynamic list of notifications -->
+    <div 
+      class="notification"
+      *ngFor="let n of notifications"
+      [class.new]="n.isNew"
+    >
+      <p>
+        <strong *ngIf="n.isNew" class="badge">New</strong>
+        {{ n.message }}
+      </p>
+      <span class="time">{{ n.time }}</span>
     </div>
 
-    <div class="notification">
-      <p><strong>Reminder:</strong> Meeting with Hon. Peter Santos tomorrow at 9:00 AM</p>
-      <span class="time">1 hour ago</span>
+    <!-- Show this if no notifications -->
+    <div *ngIf="notifications.length === 0" class="notification empty">
+      <p>No notifications yet.</p>
     </div>
 
-    <div class="notification">
-      <p><strong>Info:</strong> Certificate of Solo Parents are temporarily delayed.</p>
-      <span class="time">Yesterday</span>
-    </div>
   </div>
 </div>
