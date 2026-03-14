@@ -1,0 +1,196 @@
+<div class="login-container">
+
+  <!-- LOGIN FORM -->
+  <form (ngSubmit)="login()" #loginForm="ngForm" novalidate>
+
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s"
+         alt="Logo"
+         class="login-logo" />
+
+    <h2>BOACRS</h2>
+
+    <input
+      type="email"
+      name="email"
+      [(ngModel)]="email"
+      placeholder="Enter Email"
+      required
+    />
+
+    <!-- PASSWORD -->
+    <div class="password-field">
+
+      <input
+        [type]="showPassword ? 'text' : 'password'"
+        name="password"
+        [(ngModel)]="password"
+        placeholder="Enter Password"
+        required
+      />
+
+      <span class="toggle-eye" (click)="showPassword = !showPassword">
+
+        <!-- Eye Closed -->
+        <svg *ngIf="showPassword"
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+
+        </svg>
+
+        <!-- Eye Open -->
+        <svg *ngIf="!showPassword"
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2">
+
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+
+        </svg>
+
+      </span>
+
+    </div>
+
+    <button type="submit" [disabled]="!email || !password">
+      Login
+    </button>
+
+    <p class="register-link">
+      Don't have an account?
+      <span (click)="showRegister = true" class="link">
+        Register as Official
+      </span>
+    </p>
+
+  </form>
+
+
+  <!-- REGISTER OFFICIAL POPUP -->
+<div class="register-popup" *ngIf="showRegister">
+
+  <form class="popup-content" (ngSubmit)="registerOfficial()">
+
+    <img
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s"
+      alt="Logo"
+      class="login-logo"
+    />
+
+    <h2>Register Official Account</h2>
+
+    <!-- FULL NAME -->
+    <input
+      type="text"
+      [(ngModel)]="regFullName"
+      name="regFullName"
+      placeholder="Full Name"
+      required
+    />
+
+    <!-- EMAIL -->
+    <input
+      type="email"
+      [(ngModel)]="regEmail"
+      name="regEmail"
+      placeholder="Email"
+      required
+    />
+
+    <!-- PASSWORD WITH EYE -->
+    <div class="password-field">
+
+      <input
+        [type]="showRegPassword ? 'text' : 'password'"
+        [(ngModel)]="regPassword"
+        name="regPassword"
+        placeholder="Password"
+        required
+      />
+
+      <span class="toggle-eye" (click)="showRegPassword = !showRegPassword">
+
+        <!-- Eye Closed -->
+        <svg *ngIf="showRegPassword"
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+
+        </svg>
+
+        <!-- Eye Open -->
+        <svg *ngIf="!showRegPassword"
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+
+        </svg>
+
+      </span>
+
+    </div>
+
+    <!-- VALID ID PDF -->
+    <div class="file-upload">
+
+      <label>Upload Valid ID (PDF)</label>
+
+      <input
+        type="file"
+        accept="application/pdf"
+        (change)="onOfficialFileChange($event)"
+      />
+
+      <small *ngIf="uploadedOfficialFileName">
+        Selected: {{ uploadedOfficialFileName }}
+      </small>
+
+    </div>
+
+    <!-- BUTTONS -->
+    <button type="submit">Register</button>
+
+    <button
+      type="button"
+      (click)="showRegister = false"
+    >
+      Cancel
+    </button>
+
+  </form>
+
+</div>
+
+</div>

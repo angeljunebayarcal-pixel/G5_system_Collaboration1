@@ -1,0 +1,39 @@
+<div *ngIf="currentPopup" class="toast-popup">
+  {{ currentPopup.message }}
+</div>
+
+<div class="section notifications">
+  <div class="notif-header">
+    <h2>Notifications</h2>
+
+    <div class="notif-actions">
+      <button class="btn-read" (click)="markAllAsRead()">
+        ✓ Mark All as Read
+      </button>
+
+      <button class="btn-delete" (click)="clearAll()">
+        🗑️ Clear All
+      </button>
+    </div>
+  </div>
+
+  <div class="notification-list">
+    <div
+      class="notification"
+      *ngFor="let n of notifications"
+      [class.new]="n.isNew"
+    >
+      <div class="notification-content">
+        <p>
+          <strong *ngIf="n.isNew" class="badge">New</strong>
+          {{ n.message }}
+        </p>
+        <span class="time">{{ n.time }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="notifications.length === 0" class="notification empty">
+      <p>No notifications yet.</p>
+    </div>
+  </div>
+</div>

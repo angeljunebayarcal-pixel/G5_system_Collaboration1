@@ -1,0 +1,153 @@
+.settings-container {
+  width: calc(100% - 2rem);
+  min-height: calc(100vh - 120px);
+  margin: 16px;
+  padding: 2rem;
+
+  background: #f8fafc;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  font-family: 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+}
+
+/* PAGE TITLE */
+.page-title {
+  margin: 0 0 30px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* CARD */
+.settings-card {
+  background: white;
+  border-radius: 18px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  font-family: inherit;
+}
+
+/* CARD HEADER */
+.card-header {
+  margin-bottom: 20px;
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #0f172a;
+    font-family: inherit;
+  }
+}
+
+/* SETTING ITEM */
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid #e2e8f0;
+  transition: 0.25s;
+  font-family: inherit;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  label {
+    font-weight: 600;
+    color: #1e293b;
+    font-family: inherit;
+  }
+
+  p {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 3px;
+    font-family: inherit;
+  }
+
+  button {
+    background: #2563eb;
+    border: none;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.25s;
+    font-family: inherit;
+  }
+
+  button:hover {
+    background: #0d5a1a; 
+  }
+}
+
+/* CLICKABLE FEEL */
+.clickable {
+  cursor: pointer;
+
+  &:hover {
+    background: #f1f5f9;
+    padding-left: 10px;
+    border-radius: 12px;
+  }
+}
+
+/* DANGER */
+.danger {
+  .danger-btn {
+    background: #2563eb; 
+  }
+
+  .danger-btn:hover {
+    background: #7e0b0b; 
+  }
+}
+
+/* TOGGLE SWITCH */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+
+  input {
+    display: none;
+  }
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background: #cbd5e1;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: .3s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: .3s;
+}
+
+.switch input:checked + .slider {
+  background: #2563eb;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(22px);
+}

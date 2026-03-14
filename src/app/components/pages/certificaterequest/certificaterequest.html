@@ -1,0 +1,75 @@
+<div class="certificate-wrapper">
+
+  <div class="success-frame" *ngIf="requestSubmitted">
+    <div class="success-content">
+      <div class="check-icon">✓</div>
+      <h3>Request Submitted Successfully!</h3>
+      <p>Your certificate request has been sent for processing.</p>
+    </div>
+  </div>
+
+  <h2 class="page-title">Certificate Request</h2>
+
+  <form
+    *ngIf="!requestSubmitted"
+    #certificateForm="ngForm"
+    novalidate
+    (ngSubmit)="submitRequest(certificateForm)">
+
+    <div class="form-group">
+      <label>Certificate Type</label>
+      <select [(ngModel)]="type" name="type" required class="form-control">
+        <option value="">-- Select Certificate --</option>
+        <option>Barangay Clearance</option>
+        <option>Certificate of Indigency</option>
+        <option>Business Clearance</option>
+        <option>Cedula</option>
+        <option>Certificate of Good Moral Character</option>
+        <option>Blotter / Incident Certification</option>
+        <option>Certificate of Household</option>
+        <option>Certificate of Solo Parent</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Purpose</label>
+      <textarea
+        [(ngModel)]="purpose"
+        name="purpose"
+        placeholder="Enter purpose"
+        required
+        class="form-control">
+      </textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Attach Supporting Document (PDF Only)</label>
+      <input
+        type="file"
+        (change)="onFileChange($event)"
+        accept="application/pdf"
+        class="form-control">
+      <small>{{ uploadedFileName }}</small>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Request Date</label>
+        <input type="date" [(ngModel)]="date" name="date" required class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Request Time</label>
+        <input type="time" [(ngModel)]="time" name="time" required class="form-control">
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      class="submit-btn"
+      [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
+    </button>
+
+  </form>
+</div>

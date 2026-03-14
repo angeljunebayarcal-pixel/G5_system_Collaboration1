@@ -1,0 +1,68 @@
+<div class="content">
+  <div class="dashboard">
+    <div class="dashboard-frame">
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <div class="header-text">
+          <h2>Resident Dashboard</h2>
+          <p>Welcome back! Here's what's happening today.</p>
+        </div>
+        <button class="refresh" (click)="refreshData()">🔄 Refresh Stats</button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card active-appointments">
+          <p>Active Appointments</p>
+          <h3>2</h3>
+          <button class="appointments" (click)="viewAppointments()">View Details →</button>
+        </div>
+
+        <div class="stat-card pending-certificates">
+          <p>Pending Certificates</p>
+          <h3>1</h3>
+          <button class="certificates" (click)="viewCertificates()">Check Status →</button>
+        </div>
+
+        <div class="stat-card new-notifications">
+          <p>New Notifications</p>
+          <h3>5</h3>
+          <button class="notifications" (click)="viewNotifications()">Read All →</button>
+        </div>
+      </div>
+
+      <!-- Recent Activities & Quick Actions -->
+      <div class="dashboard-grid">
+        <!-- Recent Activities -->
+        <div class="recent-activity">
+          <h3>Recent Activities</h3>
+          <div class="activity-list">
+            <div class="activity-item appointment">
+              <div class="icon">📅</div>
+              <div>
+                <p class="title">Appointment Scheduled</p>
+                <p class="time">March 15, 2026 at 10:00 AM</p>
+              </div>
+            </div>
+            <div class="activity-item certificate">
+              <div class="icon">📜</div>
+              <div>
+                <p class="title">Certificate Request Submitted</p>
+                <p class="time">Yesterday at 2:45 PM</p>
+              </div>
+            </div>
+          </div>
+          <button class="view-all" (click)="viewAllActivity()">View All Activity</button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <h3>Quick Actions</h3>
+          <button class="new-appointment" (click)="newAppointment()">➕ New Appointment</button>
+          <button class="request-certificate" (click)="newRequest()">📝 Request Certificate</button>
+          <button class="update-profile" (click)="updateProfile()">👤 Update Profile</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

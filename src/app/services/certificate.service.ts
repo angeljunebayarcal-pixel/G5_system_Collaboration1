@@ -1,0 +1,173 @@
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  getDoc,
+  query,
+  where,
+  onSnapshot,
+  Firestore
+} from 'firebase/firestore';
+
+import { NotificationService } from './notification.service';
+import { environment } from '../../environments/environment';
+
+
+export interface Certification {
+  id: string;
+  residentId: string;
+  details: {
+    type: string;
+    purpose: string;
+    date: string;
+    time: string;
+    fileName: string;
+    fileUrl: string;
+  };
+  status: 'pending' | 'approved' | 'released' | 'rejected';
+  createdAt: any;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CertificationService {
+  private firestore: Firestore;
+
+  constructor(private notificationService: NotificationService) {
+    const app = getApps().length ? getApp() : initializeApp(environment
+      .firebase);
+    this.firestore = getFirestore(app);
+  }
+
+  async requestCertification(
+    residentId: string,
+    details: {
+      type: string;
+      purpose: string;
+      date: string;
+      time: string;
+      fileName: string;
+      fileUrl: string;
+    }
+  ): Promise<void> {
+    await addDoc(collection(this.firestore, 'certifications'), {
+      residentId,
+      details,
+      status: 'pending',
+      createdAt: new Date()
+    });
+
+    await this.notificationService.showNotification(
+      `New certificate request received: ${details.type}.`,
+      'official'
+    );
+  }
+
+  getPendingCertifications(): Observable<Certification[]> {
+    return new Observable<Certification[]>((observer) => {
+      const q = query(
+        collection(this.firestore, 'certifications'),
+        where('status', '==', 'pending')
+      );
+
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const data = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...(docSnap.data() as Omit<Certification, 'id'>)
+          }));
+          observer.next(data);
+        },
+        (error) => observer.error(error)
+      );
+
+      return () => unsubscribe();
+    });
+  }
+
+  async approveCertification(id: string): Promise<void> {
+    const ref = doc(this.firestore, 'certifications', id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return;
+
+    const current = snap.data() as Omit<Certification, 'id'>;
+
+    await updateDoc(ref, {
+      status: 'approved'
+    });
+
+    await this.notificationService.showNotification(
+      `Your ${current.details.type} request has been approved for ${current.details.date} at ${current.details.time}.`,
+      'resident',
+      current.residentId
+    );
+
+    await this.notificationService.showNotification(
+      'Certificate request approved successfully.',
+      'official'
+    );
+  }
+
+  async cancelCertification(id: string): Promise<void> {
+    const ref = doc(this.firestore, 'certifications', id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return;
+
+    const current = snap.data() as Omit<Certification, 'id'>;
+
+    await updateDoc(ref, {
+      status: 'rejected'
+    });
+
+    await this.notificationService.showNotification(
+      `Your ${current.details.type} request has been rejected.`,
+      'resident',
+      current.residentId
+    );
+
+    await this.notificationService.showNotification(
+      'Certificate request rejected successfully.',
+      'official'
+    );
+  }
+
+  async rescheduleCertification(
+    id: string,
+    newDetails: { date?: string; time?: string }
+  ): Promise<void> {
+    const ref = doc(this.firestore, 'certifications', id);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) return;
+
+    const current = snap.data() as Omit<Certification, 'id'>;
+
+    const updatedDetails = {
+      ...(current.details || {}),
+      ...newDetails
+    };
+
+    await updateDoc(ref, {
+      details: updatedDetails,
+      status: 'pending'
+    });
+
+    await this.notificationService.showNotification(
+      `Your ${updatedDetails.type || 'certificate'} request has been rescheduled to ${updatedDetails.date || 'no date'} at ${updatedDetails.time || 'no time'}.`,
+      'resident',
+      current.residentId
+    );
+
+    await this.notificationService.showNotification(
+      `Certificate request rescheduled to ${updatedDetails.date || 'no date'} at ${updatedDetails.time || 'no time'}.`,
+      'official'
+    );
+  }
+}

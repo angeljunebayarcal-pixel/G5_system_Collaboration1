@@ -1,0 +1,72 @@
+<div class="appointment-wrapper">
+
+  <div class="success-frame" *ngIf="appointmentSubmitted">
+    <div class="success-content">
+      <div class="check-icon">✓</div>
+      <h3>Appointment Submitted Successfully!</h3>
+      <p>Your request has been sent to the selected Barangay Official.</p>
+    </div>
+  </div>
+
+  <h2 class="page-title">Book Appointment</h2>
+
+  <form
+    *ngIf="!appointmentSubmitted"
+    #appointmentForm="ngForm"
+    enctype="multipart/form-data"
+    novalidate
+    (ngSubmit)="bookAppointment(appointmentForm)">
+
+    <div class="form-group">
+      <label>Purpose</label>
+      <textarea
+        [(ngModel)]="details"
+        name="details"
+        placeholder="Enter purpose of appointment"
+        required>
+      </textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Select Barangay Official</label>
+      <select
+        [(ngModel)]="selectedOfficial"
+        name="official"
+        required>
+        <option value="">-- Select Official --</option>
+        <option>Hon. Peter Santos</option>
+        <option>Hon. Maria Cruz</option>
+        <option>Hon. Juan Dela Cruz</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Upload Valid ID (PDF Only)</label>
+      <input
+        type="file"
+        (change)="onFileChange($event)"
+        accept="application/pdf">
+      <small>{{ uploadedFileName }}</small>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Request Date</label>
+        <input type="date" [(ngModel)]="selectedDate" name="date" required>
+      </div>
+
+      <div class="form-group">
+        <label>Request Time</label>
+        <input type="time" [(ngModel)]="selectedTime" name="time" required>
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      class="submit-btn"
+      [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Submitting...' : 'Submit Appointment' }}
+    </button>
+
+  </form>
+</div>

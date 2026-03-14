@@ -1,0 +1,205 @@
+<div class="content-wrapper">
+
+  <h1 class="page-title">Barangay Official</h1>
+
+  <div *ngIf="notificationMessage" class="popup">
+    {{ notificationMessage }}
+  </div>
+
+  <!-- ========================= -->
+  <!-- PENDING APPOINTMENTS -->
+  <!-- ========================= -->
+
+  <div class="card">
+    <h2 class="section-title">Pending Appointments</h2>
+
+    <div class="request-list">
+
+      <div class="request-item" *ngFor="let app of pendingAppointments">
+
+        <div class="request-left">
+
+          <div class="request-row">
+            <span class="label">Resident ID:</span>
+            <span class="value">{{ app.residentId }}</span>
+          </div>
+
+          <div class="request-row">
+            <span class="label">Official:</span>
+            <span class="value">{{ app.details.official || 'Not assigned' }}</span>
+          </div>
+
+          <div class="request-row">
+            <span class="label">Date:</span>
+            <span class="value">{{ app.details.date || 'Not set' }}</span>
+          </div>
+
+          <div class="request-row">
+            <span class="label">Time:</span>
+            <span class="value">{{ app.details.time || 'Not set' }}</span>
+          </div>
+
+          <div class="request-row request-text-block">
+            <span class="label">Purpose:</span>
+            <span class="value multiline">
+              {{ app.details.description || 'No description provided' }}
+            </span>
+          </div>
+
+          <div class="request-row" *ngIf="app.details.fileName || app.details.fileUrl">
+            <span class="label">Attached PDF:</span>
+
+            <a
+              *ngIf="app.details.fileUrl; else appointmentFileNameOnly"
+              [href]="app.details.fileUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="pdf-link"
+            >
+              {{ app.details.fileName || 'View PDF' }}
+            </a>
+
+            <ng-template #appointmentFileNameOnly>
+              <span class="value">
+                {{ app.details.fileName || 'PDF uploaded' }}
+              </span>
+            </ng-template>
+          </div>
+
+        </div>
+
+        <div class="request-right">
+          <button class="reschedule" (click)="openReschedule(app.id)">Reschedule</button>
+          <button class="approve" (click)="approveAppointment(app.id)">Approve</button>
+          <button class="decline" (click)="cancelAppointment(app.id)">Decline</button>
+        </div>
+
+      </div>
+
+      <div *ngIf="pendingAppointments.length === 0" class="no-requests">
+        No pending appointments.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- CERTIFICATE REQUESTS -->
+  <!-- ========================= -->
+
+  <div class="card">
+    <h2 class="section-title">Pending Certificate Requests</h2>
+
+    <div class="request-list">
+
+      <div class="request-item" *ngFor="let cert of pendingCertificates">
+
+        <div class="request-left">
+
+          <div class="request-row">
+            <span class="label">Resident ID:</span>
+            <span class="value">{{ cert.residentId }}</span>
+          </div>
+
+          <div class="request-row">
+            <span class="label">Certificate:</span>
+            <span class="value">{{ cert.details.type || 'Not specified' }}</span>
+          </div>
+
+          <div class="request-row">
+            <span class="label">Date:</span>
+            <span class="value">{{ cert.details.date || 'Not set' }}</span>
+          </div>
+
+          <div class="request-row">
+            <span class="label">Time:</span>
+            <span class="value">{{ cert.details.time || 'Not set' }}</span>
+          </div>
+
+          <div class="request-row request-text-block">
+            <span class="label">Purpose:</span>
+            <span class="value multiline">
+              {{ cert.details.purpose || 'No purpose provided' }}
+            </span>
+          </div>
+
+          <div class="request-row" *ngIf="cert.details.fileName || cert.details.fileUrl">
+            <span class="label">Attached PDF:</span>
+
+            <a
+              *ngIf="cert.details.fileUrl; else certificateFileNameOnly"
+              [href]="cert.details.fileUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="pdf-link"
+            >
+              {{ cert.details.fileName || 'View PDF' }}
+            </a>
+
+            <ng-template #certificateFileNameOnly>
+              <span class="value">
+                {{ cert.details.fileName || 'PDF uploaded' }}
+              </span>
+            </ng-template>
+          </div>
+
+        </div>
+
+        <div class="request-right">
+          <button class="reschedule" (click)="openCertificateReschedule(cert.id)">Reschedule</button>
+          <button class="approve" (click)="approveCertificate(cert.id)">Approve</button>
+          <button class="decline" (click)="cancelCertificate(cert.id)">Decline</button>
+        </div>
+
+      </div>
+
+      <div *ngIf="pendingCertificates.length === 0" class="no-requests">
+        No pending certificate requests.
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- APPOINTMENT RESCHEDULE MODAL -->
+<!-- ========================= -->
+
+<div class="modal-overlay" *ngIf="showAppointmentModal">
+  <div class="modal">
+    <h3>Reschedule Appointment</h3>
+
+    <label>New Date</label>
+    <input type="date" [(ngModel)]="newDate">
+
+    <label>New Time</label>
+    <input type="time" [(ngModel)]="newTime">
+
+    <div class="modal-actions">
+      <button class="save" (click)="saveReschedule()">Save</button>
+      <button class="cancel" (click)="closeRescheduleModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- CERTIFICATE RESCHEDULE MODAL -->
+<!-- ========================= -->
+
+<div class="modal-overlay" *ngIf="showCertificateModal">
+  <div class="modal">
+    <h3>Reschedule Certificate Request</h3>
+
+    <label>New Date</label>
+    <input type="date" [(ngModel)]="newCertDate">
+
+    <label>New Time</label>
+    <input type="time" [(ngModel)]="newCertTime">
+
+    <div class="modal-actions">
+      <button class="save" (click)="saveCertificateReschedule()">Save</button>
+      <button class="cancel" (click)="closeCertificateModal()">Cancel</button>
+    </div>
+  </div>
+</div>

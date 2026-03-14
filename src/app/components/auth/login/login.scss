@@ -1,0 +1,149 @@
+/* ===== PAGE BACKGROUND ===== */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background:
+    linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+    url('https://scontent.fcgy1-3.fna.fbcdn.net/v/t39.30808-6/538616263_1172696484887667_7712809080329707056_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeH0wkXNYzxNXJvhIH0jjNDm4rwGbYIRI87ivAZtghEjznSP-YQqUbmJUB8sbLcEB2Ub2_8GNpNP4XIZmA_jVjG0&_nc_ohc=ryJmjIaYjIoQ7kNvwFgg-5s&_nc_oc=AdnyHQgUoEtRXm48WZzit7iW5fzuOKvg3ItpRDXPm6bTSPSR05NZcWZhfKMzwAo-RlkwGneEWzYxrEqF97nrZVgM&_nc_zt=23&_nc_ht=scontent.fcgy1-3.fna&_nc_gid=GGsCNVR6AuwrE5YSlFFkOA&_nc_ss=8&oh=00_AfxtYN4BNWX1eVhs0zCrOSt4Qj_DP5JtxyrucfVh_wiNiQ&oe=69B87639')
+    no-repeat center center;
+  background-size: cover;
+  padding: 20px;
+}
+
+/* ===== LOGIN & REGISTER CARD ===== */
+form, .popup-content {
+  background: rgba(255, 255, 255, 0.96);
+  padding: 2.5rem 3rem;
+  border-radius: 18px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  backdrop-filter: blur(4px);
+
+  h2 {
+    text-align: center;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  input {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 1rem;
+    background: #f9fafb;
+    transition: all 0.25s ease;
+
+    &:focus {
+      border-color: #0f172a;
+      background: #ffffff;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.15);
+    }
+  }
+
+  button {
+    padding: 0.8rem;
+    border: none;
+    border-radius: 10px;
+    background: #0f172a;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: #1e293b;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.35);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  .register-link {
+    text-align: center;
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+
+    .link {
+      color: #0f172a;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+  }
+}
+
+/* ===== LOGO ===== */
+.login-logo {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  margin: 0 auto 10px auto;
+  display: block;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* ===== REGISTER POPUP ===== */
+.register-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  z-index: 1000;
+  animation: modalPop 0.2s ease-out;
+}
+
+/* PASSWORD FIELD WITH EYE ICON */
+
+.password-field {
+  position: relative;
+  width: 86%;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.toggle-eye {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+  opacity: 0.7;
+  transition: 0.2s;
+}
+
+.toggle-eye:hover {
+  opacity: 1;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}

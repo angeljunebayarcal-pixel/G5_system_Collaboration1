@@ -1,0 +1,171 @@
+/* ================= CONTENT AREA STYLE MATCH ================= */
+.appointment-wrapper {
+  width: calc(100% - 2rem);
+  min-height: calc(100vh - 120px);
+  margin: 16px;
+  padding: 2rem;
+
+  background: #f8fafc;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  font-family: 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+}
+
+.appointment-wrapper .page-title {
+  margin: 0 0 30px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.appointment-wrapper form {
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.appointment-wrapper .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.appointment-wrapper .form-group label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.appointment-wrapper .form-group input,
+.appointment-wrapper .form-group select,
+.appointment-wrapper .form-group textarea {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  transition: 0.3s;
+  margin-bottom: 30px;
+  font-family: inherit;
+}
+
+.appointment-wrapper .form-group input:focus,
+.appointment-wrapper .form-group select:focus,
+.appointment-wrapper .form-group textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.appointment-wrapper .form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.appointment-wrapper .form-group small {
+  margin-top: 6px;
+  color: #475569;
+  font-size: 13px;
+}
+
+.appointment-wrapper .form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.appointment-wrapper .form-row .form-group {
+  flex: 1;
+}
+
+.appointment-wrapper .submit-btn {
+  width: 60%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #0b1f5e;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+  display: block;
+  margin: 25px auto 0;
+}
+
+.appointment-wrapper .submit-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(11, 31, 94, 0.25);
+}
+
+.appointment-wrapper .submit-btn:active {
+  transform: scale(0.98);
+}
+
+.appointment-wrapper .submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+/* ================= SUCCESS SUBMISSION FRAME ================= */
+.success-frame {
+  background: white;
+  border-radius: 12px;
+  padding: 40px 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-top: 4px solid #10b981;
+  animation: successFade 0.4s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  .success-content {
+    max-width: 500px;
+  }
+
+  .check-icon {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
+  }
+
+  h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #166534;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 15px;
+    color: #475569;
+    margin: 0;
+  }
+}
+
+/* ================= ANIMATION ================= */
+@keyframes successFade {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
