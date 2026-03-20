@@ -11,12 +11,13 @@ import {
   query,
   where,
   onSnapshot,
-  Firestore
+  Firestore,
+  orderBy,
+  deleteDoc
 } from 'firebase/firestore';
 
 import { NotificationService } from './notification.service';
 import { environment } from '../../environments/environment';
-
 
 export interface AppointmentDetails {
   description: string;
@@ -85,6 +86,51 @@ export class AppointmentService {
       return () => unsubscribe();
     });
   }
+
+  getResidentAppointments(residentId: string): Observable<Appointment[]> {
+    return new Observable<Appointment[]>((observer) => {
+      const q = query(
+        collection(this.firestore, 'appointments'),
+        where('residentId', '==', residentId),
+        orderBy('createdAt', 'desc')
+      );
+
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const data: Appointment[] = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...(docSnap.data() as Omit<Appointment, 'id'>)
+          }));
+          observer.next(data);
+        },
+        (error) => observer.error(error)
+      );
+
+      return () => unsubscribe();
+    });
+  }
+
+  getAllAppointments(): Observable<Appointment[]> {
+  return new Observable<Appointment[]>((observer) => {
+    const unsubscribe = onSnapshot(
+      collection(this.firestore, 'appointments'),
+      (snapshot) => {
+        const data: Appointment[] = snapshot.docs
+          .map((docSnap) => ({
+            id: docSnap.id,
+            ...(docSnap.data() as Omit<Appointment, 'id'>)
+          }))
+          .sort((a, b) => this.toMillis(b.createdAt) - this.toMillis(a.createdAt));
+
+        observer.next(data);
+      },
+      (error) => observer.error(error)
+    );
+
+    return () => unsubscribe();
+  });
+}
 
   async approveAppointment(id: string): Promise<void> {
     const ref = doc(this.firestore, 'appointments', id);
@@ -164,4 +210,19 @@ export class AppointmentService {
       'official'
     );
   }
+
+  async deleteAppointment(id: string): Promise<void> {
+    await deleteDoc(doc(this.firestore, 'appointments', id));
+  }
+
+  private toMillis(value: any): number {
+  if (!value) return 0;
+
+  if (value?.toDate) {
+    return value.toDate().getTime();
+  }
+
+  const parsed = new Date(value);
+  return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+}
 }

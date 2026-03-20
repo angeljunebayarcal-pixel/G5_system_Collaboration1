@@ -11,12 +11,13 @@ import {
   query,
   where,
   onSnapshot,
-  Firestore
+  Firestore,
+  orderBy,
+  deleteDoc
 } from 'firebase/firestore';
 
 import { NotificationService } from './notification.service';
 import { environment } from '../../environments/environment';
-
 
 export interface Certification {
   id: string;
@@ -40,8 +41,7 @@ export class CertificationService {
   private firestore: Firestore;
 
   constructor(private notificationService: NotificationService) {
-    const app = getApps().length ? getApp() : initializeApp(environment
-      .firebase);
+    const app = getApps().length ? getApp() : initializeApp(environment.firebase);
     this.firestore = getFirestore(app);
   }
 
@@ -79,7 +79,7 @@ export class CertificationService {
       const unsubscribe = onSnapshot(
         q,
         (snapshot) => {
-          const data = snapshot.docs.map((docSnap) => ({
+          const data: Certification[] = snapshot.docs.map((docSnap) => ({
             id: docSnap.id,
             ...(docSnap.data() as Omit<Certification, 'id'>)
           }));
@@ -91,6 +91,51 @@ export class CertificationService {
       return () => unsubscribe();
     });
   }
+
+  getResidentCertifications(residentId: string): Observable<Certification[]> {
+    return new Observable<Certification[]>((observer) => {
+      const q = query(
+        collection(this.firestore, 'certifications'),
+        where('residentId', '==', residentId),
+        orderBy('createdAt', 'desc')
+      );
+
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const data: Certification[] = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...(docSnap.data() as Omit<Certification, 'id'>)
+          }));
+          observer.next(data);
+        },
+        (error) => observer.error(error)
+      );
+
+      return () => unsubscribe();
+    });
+  }
+
+  getAllCertifications(): Observable<Certification[]> {
+  return new Observable<Certification[]>((observer) => {
+    const unsubscribe = onSnapshot(
+      collection(this.firestore, 'certifications'),
+      (snapshot) => {
+        const data: Certification[] = snapshot.docs
+          .map((docSnap) => ({
+            id: docSnap.id,
+            ...(docSnap.data() as Omit<Certification, 'id'>)
+          }))
+          .sort((a, b) => this.toMillis(b.createdAt) - this.toMillis(a.createdAt));
+
+        observer.next(data);
+      },
+      (error) => observer.error(error)
+    );
+
+    return () => unsubscribe();
+  });
+}
 
   async approveCertification(id: string): Promise<void> {
     const ref = doc(this.firestore, 'certifications', id);
@@ -170,4 +215,19 @@ export class CertificationService {
       'official'
     );
   }
+
+  async deleteCertification(id: string): Promise<void> {
+    await deleteDoc(doc(this.firestore, 'certifications', id));
+  }
+
+  private toMillis(value: any): number {
+  if (!value) return 0;
+
+  if (value?.toDate) {
+    return value.toDate().getTime();
+  }
+
+  const parsed = new Date(value);
+  return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+}
 }

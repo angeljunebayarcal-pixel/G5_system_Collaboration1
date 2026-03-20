@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -18,7 +19,8 @@ export class OfsTopbar implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private zone: NgZone
+    private zone: NgZone,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -47,6 +49,11 @@ export class OfsTopbar implements OnInit {
         this.isLoaded = true;
       });
     }
+  }
+
+   goToSettings(event: Event) {
+    event.stopPropagation(); 
+    this.router.navigate(['/ofs-home/ofs-settings']);
   }
 
   private getInitials(name: string): string {

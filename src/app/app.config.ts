@@ -7,7 +7,6 @@ import { provideStorage, getStorage } from '@angular/fire/storage';
 import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),

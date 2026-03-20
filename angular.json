@@ -17,24 +17,19 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "src/main.ts",
-            "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
-            "ssr": {
-              "entry": "src/server.ts"
-            }
-          },
+  "browser": "src/main.ts",
+  "tsConfig": "tsconfig.app.json",
+  "inlineStyleLanguage": "scss",
+  "assets": [
+    {
+      "glob": "**/*",
+      "input": "public"
+    }
+  ],
+  "styles": [
+    "src/styles.scss"
+  ]
+},
           "configurations": {
             "production": {
               "budgets": [
@@ -94,6 +89,9 @@
     }
   },
   "cli": {
-    "analytics": "d77c0ba4-89b1-45a1-9e6c-d1fa891a5a88"
+    "analytics": "d77c0ba4-89b1-45a1-9e6c-d1fa891a5a88",
+    "cache": {
+      "enabled": false
+    }
   }
 }

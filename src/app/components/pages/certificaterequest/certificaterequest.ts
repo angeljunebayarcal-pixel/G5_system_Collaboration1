@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
 import { CertificationService } from '../../../services/certificate.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-certificaterequest',
@@ -41,7 +42,11 @@ export class Certificaterequest {
 
     if (file) {
       if (file.type !== 'application/pdf') {
-        alert('PDF files only allowed.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid File',
+          text: 'PDF files only allowed.'
+        });
         this.uploadedFile = null;
         this.uploadedFileName = '';
         target.value = '';
@@ -49,7 +54,11 @@ export class Certificaterequest {
       }
 
       if (file.size > 900 * 1024) {
-        alert('PDF file is too large. Please upload a file smaller than 900 KB.');
+        Swal.fire({
+          icon: 'warning',
+          title: 'File Too Large',
+          text: 'Please upload a file smaller than 900 KB.'
+        });
         this.uploadedFile = null;
         this.uploadedFileName = '';
         target.value = '';
@@ -70,13 +79,21 @@ export class Certificaterequest {
     const currentUser = await this.authService.getCurrentUserAsync();
 
     if (!currentUser) {
-      alert('Please login first.');
+      Swal.fire({
+        icon: 'info',
+        title: 'Not Logged In',
+        text: 'Please login first.'
+      });
       return;
     }
 
     if (form.invalid || !this.uploadedFile) {
       form.control.markAllAsTouched();
-      alert('Please complete all fields.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Incomplete Form',
+        text: 'Please complete all fields.'
+      });
       return;
     }
 
@@ -96,6 +113,14 @@ export class Certificaterequest {
 
       this.requestSubmitted = true;
 
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Certificate request submitted!',
+        timer: 2000,
+        showConfirmButton: false
+      });
+
       form.resetForm();
       this.uploadedFile = null;
       this.uploadedFileName = '';
@@ -103,9 +128,16 @@ export class Certificaterequest {
       setTimeout(() => {
         this.requestSubmitted = false;
       }, 4000);
+
     } catch (error) {
       console.error('Certificate request failed:', error);
-      alert('Failed to submit certificate request.');
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Submission Failed',
+        text: 'Failed to submit certificate request.'
+      });
+
     } finally {
       this.isSubmitting = false;
     }

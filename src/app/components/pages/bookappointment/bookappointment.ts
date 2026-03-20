@@ -3,6 +3,7 @@ import { AppointmentService } from '../../../services/appointment.service';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-bookappointment',
@@ -41,7 +42,11 @@ export class Bookappointment {
 
     if (file) {
       if (file.type !== 'application/pdf') {
-        alert('PDF files only allowed.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid File',
+          text: 'PDF files only allowed.'
+        });
         this.uploadedFile = null;
         this.uploadedFileName = '';
         target.value = '';
@@ -49,7 +54,11 @@ export class Bookappointment {
       }
 
       if (file.size > 900 * 1024) {
-        alert('PDF file is too large. Please upload a file smaller than 900 KB.');
+        Swal.fire({
+          icon: 'warning',
+          title: 'File Too Large',
+          text: 'Please upload a file smaller than 900 KB.'
+        });
         this.uploadedFile = null;
         this.uploadedFileName = '';
         target.value = '';
@@ -70,13 +79,21 @@ export class Bookappointment {
     const currentUser = await this.authService.getCurrentUserAsync();
 
     if (!currentUser) {
-      alert('Please login first.');
+      Swal.fire({
+        icon: 'info',
+        title: 'Not Logged In',
+        text: 'Please login first.'
+      });
       return;
     }
 
     if (form.invalid || !this.uploadedFile) {
       form.control.markAllAsTouched();
-      alert('Please complete all fields.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Incomplete Form',
+        text: 'Please complete all fields.'
+      });
       return;
     }
 
@@ -96,6 +113,14 @@ export class Bookappointment {
 
       this.appointmentSubmitted = true;
 
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Appointment submitted successfully!',
+        timer: 2000,
+        showConfirmButton: false
+      });
+
       form.resetForm();
       this.uploadedFile = null;
       this.uploadedFileName = '';
@@ -103,9 +128,16 @@ export class Bookappointment {
       setTimeout(() => {
         this.appointmentSubmitted = false;
       }, 4000);
+
     } catch (error) {
       console.error('Appointment request failed:', error);
-      alert('Failed to submit appointment request.');
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Submission Failed',
+        text: 'Failed to submit appointment request.'
+      });
+
     } finally {
       this.isSubmitting = false;
     }

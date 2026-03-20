@@ -1,98 +1,191 @@
 <div class="content">
   <div class="dashboard">
-  <div class="dashboard-header">
-    <div class="header-text">
-      <h2>Official Dashboard</h2>
-      <p>Managing Municipality of Villanueva Affairs.</p>
-    </div>
-        <button class="refresh" (click)="refreshData()">🔄 Refresh Stats</button>
+    <div class="dashboard-header">
+      <div class="header-text">
+        <h2>Official Dashboard</h2>
+        <p>Managing Municipality of Villanueva Affairs.</p>
       </div>
-
-  <div class="dashboard-cards">
-    <div class="card pending">
-      <p>Pending Certs</p>
-      <div class="card-info">
-        <h3>12</h3>
-        <span class="badge red">+3 today</span>
-      </div>
+      <button class="refresh" (click)="refreshData()">🔄 Refresh Stats</button>
     </div>
 
-    <div class="card appointments">
-      <p>Today's Appointments</p>
-      <div class="card-info">
-        <h3>8</h3>
-        <span class="badge green">4 completed</span>
+    <div class="dashboard-cards">
+      <div class="card pending">
+        <p>Pending Certs</p>
+        <div class="card-info">
+          <h3>{{ pendingCertsCount }}</h3>
+          <span class="badge red">Live count</span>
+        </div>
+      </div>
+
+      <div class="card appointments">
+        <p>Today's Appointments</p>
+        <div class="card-info">
+          <h3>{{ todaysAppointmentsCount }}</h3>
+          <span class="badge green">{{ approvedAppointmentsToday }} approved</span>
+        </div>
+      </div>
+
+      <div class="card residents">
+        <p>Registered Residents</p>
+        <div class="card-info">
+          <h3>{{ registeredResidentsCount }}</h3>
+          <span class="badge blue">Firebase data</span>
+        </div>
       </div>
     </div>
 
-    <div class="card residents">
-      <p>Registered Residents</p>
-      <div class="card-info">
-        <h3>1,420</h3>
-        <span class="badge blue">98% active</span>
+    <div class="dashboard-main">
+      <div class="recent-applications section">
+        <div class="section-header">
+          <h3>Recent Applications & Request</h3>
+          <button class="view-all" (click)="viewAllRequests()">View All</button>
+        </div>
+
+        <table *ngIf="recentApplications.length > 0; else emptyRequests">
+          <thead>
+            <tr>
+              <th>Resident</th>
+              <th>Document</th>
+              <th>Status</th>
+              <th>Review</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of recentApplications">
+              <td class="resident-name">{{ item.residentName }}</td>
+              <td>{{ item.document }}</td>
+              <td>
+                <span
+                  class="status"
+                  [ngClass]="{
+                    pending: item.status === 'PENDING',
+                    ready: item.status === 'APPROVED' || item.status === 'RELEASED',
+                    rejected: item.status === 'REJECTED' || item.status === 'CANCELED'
+                  }"
+                >
+                  {{ item.status }}
+                </span>
+              </td>
+              <td>
+                <button class="btn review" (click)="reviewRequest(item)">Review</button>
+              </td>
+              <td>
+                <button class="btn delete" (click)="deleteRequest(item)">🗑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #emptyRequests>
+          <div class="empty-state">
+            <p>No recent applications yet.</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <div class="official-tools section">
+        <h3>Official Tools</h3>
+        <div class="tools-list">
+          <button class="tool-btn" (click)="announce()">
+            <span class="icon">📢</span>
+            <div>
+              <p>Broadcast Announcement</p>
+              <p class="sub-text">Send announcement to residents</p>
+            </div>
+          </button>
+
+          <button class="tool-btn" (click)="manageResidents()">
+            <span class="icon">👥</span>
+            <div>
+              <p>Resident Directory</p>
+              <p class="sub-text">Manage profile and validation</p>
+            </div>
+          </button>
+
+          <button class="tool-btn" (click)="systemLogs()">
+            <span class="icon">📜</span>
+            <div>
+              <p>System Audit Logs</p>
+              <p class="sub-text">Track all system transactions</p>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="dashboard-main">
-    <div class="recent-applications section">
-      <div class="section-header">
-        <h3>Recent Applications</h3>
-        <button class="view-all" (click)="viewAllRequests()">View All</button>
-      </div>
+<div class="all-activities-modal" *ngIf="showAllRequestsModal">
+  <div class="modal-content large-modal">
+    <h3>All Requests</h3>
 
+    <div class="table-wrap" *ngIf="allApplications.length > 0; else emptyAllRequests">
       <table>
         <thead>
           <tr>
             <th>Resident</th>
             <th>Document</th>
             <th>Status</th>
-            <th>Action</th>
+            <th>Review</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="resident-name">Maria Clara</td>
-            <td>Indigency</td>
-            <td><span class="status pending">PENDING</span></td>
-            <td><button class="btn review" (click)="reviewRequest('Maria Clara')">Review</button></td>
-          </tr>
-          <tr>
-            <td class="resident-name">Juan Dela Cruz</td>
-            <td>Clearance</td>
-            <td><span class="status ready">READY</span></td>
-            <td><button class="btn details" (click)="reviewRequest('Juan Dela Cruz')">Details</button></td>
+          <tr *ngFor="let item of allApplications">
+            <td class="resident-name">{{ item.residentName }}</td>
+            <td>{{ item.document }}</td>
+            <td>
+              <span
+                class="status"
+                [ngClass]="{
+                  pending: item.status === 'PENDING',
+                  ready: item.status === 'APPROVED' || item.status === 'RELEASED',
+                  rejected: item.status === 'REJECTED' || item.status === 'CANCELED'
+                }"
+              >
+                {{ item.status }}
+              </span>
+            </td>
+            <td>
+              <button class="btn review" (click)="reviewRequest(item)">Review</button>
+            </td>
+            <td>
+              <button class="btn delete" (click)="deleteRequest(item)">🗑</button>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="official-tools section">
-      <h3>Official Tools</h3>
-      <div class="tools-list">
-        <button class="tool-btn" (click)="announce()">
-          <span class="icon">📢</span>
-          <div>
-            <p>Broadcast Announcement</p>
-            <p class="sub-text">Send notification to all residents</p>
-          </div>
-        </button>
-        <button class="tool-btn" (click)="manageResidents()">
-          <span class="icon">👥</span>
-          <div>
-            <p>Resident Directory</p>
-            <p class="sub-text">Manage profile and validation</p>
-          </div>
-        </button>
-        <button class="tool-btn" (click)="systemLogs()">
-          <span class="icon">📜</span>
-          <div>
-            <p>System Audit Logs</p>
-            <p class="sub-text">Track all system transactions</p>
-          </div>
-        </button>
+    <ng-template #emptyAllRequests>
+      <div class="empty-state">
+        <p>No requests found.</p>
       </div>
-    </div>
+    </ng-template>
+
+    <button class="close-modal" (click)="closeAllRequests()">Close</button>
   </div>
 </div>
+
+<div class="all-activities-modal" *ngIf="showAuditLogsModal">
+  <div class="modal-content">
+    <h3>System Audit Logs</h3>
+
+    <div class="logs-list" *ngIf="auditLogs.length > 0; else emptyLogs">
+      <div class="log-item" *ngFor="let log of auditLogs">
+        <p><strong>{{ log.action }}</strong></p>
+        <p>{{ log.actorName }}</p>
+        <p class="sub-text">{{ log.details || 'No extra details' }}</p>
+      </div>
+    </div>
+
+    <ng-template #emptyLogs>
+      <div class="empty-state">
+        <p>No logs found.</p>
+      </div>
+    </ng-template>
+
+    <button class="close-modal" (click)="closeAuditLogs()">Close</button>
+  </div>
 </div>

@@ -74,6 +74,9 @@ export class AuthService {
   getCurrentUser(): User | null {
     return this.auth.currentUser;
   }
+  getAuthInstance(): Auth {
+  return this.auth;
+}
 
   async getCurrentUserAsync(): Promise<User | null> {
     return this.waitForAuthReady();

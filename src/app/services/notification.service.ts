@@ -17,8 +17,6 @@ import {
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 
-
-
 export interface AppNotification {
   id: string;
   message: string;
@@ -51,6 +49,34 @@ export class NotificationService {
       timestamp: Date.now(),
       isRead: false
     });
+  }
+
+  // ✅ ADDED: broadcast announcement to all residents
+  async broadcastToResidents(
+    message: string,
+    senderId?: string,
+    senderName?: string
+  ): Promise<void> {
+    const residentsQuery = query(
+      collection(this.firestore, 'users'),
+      where('role', '==', 'resident')
+    );
+
+    const residentsSnapshot = await getDocs(residentsQuery);
+
+    for (const residentDoc of residentsSnapshot.docs) {
+      await addDoc(collection(this.firestore, 'notifications'), {
+        message: senderName
+          ? `${senderName}: ${message}`
+          : message,
+        role: 'resident',
+        userId: residentDoc.id,
+        timestamp: Date.now(),
+        isRead: false,
+        senderId: senderId || null,
+        senderName: senderName || null
+      });
+    }
   }
 
   loadNotifications(
@@ -140,5 +166,9 @@ export class NotificationService {
     for (const notif of snapshot.docs) {
       await deleteDoc(doc(this.firestore, 'notifications', notif.id));
     }
+  }
+
+  async deleteNotification(id: string): Promise<void> {
+    await deleteDoc(doc(this.firestore, 'notifications', id));
   }
 }

@@ -1,8 +1,7 @@
-<div class="settings-container">
+<div class="settings-container" *ngIf="!loading; else loadingState">
 
-  <h1 class="page-title">Settings</h1>
+  <h1 class="page-title">{{ roleLabel }} Settings</h1>
 
-  <!-- Profile Settings -->
   <div class="settings-card">
     <div class="card-header">
       <h2>Profile Settings</h2>
@@ -10,23 +9,21 @@
 
     <div class="setting-item clickable">
       <div>
-        <label>Full Name</label>
-        <p>Edit your personal information</p>
+        <label for="officialFullNameDisplay">Full Name</label>
+        <p id="officialFullNameDisplay">{{ fullName || 'No name set' }}</p>
       </div>
-      <button>Edit</button>
+      <button type="button" (click)="editFullName()">Edit</button>
     </div>
 
     <div class="setting-item clickable">
       <div>
-        <label>Email Address</label>
-        <p>Change your login email</p>
+        <label for="officialEmailDisplay">Email Address</label>
+        <p id="officialEmailDisplay">{{ email || 'No email set' }}</p>
       </div>
-      <button>Edit</button>
+      <button type="button" (click)="editEmail()">Edit</button>
     </div>
   </div>
 
-
-  <!-- Notification Settings -->
   <div class="settings-card">
     <div class="card-header">
       <h2>Notifications</h2>
@@ -34,31 +31,39 @@
 
     <div class="setting-item">
       <div>
-        <label>Email Notifications</label>
+        <label for="officialEmailNotifications">Email Notifications</label>
         <p>Receive updates through email</p>
       </div>
 
-      <label class="switch">
-        <input type="checkbox" checked>
+      <label class="switch" for="officialEmailNotifications">
+        <input
+          id="officialEmailNotifications"
+          type="checkbox"
+          [(ngModel)]="settings.emailNotifications"
+          (change)="saveToggle('emailNotifications')"
+        >
         <span class="slider"></span>
       </label>
     </div>
 
     <div class="setting-item">
       <div>
-        <label>SMS Notifications</label>
+        <label for="officialSmsNotifications">SMS Notifications</label>
         <p>Receive SMS alerts</p>
       </div>
 
-      <label class="switch">
-        <input type="checkbox">
+      <label class="switch" for="officialSmsNotifications">
+        <input
+          id="officialSmsNotifications"
+          type="checkbox"
+          [(ngModel)]="settings.smsNotifications"
+          (change)="saveToggle('smsNotifications')"
+        >
         <span class="slider"></span>
       </label>
     </div>
   </div>
 
-
-  <!-- Security Settings -->
   <div class="settings-card">
     <div class="card-header">
       <h2>Security</h2>
@@ -66,79 +71,101 @@
 
     <div class="setting-item clickable">
       <div>
-        <label>Change Password</label>
+        <label for="officialChangePasswordBtn">Change Password</label>
         <p>Update your account password</p>
       </div>
-      <button>Change</button>
+      <button id="officialChangePasswordBtn" type="button" (click)="changePassword()">Change</button>
     </div>
 
     <div class="setting-item clickable danger">
       <div>
-        <label>Deactivate Account</label>
+        <label for="officialDeactivateBtn">Deactivate Account</label>
         <p>Permanently disable your account</p>
       </div>
-      <button class="danger-btn">Deactivate</button>
+      <button
+        id="officialDeactivateBtn"
+        type="button"
+        class="danger-btn"
+        (click)="deactivateAccount()"
+      >
+        Deactivate
+      </button>
     </div>
   </div>
 
-  <!-- Account Privacy -->
-<div class="settings-card">
-  <div class="card-header">
-    <h2>Account Privacy</h2>
-  </div>
-
-  <!-- Show Contact Info -->
-  <div class="setting-item">
-    <div>
-      <label>Show Contact Information</label>
-      <p>Allow officials to view your contact details</p>
+  <div class="settings-card">
+    <div class="card-header">
+      <h2>Account Privacy</h2>
     </div>
 
-    <label class="switch">
-      <input type="checkbox">
-      <span class="slider"></span>
-    </label>
-  </div>
+    <div class="setting-item">
+      <div>
+        <label for="officialShowContactInfo">Show Contact Information</label>
+        <p>Allow authorized staff to view your contact details</p>
+      </div>
 
-  <!-- Activity Status -->
-  <div class="setting-item">
-    <div>
-      <label>Activity Status</label>
-      <p>Show when you are active in the system</p>
+      <label class="switch" for="officialShowContactInfo">
+        <input
+          id="officialShowContactInfo"
+          type="checkbox"
+          [(ngModel)]="settings.showContactInfo"
+          (change)="saveToggle('showContactInfo')"
+        >
+        <span class="slider"></span>
+      </label>
     </div>
 
-    <label class="switch">
-      <input type="checkbox" checked>
-      <span class="slider"></span>
-    </label>
-  </div>
+    <div class="setting-item">
+      <div>
+        <label for="officialActivityStatus">Activity Status</label>
+        <p>Show when you are active in the system</p>
+      </div>
 
-  <!-- Download Data -->
-  <div class="setting-item clickable">
-    <div>
-      <label>Download My Data</label>
-      <p>Request a copy of your account data</p>
+      <label class="switch" for="officialActivityStatus">
+        <input
+          id="officialActivityStatus"
+          type="checkbox"
+          [(ngModel)]="settings.activityStatus"
+          (change)="saveToggle('activityStatus')"
+        >
+        <span class="slider"></span>
+      </label>
     </div>
-    <button>Request</button>
-  </div>
 
-  <!-- Delete Account -->
-  <div class="setting-item clickable danger">
-    <div>
-      <label>Delete Account</label>
-      <p>Permanently remove your personal data</p>
+    <div class="setting-item clickable danger">
+      <div>
+        <label for="officialDeleteAccountBtn">Delete Account</label>
+        <p>Permanently remove your personal data</p>
+      </div>
+      <button
+        id="officialDeleteAccountBtn"
+        type="button"
+        class="danger-btn"
+        (click)="deleteAccount()"
+      >
+        Delete
+      </button>
     </div>
-    <button class="danger-btn">Delete</button>
   </div>
 
+  <div class="settings-card">
+    <div class="setting-item clickable danger">
+      <div>
+        <label for="officialLogoutBtn">Logout</label>
+        <p>Sign out and return to the login page</p>
+      </div>
+      <button id="officialLogoutBtn" type="button" class="danger-btn" (click)="logout()">
+        Logout
+      </button>
+    </div>
+  </div>
 </div>
-<div class="settings-card">
-  <div class="setting-item clickable danger">
-    <div>
-      <label>Logout</label>
-      <p>Sign out and return to the login page</p>
+
+<ng-template #loadingState>
+  <div class="settings-container">
+    <h1 class="page-title">Official Settings</h1>
+    <div class="settings-card">
+      <p>Loading settings...</p>
     </div>
-    <button class="danger-btn" (click)="logout()">Logout</button>
   </div>
-</div>
-</div>
+</ng-template>

@@ -17,14 +17,14 @@ import { Settings } from './components/pages/settings/settings';
 
 
 export const routes: Routes = [
-    {path: '', redirectTo: 'login', pathMatch: 'full'},
+     { path: '', component: Login },
     {path:'login', component: Login},
     {
         path: 'home', 
         component: Home, 
         children: [
 
-        { path: '', component: Dashboard },
+        { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
         { path: 'dashboard', component: Dashboard },
         { path: 'bookappointment', component:  Bookappointment},
         { path: 'certificaterequest', component: Certificaterequest },
@@ -38,7 +38,7 @@ export const routes: Routes = [
         path: 'ofs-home',
         component: OfsHome,
         children: [
-            { path:'', component: OfsDashboard },
+            { path: '', redirectTo: 'ofs-dashboard', pathMatch: 'full' },
             { path:'ofs-dashboard', component: OfsDashboard },
             { path:'ofs-residentsdirectory', component: OfsResidentsdirectory },
             { path: 'ofs-createresidentsprofile', component: OfsCreateResidentsProfile },

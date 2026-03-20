@@ -1,21 +1,21 @@
 /* ================= CONTENT AREA ================= */
 .content {
   position: fixed;
-  top: 60px;               
-  left: 242px;            
+  top: 60px;
+  left: 242px;
   right: 0;
   bottom: 0;
-  padding: 0;              
-  background: transparent; 
+  padding: 0;
+  background: transparent;
   overflow-y: auto;
   font-family: 'Segoe UI', sans-serif;
 }
 
 /* ================= DASHBOARD FRAME ================= */
 .dashboard-frame {
-  position: relative;    
-  top: 20px;             
-  left: -10px;           
+  position: relative;
+  top: 20px;
+  left: -10px;
   width: calc(95% - 2rem);
   height: 100%;
   margin: 1rem;
@@ -23,7 +23,7 @@
   background: #f8fafc;
   border-radius: 2%;
   font-family: 'Segoe UI', sans-serif;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
@@ -48,7 +48,21 @@
     margin: 0.5rem 0 0 0;
     color: #64748b;
   }
-  /* Refresh button removed */
+}
+
+/* ================= REFRESH BUTTON ================= */
+.refresh {
+  border: none;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+
+  &:hover {
+    opacity: 0.92;
+  }
 }
 
 /* ================= STATS GRID ================= */
@@ -62,12 +76,20 @@
     background: white;
     padding: 1.5rem;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     border-top: 4px solid;
 
-    &.active-appointments { border-top-color: #3b82f6; }
-    &.pending-certificates { border-top-color: #10b981; }
-    &.new-notifications { border-top-color: #f59e0b; }
+    &.active-appointments {
+      border-top-color: #3b82f6;
+    }
+
+    &.pending-certificates {
+      border-top-color: #10b981;
+    }
+
+    &.new-notifications {
+      border-top-color: #f59e0b;
+    }
 
     p {
       color: #64748b;
@@ -91,11 +113,21 @@
       font-weight: 500;
       cursor: pointer;
 
-      &.appointments { color: #3b82f6; }
-      &.certificates { color: #10b981; }
-      &.notifications { color: #f59e0b; }
+      &.appointments {
+        color: #3b82f6;
+      }
 
-      &:hover { text-decoration: underline; }
+      &.certificates {
+        color: #10b981;
+      }
+
+      &.notifications {
+        color: #f59e0b;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }
@@ -111,7 +143,7 @@
     background: white;
     padding: 1.5rem;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 
     h3 {
       margin: 0 0 1.5rem 0;
@@ -122,6 +154,11 @@
 
 /* ================= RECENT ACTIVITIES ================= */
 .recent-activity {
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
 
   .activity-item {
     display: flex;
@@ -138,35 +175,65 @@
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
+      flex-shrink: 0;
     }
 
-    &.appointment { 
-      .icon { background: #eff6ff; color: #3b82f6; } 
-    }
-    &.certificate { 
-      .icon { background: #ecfdf5; color: #10b981; } 
-    }
-
-    div {
-      p {
-        margin: 0;
-        &.title { font-weight: 600; color: #1e293b; }
-        &.time { font-size: 0.85rem; color: #64748b; }
+    &.appointment {
+      .icon {
+        background: #eff6ff;
+        color: #3b82f6;
       }
     }
 
-    button.delete {
-      background: none;
-      border: none;
-      color: #ef4444;
-      cursor: pointer;
-      font-size: 1rem;
+    &.certificate {
+      .icon {
+        background: #ecfdf5;
+        color: #10b981;
+      }
+    }
 
-      &:hover { opacity: 0.8; }
+    &.notification {
+      .icon {
+        background: #fff7ed;
+        color: #f59e0b;
+      }
+    }
+
+    .activity-text {
+      flex: 1;
+
+      p {
+        margin: 0;
+
+        &.title {
+          font-weight: 600;
+          color: #1e293b;
+        }
+
+        &.time {
+          font-size: 0.85rem;
+          color: #64748b;
+        }
+      }
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #ef4444;
+      padding: 0.3rem 0.5rem;
+      border-radius: 8px;
+      flex-shrink: 0;
+
+      &:hover {
+        background: #fee2e2;
+      }
     }
   }
 
-  button.view-all {
+  .view-all {
     width: 100%;
     margin-top: 1rem;
     padding: 0.8rem;
@@ -177,7 +244,9 @@
     font-weight: 600;
     cursor: pointer;
 
-    &:hover { background: #e2e8f0; }
+    &:hover {
+      background: #e2e8f0;
+    }
   }
 }
 
@@ -198,22 +267,43 @@
     align-items: center;
     gap: 10px;
 
-    &.new-appointment { background: #0b1f5e; color: white; }
-    &.request-certificate { background: #1e293b; color: white; }
-    &.update-profile { background: #f1f5f9; color: #1e293b; border: 1px solid #e2e8f0; }
+    &.new-appointment {
+      background: #0b1f5e;
+      color: white;
+    }
 
-    &:hover { opacity: 0.9; }
+    &.request-certificate {
+      background: #1e293b;
+      color: white;
+    }
+
+    &.update-profile {
+      background: #f1f5f9;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
+    }
+
+    &:hover {
+      opacity: 0.9;
+    }
   }
+}
+
+/* ================= EMPTY STATE ================= */
+.empty-state {
+  padding: 1rem 0;
+  text-align: center;
+  color: #64748b;
 }
 
 /* ================= ALL ACTIVITIES MODAL ================= */
 .all-activities-modal {
   position: fixed;
-  top: 0; 
+  top: 0;
   left: 0;
-  width: 100%; 
+  width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -223,16 +313,95 @@
     background: white;
     padding: 2rem;
     border-radius: 12px;
-    width: 500px;
+    width: 560px;
     max-height: 80%;
     overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 
-    h3 { margin-bottom: 1rem; }
+    h3 {
+      margin-bottom: 1rem;
+    }
 
-    .activity-item { margin-bottom: 0.5rem; }
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
 
-    button.close-modal {
+    .activity-item {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f1f5f9;
+
+      .icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+
+      &.appointment {
+        .icon {
+          background: #eff6ff;
+          color: #3b82f6;
+        }
+      }
+
+      &.certificate {
+        .icon {
+          background: #ecfdf5;
+          color: #10b981;
+        }
+      }
+
+      &.notification {
+        .icon {
+          background: #fff7ed;
+          color: #f59e0b;
+        }
+      }
+
+      .activity-text {
+        flex: 1;
+
+        p {
+          margin: 0;
+
+          &.title {
+            font-weight: 600;
+            color: #1e293b;
+          }
+
+          &.time {
+            font-size: 0.85rem;
+            color: #64748b;
+          }
+        }
+      }
+
+      .delete-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        color: #ef4444;
+        padding: 0.3rem 0.5rem;
+        border-radius: 8px;
+        flex-shrink: 0;
+
+        &:hover {
+          background: #fee2e2;
+        }
+      }
+    }
+
+    .close-modal {
       margin-top: 1rem;
       padding: 0.6rem 1rem;
       background: #0b1f5e;
@@ -240,13 +409,21 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      &:hover { opacity: 0.9; }
+
+      &:hover {
+        opacity: 0.9;
+      }
     }
   }
 }
 
 /* ================= ICON ANIMATION ================= */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }

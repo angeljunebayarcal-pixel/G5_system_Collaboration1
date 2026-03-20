@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 
 @Component({
@@ -63,12 +63,11 @@ export class Login {
         showConfirmButton:false
       });
 
-      if(role === 'official'){
-        this.router.navigate(['/ofs-home']);
-      } else {
-        this.router.navigate(['/home']);
-      }
-
+      if (role === 'official') {
+  this.router.navigate(['/ofs-home/ofs-dashboard']);
+} else {
+  this.router.navigate(['/home/dashboard']);
+}
     } catch(err:any){
 
       Swal.fire(

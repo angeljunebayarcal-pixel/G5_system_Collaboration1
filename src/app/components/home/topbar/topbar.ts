@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, NgZone, OnInit } from '@angular/core';
+import { Router } from '@angular/router'; // ✅ ADDED
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -17,7 +18,8 @@ export class Topbar implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private zone: NgZone
+    private zone: NgZone,
+    private router: Router // ✅ ADDED
   ) {}
 
   async ngOnInit() {
@@ -46,6 +48,12 @@ export class Topbar implements OnInit {
         this.isLoaded = true;
       });
     }
+  }
+
+  
+  goToSettings(event: Event) {
+    event.stopPropagation(); 
+    this.router.navigate(['/home/settings']);
   }
 
   private getInitials(name: string): string {
