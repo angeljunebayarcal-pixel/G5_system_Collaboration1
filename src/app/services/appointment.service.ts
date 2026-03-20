@@ -31,6 +31,7 @@ export interface AppointmentDetails {
 export interface Appointment {
   id: string;
   residentId: string;
+  email: string;
   details: AppointmentDetails;
   status: 'pending' | 'approved' | 'canceled';
   createdAt: any;
@@ -49,11 +50,13 @@ export class AppointmentService {
 
   async requestAppointment(
     residentId: string,
+    residentEmail: string,
     details: AppointmentDetails
   ): Promise<void> {
     await addDoc(collection(this.firestore, 'appointments'), {
       residentId,
       details,
+      email: residentEmail,
       status: 'pending',
       createdAt: new Date()
     });
@@ -112,25 +115,25 @@ export class AppointmentService {
   }
 
   getAllAppointments(): Observable<Appointment[]> {
-  return new Observable<Appointment[]>((observer) => {
-    const unsubscribe = onSnapshot(
-      collection(this.firestore, 'appointments'),
-      (snapshot) => {
-        const data: Appointment[] = snapshot.docs
-          .map((docSnap) => ({
-            id: docSnap.id,
-            ...(docSnap.data() as Omit<Appointment, 'id'>)
-          }))
-          .sort((a, b) => this.toMillis(b.createdAt) - this.toMillis(a.createdAt));
+    return new Observable<Appointment[]>((observer) => {
+      const unsubscribe = onSnapshot(
+        collection(this.firestore, 'appointments'),
+        (snapshot) => {
+          const data: Appointment[] = snapshot.docs
+            .map((docSnap) => ({
+              id: docSnap.id,
+              ...(docSnap.data() as Omit<Appointment, 'id'>)
+            }))
+            .sort((a, b) => this.toMillis(b.createdAt) - this.toMillis(a.createdAt));
 
-        observer.next(data);
-      },
-      (error) => observer.error(error)
-    );
+          observer.next(data);
+        },
+        (error) => observer.error(error)
+      );
 
-    return () => unsubscribe();
-  });
-}
+      return () => unsubscribe();
+    });
+  }
 
   async approveAppointment(id: string): Promise<void> {
     const ref = doc(this.firestore, 'appointments', id);
@@ -216,13 +219,13 @@ export class AppointmentService {
   }
 
   private toMillis(value: any): number {
-  if (!value) return 0;
+    if (!value) return 0;
 
-  if (value?.toDate) {
-    return value.toDate().getTime();
+    if (value?.toDate) {
+      return value.toDate().getTime();
+    }
+
+    const parsed = new Date(value);
+    return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
   }
-
-  const parsed = new Date(value);
-  return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
-}
 }

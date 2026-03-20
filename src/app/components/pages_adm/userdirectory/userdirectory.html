@@ -1,0 +1,135 @@
+<div class="content-wrapper">
+
+  <h1 class="page-title">User Directory</h1>
+
+  <div class="card">
+    <h2 class="section-title">User Registry</h2>
+
+    <div class="filter-bar">
+      <input
+        type="text"
+        placeholder="Search by name, email, or ID"
+        [(ngModel)]="searchTerm"
+        (input)="applyFilters()"
+      >
+
+      <select [(ngModel)]="selectedRole" (change)="applyFilters()">
+        <option value="all">All Roles</option>
+        <option value="resident">Resident</option>
+        <option value="official">Official</option>
+        <option value="admin">Administrator</option>
+      </select>
+
+      <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="pending">Pending</option>
+        <option value="declined">Declined</option>
+      </select>
+    </div>
+
+    <div *ngIf="loading" class="no-users">
+      Loading users...
+    </div>
+
+    <div class="directory-grid" *ngIf="!loading">
+
+      <div class="user-box" *ngFor="let user of filteredUsers">
+        <div class="user-top">
+          <div class="avatar">{{ getInitials(user.fullName) }}</div>
+
+          <div class="user-main">
+            <h3>{{ user.fullName }}</h3>
+            <p>{{ user.email }}</p>
+          </div>
+        </div>
+
+        <div class="user-meta">
+          <span class="mini-role">{{ getRoleLabel(user.role) }}</span>
+          <span class="status-badge" [ngClass]="getStatusClass(user.status)">
+            {{ user.status }}
+          </span>
+        </div>
+
+        <div class="user-id">
+          ID: {{ user.uid }}
+        </div>
+
+        <button class="view-btn" (click)="openViewUser(user)">View Full Info</button>
+        <button class="delete-btn" (click)="deleteUser(user)">Delete</button>
+      </div>
+
+      <div *ngIf="filteredUsers.length === 0" class="no-users">
+        No users found.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showViewModal && selectedUser">
+  <div class="modal">
+    <h3>User Details</h3>
+
+    <div class="modal-row">
+      <span class="label">User ID:</span>
+      <span class="value">{{ selectedUser.uid }}</span>
+    </div>
+
+    <div class="modal-row">
+      <span class="label">Full Name:</span>
+      <span class="value">{{ selectedUser.fullName }}</span>
+    </div>
+
+    <div class="modal-row">
+      <span class="label">Email:</span>
+      <span class="value">{{ selectedUser.email }}</span>
+    </div>
+
+    <div class="modal-row">
+      <span class="label">Role:</span>
+      <span class="value">{{ getRoleLabel(selectedUser.role) }}</span>
+    </div>
+
+    <div class="modal-row">
+      <span class="label">Status:</span>
+      <span class="value">{{ selectedUser.status }}</span>
+    </div>
+
+    <div class="modal-row">
+      <span class="label">Address:</span>
+      <span class="value">{{ selectedUser.address || '—' }}</span>
+    </div>
+
+    <div class="modal-row">
+      <span class="label">Contact:</span>
+      <span class="value">{{ selectedUser.contact || '—' }}</span>
+    </div>
+
+    <div class="modal-row" *ngIf="selectedUser.role === 'resident'">
+      <span class="label">Username:</span>
+      <span class="value">{{ selectedUser.username || '—' }}</span>
+    </div>
+
+    <div class="modal-row" *ngIf="selectedUser.role === 'resident'">
+      <span class="label">Birth Date:</span>
+      <span class="value">{{ selectedUser.dob || '—' }}</span>
+    </div>
+
+    <div class="modal-row" *ngIf="selectedUser.role === 'resident'">
+      <span class="label">Gender:</span>
+      <span class="value">{{ selectedUser.gender || '—' }}</span>
+    </div>
+
+    <div class="modal-row" *ngIf="selectedUser.role === 'official'">
+      <span class="label">Valid ID File:</span>
+      <span class="value">{{ selectedUser.validIdFileName || '—' }}</span>
+    </div>
+
+    <div class="modal-actions">
+      <button class="delete-btn" (click)="deleteUser(selectedUser)">Delete</button>
+      <button class="close-btn" (click)="closeViewModal()">Close</button>
+    </div>
+  </div>
+</div>

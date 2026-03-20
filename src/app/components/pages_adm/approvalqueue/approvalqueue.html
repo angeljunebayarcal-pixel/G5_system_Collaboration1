@@ -1,0 +1,91 @@
+<div class="content-wrapper">
+
+  <h1 class="page-title">Approval Queue</h1>
+
+  <div class="card">
+    <h2 class="section-title">Pending Official Requests</h2>
+
+    <div *ngIf="!loading; else loadingBlock">
+
+      <div *ngIf="pendingOfficials.length > 0; else emptyBlock" class="queue-list">
+
+        <div class="queue-item" *ngFor="let official of pendingOfficials">
+
+          <!-- LEFT SIDE -->
+          <div class="queue-left">
+
+            <div class="queue-row">
+              <div class="label">Full Name:</div>
+              <div class="value">{{ official.fullName }}</div>
+            </div>
+
+            <div class="queue-row">
+              <div class="label">Email:</div>
+              <div class="value">{{ official.email }}</div>
+            </div>
+
+            <div class="queue-row">
+              <div class="label">Role:</div>
+              <div class="value">Official</div>
+            </div>
+
+            <div class="queue-row">
+              <div class="label">Status:</div>
+              <div class="value">{{ official.status }}</div>
+            </div>
+
+            <div class="queue-row queue-text-block">
+              <div class="label">File:</div>
+              <div class="value multiline">
+                {{ official.validIdFileName || 'No file uploaded' }}
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT SIDE -->
+          <div class="queue-right">
+
+            <button 
+              class="view-pdf"
+              (click)="viewPdf(official.validIdFileUrl)">
+              View PDF
+            </button>
+
+            <button 
+              class="approve"
+              (click)="approveOfficial(official.uid, official.fullName)">
+              Approve
+            </button>
+
+            <button 
+              class="decline"
+              (click)="declineOfficial(official.uid, official.fullName)">
+              Decline
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- EMPTY STATE -->
+    <ng-template #emptyBlock>
+      <div class="no-queue">
+        No pending official requests found.
+      </div>
+    </ng-template>
+
+    <!-- LOADING -->
+    <ng-template #loadingBlock>
+      <div class="loading-state">
+        Loading approval queue...
+      </div>
+    </ng-template>
+
+  </div>
+
+</div>

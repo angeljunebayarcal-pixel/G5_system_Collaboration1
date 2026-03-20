@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AppointmentService, Appointment } from '../../../services/appointment.service';
 import { CertificationService, Certification } from '../../../services/certificate.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-ofs-residentsdirectory',
@@ -137,4 +138,48 @@ export class OfsResidentsdirectory implements OnInit, OnDestroy {
     this.showNotification(`Certificate request rescheduled to ${this.newCertDate} at ${this.newCertTime}.`);
     this.closeCertificateModal();
   }
+
+  getEmail(app: any): string {
+    return app?.email || app?.residentEmail || '';
+  }
+
+ openPdf(base64: string): void {
+  if (!base64) {
+    Swal.fire('No File', 'No PDF file available.', 'info');
+    return;
+  }
+
+  const pdfWindow = window.open('', '_blank');
+
+  if (!pdfWindow) {
+    Swal.fire('Popup Blocked', 'Please allow popups to view the PDF.', 'warning');
+    return;
+  }
+
+  pdfWindow.document.write(`
+    <html>
+      <head>
+        <title>PDF Preview</title>
+        <style>
+          html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+          }
+          iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+          }
+        </style>
+      </head>
+      <body>
+        <iframe src="${base64}"></iframe>
+      </body>
+    </html>
+  `);
+
+  pdfWindow.document.close();
+}
 }

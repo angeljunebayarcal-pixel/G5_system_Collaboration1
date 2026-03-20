@@ -22,6 +22,7 @@ import { environment } from '../../environments/environment';
 export interface Certification {
   id: string;
   residentId: string;
+  email: string;
   details: {
     type: string;
     purpose: string;
@@ -47,6 +48,7 @@ export class CertificationService {
 
   async requestCertification(
     residentId: string,
+    residentEmail: string,
     details: {
       type: string;
       purpose: string;
@@ -58,6 +60,7 @@ export class CertificationService {
   ): Promise<void> {
     await addDoc(collection(this.firestore, 'certifications'), {
       residentId,
+      email: residentEmail,
       details,
       status: 'pending',
       createdAt: new Date()
@@ -117,25 +120,25 @@ export class CertificationService {
   }
 
   getAllCertifications(): Observable<Certification[]> {
-  return new Observable<Certification[]>((observer) => {
-    const unsubscribe = onSnapshot(
-      collection(this.firestore, 'certifications'),
-      (snapshot) => {
-        const data: Certification[] = snapshot.docs
-          .map((docSnap) => ({
-            id: docSnap.id,
-            ...(docSnap.data() as Omit<Certification, 'id'>)
-          }))
-          .sort((a, b) => this.toMillis(b.createdAt) - this.toMillis(a.createdAt));
+    return new Observable<Certification[]>((observer) => {
+      const unsubscribe = onSnapshot(
+        collection(this.firestore, 'certifications'),
+        (snapshot) => {
+          const data: Certification[] = snapshot.docs
+            .map((docSnap) => ({
+              id: docSnap.id,
+              ...(docSnap.data() as Omit<Certification, 'id'>)
+            }))
+            .sort((a, b) => this.toMillis(b.createdAt) - this.toMillis(a.createdAt));
 
-        observer.next(data);
-      },
-      (error) => observer.error(error)
-    );
+          observer.next(data);
+        },
+        (error) => observer.error(error)
+      );
 
-    return () => unsubscribe();
-  });
-}
+      return () => unsubscribe();
+    });
+  }
 
   async approveCertification(id: string): Promise<void> {
     const ref = doc(this.firestore, 'certifications', id);
@@ -221,13 +224,13 @@ export class CertificationService {
   }
 
   private toMillis(value: any): number {
-  if (!value) return 0;
+    if (!value) return 0;
 
-  if (value?.toDate) {
-    return value.toDate().getTime();
+    if (value?.toDate) {
+      return value.toDate().getTime();
+    }
+
+    const parsed = new Date(value);
+    return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
   }
-
-  const parsed = new Date(value);
-  return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
-}
 }

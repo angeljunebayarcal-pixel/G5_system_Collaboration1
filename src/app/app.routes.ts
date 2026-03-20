@@ -14,6 +14,12 @@ import { OfsProfile } from './components/pages_officials/ofs-profile/ofs-profile
 import { OfsCreateResidentsProfile } from './components/pages_officials/ofs-create-residents-profile/ofs-create-residents-profile';
 import { OfsSettings } from './components/pages_officials/ofs-settings/ofs-settings';
 import { Settings } from './components/pages/settings/settings';
+import { Controlcenter } from './components/pages_adm/controlcenter/controlcenter';
+import { Approvalqueue } from './components/pages_adm/approvalqueue/approvalqueue';
+import { Userdirectory } from './components/pages_adm/userdirectory/userdirectory';
+import { AdmProfile } from './components/pages_adm/adm-profile/adm-profile';
+import { AdmSettings } from './components/pages_adm/adm-settings/adm-settings';
+import { HomeAdm } from './components/home-adm/home-adm';
 
 
 export const routes: Routes = [
@@ -47,5 +53,17 @@ export const routes: Routes = [
             { path: 'ofs-settings', component: OfsSettings},
         ]
 
-    }
+    },
+{
+    path: 'home-adm',
+        component: HomeAdm,
+        children: [
+            { path: '', redirectTo: 'controlcenter', pathMatch: 'full' },
+            { path:'controlcenter', component: Controlcenter },
+            { path:'approvalqueue', component: Approvalqueue },
+            { path:'userdirectory', component: Userdirectory },
+            { path:'adm-profile', component: AdmProfile },
+            { path: 'adm-settings', component: AdmSettings },
+        ]
+}
 ];

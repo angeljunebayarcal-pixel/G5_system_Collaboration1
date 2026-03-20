@@ -102,24 +102,20 @@ export class Certificaterequest {
     try {
       const base64File = await this.fileToBase64(this.uploadedFile);
 
-      await this.certificationService.requestCertification(currentUser.uid, {
-        type: this.type,
-        purpose: this.purpose.trim(),
-        date: this.date,
-        time: this.time,
-        fileName: this.uploadedFile.name,
-        fileUrl: base64File
-      });
+      await this.certificationService.requestCertification(
+        currentUser.uid,
+        currentUser.email || '',
+        {
+          type: this.type,
+          purpose: this.purpose.trim(),
+          date: this.date,
+          time: this.time,
+          fileName: this.uploadedFile.name,
+          fileUrl: base64File
+        }
+      );
 
       this.requestSubmitted = true;
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Certificate request submitted!',
-        timer: 2000,
-        showConfirmButton: false
-      });
 
       form.resetForm();
       this.uploadedFile = null;

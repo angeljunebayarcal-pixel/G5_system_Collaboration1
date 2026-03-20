@@ -102,24 +102,20 @@ export class Bookappointment {
     try {
       const base64File = await this.fileToBase64(this.uploadedFile);
 
-      await this.appointmentService.requestAppointment(currentUser.uid, {
-        description: this.details.trim(),
-        official: this.selectedOfficial.trim(),
-        date: this.selectedDate,
-        time: this.selectedTime,
-        fileName: this.uploadedFile.name,
-        fileUrl: base64File
-      });
+      await this.appointmentService.requestAppointment(
+        currentUser.uid,
+        currentUser.email || '',
+        {
+          description: this.details.trim(),
+          official: this.selectedOfficial.trim(),
+          date: this.selectedDate,
+          time: this.selectedTime,
+          fileName: this.uploadedFile.name,
+          fileUrl: base64File
+        }
+      );
 
       this.appointmentSubmitted = true;
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Appointment submitted successfully!',
-        timer: 2000,
-        showConfirmButton: false
-      });
 
       form.resetForm();
       this.uploadedFile = null;

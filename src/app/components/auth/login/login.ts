@@ -5,7 +5,6 @@ import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -37,7 +36,7 @@ export class Login {
   async login() {
 
     if (!this.email.trim() || !this.password.trim()) {
-      Swal.fire('Missing Fields','Please enter email and password','warning');
+      Swal.fire('Missing Fields', 'Please enter email and password', 'warning');
       return;
     }
 
@@ -50,25 +49,56 @@ export class Login {
 
       const uid = cred.user.uid;
       const role = await this.authService.getUserRole(uid);
+      const status = await this.authService.getUserStatus(uid);
 
       if (!role) {
-        Swal.fire('Login Failed','No valid role found','error');
+        await this.authService.logout();
+        Swal.fire('Login Failed', 'No valid role found', 'error');
+        return;
+      }
+
+      if (role === 'official' && status !== 'active') {
+        await this.authService.logout();
+
+        if (status === 'pending') {
+          Swal.fire(
+            'Approval Required',
+            'Your official account is still pending admin approval.',
+            'warning'
+          );
+        } else if (status === 'declined') {
+          Swal.fire(
+            'Access Denied',
+            'Your official registration has been declined by the admin.',
+            'error'
+          );
+        } else {
+          Swal.fire(
+            'Access Denied',
+            'Your official account is not yet allowed to login.',
+            'error'
+          );
+        }
+
         return;
       }
 
       await Swal.fire({
-        title:'Login Successful!',
-        icon:'success',
-        timer:1500,
-        showConfirmButton:false
+        title: 'Login Successful!',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
       });
 
-      if (role === 'official') {
-  this.router.navigate(['/ofs-home/ofs-dashboard']);
-} else {
-  this.router.navigate(['/home/dashboard']);
-}
-    } catch(err:any){
+      if (role === 'admin') {
+        this.router.navigate(['/home-adm/controlcenter']);
+      } else if (role === 'official') {
+        this.router.navigate(['/ofs-home/ofs-dashboard']);
+      } else {
+        this.router.navigate(['/home/dashboard']);
+      }
+
+    } catch (err: any) {
 
       Swal.fire(
         'Login Failed',
@@ -80,9 +110,9 @@ export class Login {
 
   }
 
-  async registerOfficial(){
+  async registerOfficial() {
 
-    if(!this.regFullName || !this.regEmail || !this.regPassword || !this.uploadedOfficialFile){
+    if (!this.regFullName || !this.regEmail || !this.regPassword || !this.uploadedOfficialFile) {
 
       Swal.fire(
         'Missing Fields',
@@ -93,7 +123,7 @@ export class Login {
       return;
     }
 
-    try{
+    try {
 
       const base64 = await this.convertFileToBase64(this.uploadedOfficialFile);
 
@@ -105,20 +135,22 @@ export class Login {
         base64
       );
 
+      await this.authService.logout();
+
       Swal.fire(
-        'Success',
-        'Official account registered successfully.',
+        'Registration Submitted',
+        'Official account registered successfully. Please wait for admin approval before logging in.',
         'success'
       );
 
-      this.regFullName='';
-      this.regEmail='';
-      this.regPassword='';
-      this.uploadedOfficialFile=null;
-      this.uploadedOfficialFileName='';
-      this.showRegister=false;
+      this.regFullName = '';
+      this.regEmail = '';
+      this.regPassword = '';
+      this.uploadedOfficialFile = null;
+      this.uploadedOfficialFileName = '';
+      this.showRegister = false;
 
-    }catch(err:any){
+    } catch (err: any) {
 
       Swal.fire(
         'Registration Failed',
@@ -130,33 +162,33 @@ export class Login {
 
   }
 
-  onOfficialFileChange(event:Event){
+  onOfficialFileChange(event: Event) {
 
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] || null;
 
-    if(!file) return;
+    if (!file) return;
 
-    if(file.type !== 'application/pdf'){
-      Swal.fire('Invalid File','Only PDF files allowed','warning');
-      target.value='';
+    if (file.type !== 'application/pdf') {
+      Swal.fire('Invalid File', 'Only PDF files allowed', 'warning');
+      target.value = '';
       return;
     }
 
-    if(file.size > 900 * 1024){
-      Swal.fire('File Too Large','PDF must be under 900KB','warning');
-      target.value='';
+    if (file.size > 900 * 1024) {
+      Swal.fire('File Too Large', 'PDF must be under 900KB', 'warning');
+      target.value = '';
       return;
     }
 
-    this.uploadedOfficialFile=file;
-    this.uploadedOfficialFileName=file.name;
+    this.uploadedOfficialFile = file;
+    this.uploadedOfficialFileName = file.name;
 
   }
 
-  convertFileToBase64(file:File):Promise<string>{
+  convertFileToBase64(file: File): Promise<string> {
 
-    return new Promise((resolve,reject)=>{
+    return new Promise((resolve, reject) => {
 
       const reader = new FileReader();
 

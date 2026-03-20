@@ -25,8 +25,8 @@
           </div>
 
           <div class="request-row">
-            <span class="label">Official:</span>
-            <span class="value">{{ app.details.official || 'Not assigned' }}</span>
+            <span class="label">Email:</span>
+            <span class="value">{{ getEmail(app) }}</span>
           </div>
 
           <div class="request-row">
@@ -51,9 +51,8 @@
 
             <a
               *ngIf="app.details.fileUrl; else appointmentFileNameOnly"
-              [href]="app.details.fileUrl"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="javascript:void(0)"
+              (click)="openPdf(app.details.fileUrl)"
               class="pdf-link"
             >
               {{ app.details.fileName || 'View PDF' }}
@@ -102,6 +101,11 @@
           </div>
 
           <div class="request-row">
+            <span class="label">Email:</span>
+            <span class="value">{{ getEmail(cert) }}</span>
+          </div>
+
+          <div class="request-row">
             <span class="label">Certificate:</span>
             <span class="value">{{ cert.details.type || 'Not specified' }}</span>
           </div>
@@ -128,9 +132,8 @@
 
             <a
               *ngIf="cert.details.fileUrl; else certificateFileNameOnly"
-              [href]="cert.details.fileUrl"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="javascript:void(0)"
+              (click)="openPdf(cert.details.fileUrl)"
               class="pdf-link"
             >
               {{ cert.details.fileName || 'View PDF' }}

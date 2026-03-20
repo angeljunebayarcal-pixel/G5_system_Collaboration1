@@ -1,0 +1,35 @@
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-wrapper">
+      <div class="logo-ring"></div>
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s" alt="Logo">
+    </div>
+
+    <div class="brand-text">
+      <h1>BOACRS</h1>
+      <span>Barangay Online Appointment & Certificate Request</span>
+    </div>
+  </div>
+
+  <div class="topbar-center">
+    <span class="center-line"></span>
+  </div>
+
+  <div class="topbar-action" *ngIf="isLoaded">
+    <div class="user-pill">
+      <div class="user-avatar">
+        <span>{{ initials }}</span>
+        <div class="avatar-glow"></div>
+      </div>
+      <div class="user-details">
+        <span class="name">{{ displayName }}</span>
+        <span class="role">
+          <span class="role-dot"></span>
+          {{ displayRole }}
+        </span>
+      </div>
+      <span class="settings-icon" (click)="goToSettings($event)">⚙</span>
+      <span class="pill-arrow">›</span>
+    </div>
+  </div>
+</div>

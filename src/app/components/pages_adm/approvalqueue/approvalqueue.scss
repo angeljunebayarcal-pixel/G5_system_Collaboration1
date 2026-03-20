@@ -1,0 +1,203 @@
+.content-wrapper {
+  width: calc(100% - 2rem);
+  min-height: calc(100vh - 120px);
+  margin: 16px;
+  padding: 2rem;
+
+  background: #f8fafc;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  font-family: 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #0f172a;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #1e293b;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+}
+
+.queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.queue-item {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 20px;
+  align-items: start;
+  border: 1px solid #dbe3ec;
+  transition: 0.2s ease;
+}
+
+.queue-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.queue-left {
+  min-width: 0;
+}
+
+.queue-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+  align-items: start;
+}
+
+.label {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.value {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.multiline {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.queue-text-block {
+  align-items: start;
+}
+
+.queue-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: stretch;
+  justify-content: center;
+}
+
+button {
+  width: 100%;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.view-pdf {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+.view-pdf:hover {
+  background: #2563eb;
+}
+
+.approve {
+  background: #21c55d;
+  color: white;
+}
+
+.approve:hover {
+  background: #16a34a;
+}
+
+.decline {
+  background: #ef4444;
+  color: white;
+}
+
+.decline:hover {
+  background: #dc2626;
+}
+
+.pdf-link {
+  display: inline-block;
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.pdf-link:hover {
+  text-decoration: underline;
+  color: #1d4ed8;
+}
+
+.no-queue {
+  text-align: center;
+  padding: 18px;
+  font-size: 14px;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 18px;
+  font-size: 14px;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #0f172a;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 8px;
+  z-index: 9999;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 900px) {
+  .queue-item {
+    grid-template-columns: 1fr;
+  }
+
+  .queue-right {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .queue-right button {
+    width: auto;
+    min-width: 120px;
+  }
+
+  .queue-row {
+    grid-template-columns: 100px 1fr;
+  }
+}
