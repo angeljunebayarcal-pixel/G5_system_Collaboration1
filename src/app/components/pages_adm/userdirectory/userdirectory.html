@@ -37,7 +37,13 @@
 
       <div class="user-box" *ngFor="let user of filteredUsers">
         <div class="user-top">
-          <div class="avatar">{{ getInitials(user.fullName) }}</div>
+          <ng-container *ngIf="user.photoURL; else initialsAvatar">
+            <img [src]="user.photoURL" alt="Profile Photo" class="avatar avatar-image">
+          </ng-container>
+
+          <ng-template #initialsAvatar>
+            <div class="avatar">{{ getInitials(user.fullName) }}</div>
+          </ng-template>
 
           <div class="user-main">
             <h3>{{ user.fullName }}</h3>

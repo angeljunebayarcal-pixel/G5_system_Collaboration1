@@ -17,6 +17,7 @@ interface DirectoryUserData {
   gender?: string;
   validIdFileName?: string;
   validIdFileUrl?: string;
+  photoURL?: string;
   createdAt?: any;
 }
 

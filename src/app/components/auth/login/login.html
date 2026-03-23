@@ -28,9 +28,8 @@
         required
       />
 
-      <span class="toggle-eye" (click)="showPassword = !showPassword">
+      <span class="toggle-eye" (click)="togglePassword()">
 
-        <!-- Eye Closed -->
         <svg *ngIf="showPassword"
           xmlns="http://www.w3.org/2000/svg"
           width="22"
@@ -47,7 +46,6 @@
 
         </svg>
 
-        <!-- Eye Open -->
         <svg *ngIf="!showPassword"
           xmlns="http://www.w3.org/2000/svg"
           width="22"
@@ -93,7 +91,6 @@
 
     <h2>Register Official Account</h2>
 
-    <!-- FULL NAME -->
     <input
       type="text"
       [(ngModel)]="regFullName"
@@ -102,7 +99,6 @@
       required
     />
 
-    <!-- EMAIL -->
     <input
       type="email"
       [(ngModel)]="regEmail"
@@ -111,7 +107,7 @@
       required
     />
 
-    <!-- PASSWORD WITH EYE -->
+    <!-- PASSWORD -->
     <div class="password-field">
 
       <input
@@ -122,9 +118,8 @@
         required
       />
 
-      <span class="toggle-eye" (click)="showRegPassword = !showRegPassword">
+      <span class="toggle-eye" (click)="toggleRegPassword()">
 
-        <!-- Eye Closed -->
         <svg *ngIf="showRegPassword"
           xmlns="http://www.w3.org/2000/svg"
           width="22"
@@ -141,7 +136,6 @@
 
         </svg>
 
-        <!-- Eye Open -->
         <svg *ngIf="!showRegPassword"
           xmlns="http://www.w3.org/2000/svg"
           width="22"
@@ -162,7 +156,6 @@
 
     </div>
 
-    <!-- VALID ID PDF -->
     <div class="file-upload">
 
       <label>Upload Valid ID (PDF)</label>
@@ -179,13 +172,9 @@
 
     </div>
 
-    <!-- BUTTONS -->
     <button type="submit">Register</button>
 
-    <button
-      type="button"
-      (click)="showRegister = false"
-    >
+    <button type="button" (click)="showRegister = false">
       Cancel
     </button>
 

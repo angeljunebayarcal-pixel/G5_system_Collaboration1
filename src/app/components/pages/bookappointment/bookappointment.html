@@ -2,13 +2,24 @@
 
   <div class="success-frame" *ngIf="appointmentSubmitted">
     <div class="success-content">
-      <div class="check-icon">✓</div>
-      <h3>Appointment Submitted Successfully!</h3>
-      <p>Your request has been sent to the selected Barangay Official.</p>
+      <div class="check-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <h3>
+        <i class="pi pi-check"></i>
+        Appointment Submitted Successfully!
+      </h3>
+      <p>
+        <i class="pi pi-send"></i>
+        Your request has been sent to the selected Barangay Official.
+      </p>
     </div>
   </div>
 
-  <h2 class="page-title">Book Appointment</h2>
+  <h2 class="page-title">
+    <i class="pi pi-book nav-icon"></i>
+    Book Appointment
+  </h2>
 
   <form
     *ngIf="!appointmentSubmitted"
@@ -18,7 +29,10 @@
     (ngSubmit)="bookAppointment(appointmentForm)">
 
     <div class="form-group">
-      <label>Purpose</label>
+      <label>
+        <i class="pi pi-align-left"></i>
+        Purpose
+      </label>
       <textarea
         [(ngModel)]="details"
         name="details"
@@ -28,22 +42,34 @@
     </div>
 
     <div class="form-group">
-      <label>Upload Valid ID (PDF Only)</label>
+      <label>
+        <i class="pi pi-file-pdf"></i>
+        Upload Valid ID (PDF Only)
+      </label>
       <input
         type="file"
         (change)="onFileChange($event)"
         accept="application/pdf">
-      <small>{{ uploadedFileName }}</small>
+      <small>
+        <i class="pi pi-paperclip"></i>
+        {{ uploadedFileName }}
+      </small>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>Request Date</label>
+        <label>
+          <i class="pi pi-calendar"></i>
+          Request Date
+        </label>
         <input type="date" [(ngModel)]="selectedDate" name="date" required>
       </div>
 
       <div class="form-group">
-        <label>Request Time</label>
+        <label>
+          <i class="pi pi-clock"></i>
+          Request Time
+        </label>
         <input type="time" [(ngModel)]="selectedTime" name="time" required>
       </div>
     </div>
@@ -52,6 +78,7 @@
       type="submit"
       class="submit-btn"
       [disabled]="isSubmitting">
+      <i class="pi pi-send"></i>
       {{ isSubmitting ? 'Submitting...' : 'Submit Appointment' }}
     </button>
 

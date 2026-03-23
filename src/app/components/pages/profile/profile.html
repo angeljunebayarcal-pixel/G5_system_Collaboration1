@@ -1,116 +1,150 @@
-<div class="profile-content">
+<div class="profile-wrapper">
+  <div class="profile-container">
 
-  <h2 class="profile-title">Profile</h2>
+    <div class="hero-banner">
+      <div class="blob blob--top-right"></div>
+      <div class="blob blob--bottom-left"></div>
+      <div class="blob blob--mid-right"></div>
 
-  <div class="profile-tabs">
-    <button
-      type="button"
-      class="tab"
-      [class.active]="activeTab === 'personal'"
-      (click)="switchTab($event, 'personal')">
-      Personal Details
-    </button>
+      <div class="hero-body">
+        <div class="avatar-wrapper">
+          <ng-container *ngIf="personal.photoURL; else initialsAvatar">
+            <img [src]="personal.photoURL" alt="Profile Photo" class="avatar-image">
+          </ng-container>
 
-    <button
-      type="button"
-      class="tab"
-      [class.active]="activeTab === 'account'"
-      (click)="switchTab($event, 'account')">
-      Account Settings
-    </button>
-  </div>
+          <ng-template #initialsAvatar>
+            <div class="avatar">{{ initials }}</div>
+          </ng-template>
 
-  <div *ngIf="loading" class="profile-card">
-    <p>Loading profile...</p>
-  </div>
+          <span class="online-dot"></span>
 
-  <div class="profile-card" *ngIf="!loading && activeTab === 'personal'">
-    <form (ngSubmit)="savePersonal()" #personalForm="ngForm">
-      <div class="form-group">
-        <span class="icon">👤</span>
-        <div class="input-group">
-          <label>Fullname</label>
-          <input type="text" name="fullname" [(ngModel)]="personal.fullname">
+          <label class="upload-photo-btn" for="profileImageInput">
+            <i class="pi pi-camera"></i>
+          </label>
+
+          <input
+            id="profileImageInput"
+            type="file"
+            accept="image/*"
+            (change)="onProfileImageChange($event)"
+            hidden
+          >
+        </div>
+
+        <div class="hero-info">
+          <p class="hero-name">{{ personal.fullname || 'No Name Yet' }}</p>
+          <p class="hero-email">{{ personal.email || 'No Email Yet' }}</p>
+
+          <div class="hero-badges">
+            <span class="badge badge--glass">
+              <i class="pi pi-home"></i>
+              {{ personal.role }}
+            </span>
+
+            <span class="badge badge--green">
+              <i class="pi pi-check-circle"></i>
+              Active
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <span class="icon">📍</span>
-        <div class="input-group">
-          <label>Address</label>
+      <div class="hero-wave">
+        <svg viewBox="0 0 820 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <path d="M0,20 C200,40 600,0 820,20 L820,40 L0,40 Z" fill="#f0f4ff" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i class="pi pi-user"></i>
+        </div>
+        <div>
+          <h2 class="card-title">Personal Information</h2>
+          <p class="card-subtitle">Keep your details up to date</p>
+        </div>
+      </div>
+
+      <form (ngSubmit)="savePersonal()" #personalForm="ngForm">
+        <div class="form-grid two-col">
+          <div class="form-field">
+            <label><i class="pi pi-user"></i> Full Name</label>
+            <input type="text" name="fullname" [(ngModel)]="personal.fullname">
+          </div>
+
+          <div class="form-field">
+            <label><i class="pi pi-phone"></i> Contact Number</label>
+            <input type="text" name="contact" [(ngModel)]="personal.contact">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label><i class="pi pi-map-marker"></i> Home Address</label>
           <input type="text" name="address" [(ngModel)]="personal.address">
         </div>
-      </div>
 
-      <div class="form-group">
-        <span class="icon">📞</span>
-        <div class="input-group">
-          <label>Contact Number</label>
-          <input type="text" name="contact" [(ngModel)]="personal.contact">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <span class="icon">✉️</span>
-        <div class="input-group">
-          <label>Email</label>
+        <div class="form-field">
+          <label><i class="pi pi-envelope"></i> Email Address</label>
           <input type="email" name="email" [(ngModel)]="personal.email">
         </div>
-      </div>
 
-      <div class="form-group">
-        <span class="icon">🧾</span>
-        <div class="input-group">
-          <label>Role</label>
-          <input type="text" name="role" [(ngModel)]="personal.role" readonly>
+        <div class="form-grid two-col">
+          <div class="form-field">
+            <label><i class="pi pi-shield"></i> Emergency Contact</label>
+            <input type="text" name="emergency" [(ngModel)]="personal.emergency" readonly>
+          </div>
+
+          <div class="form-field">
+            <label><i class="pi pi-phone"></i> Emergency Phone</label>
+            <input type="text" name="emergencyPhone" [(ngModel)]="personal.emergencyPhone" readonly>
+          </div>
         </div>
-      </div>
 
-      <button type="submit" class="save-btn">
-        Save Personal Info
-      </button>
-    </form>
+        <div class="form-grid two-col">
+          <div class="form-field">
+            <label><i class="pi pi-id-card"></i> Username</label>
+            <input type="text" name="username" [(ngModel)]="personal.username">
+          </div>
+
+          <div class="form-field">
+            <label><i class="pi pi-briefcase"></i> Role</label>
+            <input type="text" name="role" [(ngModel)]="personal.role" readonly>
+          </div>
+        </div>
+
+        <div class="form-grid two-col">
+          <div class="form-field">
+            <label><i class="pi pi-calendar"></i> Date of Birth</label>
+            <input type="date" name="dob" [(ngModel)]="personal.dob">
+          </div>
+
+          <div class="form-field">
+            <label><i class="pi pi-users"></i> Gender</label>
+            <input type="text" name="gender" [(ngModel)]="personal.gender">
+          </div>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <div class="form-footer">
+          <p class="last-updated">
+            Last updated: {{ personal.fullname ? 'Saved in Firebase' : 'Not yet saved' }}
+          </p>
+
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="saving || uploadingImage"
+            >
+              {{ uploadingImage ? 'Saving Image...' : saving ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
   </div>
-
-  <div class="profile-card" *ngIf="!loading && activeTab === 'account'">
-    <form (ngSubmit)="saveAccount()" #accountForm="ngForm">
-      <div class="form-group">
-        <span class="icon">🔑</span>
-        <div class="input-group">
-          <label>Current Password</label>
-          <input
-            type="password"
-            name="currentPassword"
-            [(ngModel)]="account.currentPassword">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <span class="icon">🆕</span>
-        <div class="input-group">
-          <label>New Password</label>
-          <input
-            type="password"
-            name="newPassword"
-            [(ngModel)]="account.newPassword">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <span class="icon">✅</span>
-        <div class="input-group">
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            [(ngModel)]="account.confirmPassword">
-        </div>
-      </div>
-
-      <button type="submit" class="save-btn">
-        Update Password
-      </button>
-    </form>
-  </div>
-
 </div>

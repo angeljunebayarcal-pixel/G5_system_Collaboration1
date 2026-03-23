@@ -1,8 +1,32 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  NgZone,
+  OnInit,
+  PLATFORM_ID
+} from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import Swal from 'sweetalert2';
+
+type ActivityItem = {
+  message: string;
+  time: string;
+  weight: number;
+};
+
+type ControlCenterCache = {
+  stats: {
+    residents: number;
+    officials: number;
+    pendingOfficials: number;
+    activeRequests: number;
+  };
+  activities: ActivityItem[];
+  visibleActivities: ActivityItem[];
+};
 
 @Component({
   selector: 'app-controlcenter',
@@ -19,53 +43,114 @@ export class Controlcenter implements OnInit {
     activeRequests: 0
   };
 
-  activities: { message: string; time: string }[] = [];
-  visibleActivities: { message: string; time: string }[] = [];
+  activities: ActivityItem[] = [];
+  visibleActivities: ActivityItem[] = [];
 
   loading = true;
   refreshing = false;
   showAllActivitiesModal = false;
 
+  private readonly cacheKey = 'admin_controlcenter_cache';
+
   constructor(
+    @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.loading = true;
-    this.cdr.detectChanges();
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    this.loadCacheImmediate();
     await this.loadDashboard();
   }
 
-  async loadDashboard(): Promise<void> {
-    try {
-      this.loading = true;
-      this.cdr.detectChanges();
+  private loadCacheImmediate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
 
-      const users = await this.authService.getAllUsersForDirectory();
-      const pendingOfficials = await this.authService.getPendingOfficials();
+    try {
+      const raw = localStorage.getItem(this.cacheKey);
+      if (!raw) return;
+
+      const cache: ControlCenterCache = JSON.parse(raw);
+
+      this.stats = cache.stats || {
+        residents: 0,
+        officials: 0,
+        pendingOfficials: 0,
+        activeRequests: 0
+      };
+
+      this.activities = cache.activities || [];
+      this.visibleActivities = cache.visibleActivities || this.activities.slice(0, 3);
+      this.loading = false;
+
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Failed to load control center cache:', error);
+      localStorage.removeItem(this.cacheKey);
+    }
+  }
+
+  private saveCache(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    try {
+      const cache: ControlCenterCache = {
+        stats: this.stats,
+        activities: this.activities,
+        visibleActivities: this.visibleActivities
+      };
+
+      localStorage.setItem(this.cacheKey, JSON.stringify(cache));
+    } catch (error) {
+      console.error('Failed to save control center cache:', error);
+    }
+  }
+
+  async loadDashboard(showLoader = false): Promise<void> {
+    try {
+      if (showLoader) {
+        this.loading = true;
+        this.cdr.detectChanges();
+      }
+
+      const [users, pendingOfficials] = await Promise.all([
+        this.authService.getAllUsersForDirectory(),
+        this.authService.getPendingOfficials()
+      ]);
 
       const residents = users.filter(user => user.role === 'resident').length;
       const officials = users.filter(user => user.role === 'official').length;
       const pendingCount = pendingOfficials.length;
+
       const activeRequests = 0;
 
       const recentUsers = [...users]
         .sort((a, b) => this.toMillis(b.createdAt) - this.toMillis(a.createdAt))
         .slice(0, 8);
 
-      const allActivities = [
-        ...pendingOfficials.slice(0, 5).map((official: any) => ({
+      const pendingActivities: ActivityItem[] = pendingOfficials.slice(0, 5).map((official: any) => {
+        const time = this.formatTimeAgo(official.createdAt);
+        return {
           message: `${official.fullName || 'An official'} is waiting for approval.`,
-          time: this.formatTimeAgo(official.createdAt)
-        })),
-        ...recentUsers.map(user => ({
-          message: `${user.fullName} was registered as ${this.getRoleLabel(user.role)}.`,
-          time: this.formatTimeAgo(user.createdAt)
-        }))
-      ]
-        .sort((a, b) => this.activityTimeWeight(a.time) - this.activityTimeWeight(b.time))
+          time,
+          weight: this.activityTimeWeight(time)
+        };
+      });
+
+      const userActivities: ActivityItem[] = recentUsers.map((user: any) => {
+        const time = this.formatTimeAgo(user.createdAt);
+        return {
+          message: `${user.fullName || 'A user'} was registered as ${this.getRoleLabel(user.role)}.`,
+          time,
+          weight: this.activityTimeWeight(time)
+        };
+      });
+
+      const allActivities = [...pendingActivities, ...userActivities]
+        .sort((a, b) => a.weight - b.weight)
         .slice(0, 10);
 
       this.ngZone.run(() => {
@@ -81,6 +166,8 @@ export class Controlcenter implements OnInit {
 
         this.loading = false;
         this.refreshing = false;
+
+        this.saveCache();
         this.cdr.detectChanges();
       });
 
@@ -114,7 +201,7 @@ export class Controlcenter implements OnInit {
     });
 
     try {
-      await this.loadDashboard();
+      await this.loadDashboard(false);
       Swal.close();
 
       await Swal.fire({
@@ -144,11 +231,15 @@ export class Controlcenter implements OnInit {
     this.cdr.detectChanges();
   }
 
+  trackByActivity(index: number, item: ActivityItem): string {
+    return `${item.message}-${item.time}-${index}`;
+  }
+
   getRoleLabel(role: string): string {
     if (role === 'resident') return 'Resident';
     if (role === 'official') return 'Official';
     if (role === 'admin') return 'Administrator';
-    return role;
+    return role || 'User';
   }
 
   private toMillis(value: any): number {

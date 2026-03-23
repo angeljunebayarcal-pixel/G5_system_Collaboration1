@@ -6,26 +6,39 @@
           <h2>Resident Dashboard</h2>
           <p>Welcome back! Here's what's happening today.</p>
         </div>
-        <button class="refresh" (click)="refreshData()">🔄 Refresh Stats</button>
+
+        <button class="refresh" (click)="refreshData()">
+          <i class="pi pi-refresh"></i>
+          <span>Refresh Stats</span>
+        </button>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card active-appointments">
           <p>Active Appointments</p>
           <h3>{{ activeAppointmentsCount }}</h3>
-          <button class="appointments" (click)="viewAppointments()">View Details →</button>
+          <button class="appointments" (click)="viewAppointments()">
+            <i class="pi pi-calendar"></i>
+            <span>View Details</span>
+          </button>
         </div>
 
         <div class="stat-card pending-certificates">
           <p>Pending Certificates</p>
           <h3>{{ pendingCertificatesCount }}</h3>
-          <button class="certificates" (click)="viewCertificates()">Check Status →</button>
+          <button class="certificates" (click)="viewCertificates()">
+            <i class="pi pi-file"></i>
+            <span>Check Status</span>
+          </button>
         </div>
 
         <div class="stat-card new-notifications">
           <p>New Notifications</p>
           <h3>{{ newNotificationsCount }}</h3>
-          <button class="notifications" (click)="viewNotifications()">Read All →</button>
+          <button class="notifications" (click)="viewNotifications()">
+            <i class="pi pi-bell"></i>
+            <span>Read All</span>
+          </button>
         </div>
       </div>
 
@@ -36,17 +49,20 @@
           <div class="activity-list" *ngIf="recentActivities.length > 0; else emptyState">
             <div
               class="activity-item"
-              *ngFor="let activity of recentActivities"
+              *ngFor="let activity of recentActivities; trackBy: trackByActivityId"
               [ngClass]="activity.type"
             >
               <div class="icon">
-                {{
-                  activity.type === 'appointment'
-                    ? '📅'
-                    : activity.type === 'certificate'
-                    ? '📜'
-                    : '🔔'
-                }}
+                <i
+                  class="pi"
+                  [ngClass]="
+                    activity.type === 'appointment'
+                      ? 'pi-calendar'
+                      : activity.type === 'certificate'
+                      ? 'pi-file'
+                      : 'pi-bell'
+                  "
+                ></i>
               </div>
 
               <div class="activity-text">
@@ -54,7 +70,9 @@
                 <p class="time">{{ activity.time }}</p>
               </div>
 
-              <button class="delete-btn" (click)="deleteActivity(activity)">🗑</button>
+              <button class="delete-btn" (click)="deleteActivity(activity)">
+                <i class="pi pi-trash"></i>
+              </button>
             </div>
           </div>
 
@@ -64,14 +82,29 @@
             </div>
           </ng-template>
 
-          <button class="view-all" (click)="viewAllActivity()">View All Activity</button>
+          <button class="view-all" (click)="viewAllActivity()">
+            <i class="pi pi-external-link"></i>
+            <span>View All Activity</span>
+          </button>
         </div>
 
         <div class="quick-actions">
           <h3>Quick Actions</h3>
-          <button class="new-appointment" (click)="newAppointment()">➕ New Appointment</button>
-          <button class="request-certificate" (click)="newRequest()">📝 Request Certificate</button>
-          <button class="update-profile" (click)="updateProfile()">👤 Update Profile</button>
+
+          <button class="new-appointment" (click)="newAppointment()">
+            <i class="pi pi-plus"></i>
+            <span>New Appointment</span>
+          </button>
+
+          <button class="request-certificate" (click)="newRequest()">
+            <i class="pi pi-file-edit"></i>
+            <span>Request Certificate</span>
+          </button>
+
+          <button class="update-profile" (click)="updateProfile()">
+            <i class="pi pi-user"></i>
+            <span>Update Profile</span>
+          </button>
         </div>
       </div>
     </div>
@@ -79,23 +112,37 @@
 </div>
 
 <div class="all-activities-modal" *ngIf="showAllActivitiesModal">
-  <div class="modal-content">
+  <div class="modal-overlay" (click)="closeAllActivity()"></div>
+
+  <div class="modal-content small-modal">
+    <button
+      class="modal-close right-close"
+      (click)="closeAllActivity()"
+      aria-label="Close modal"
+      type="button"
+    >
+      <i class="pi pi-times"></i>
+    </button>
+
     <h3>All Activities</h3>
 
     <div class="activity-list" *ngIf="allActivities.length > 0; else emptyAllState">
       <div
         class="activity-item"
-        *ngFor="let activity of allActivities"
+        *ngFor="let activity of allActivities; trackBy: trackByActivityId"
         [ngClass]="activity.type"
       >
         <div class="icon">
-          {{
-            activity.type === 'appointment'
-              ? '📅'
-              : activity.type === 'certificate'
-              ? '📜'
-              : '🔔'
-          }}
+          <i
+            class="pi"
+            [ngClass]="
+              activity.type === 'appointment'
+                ? 'pi-calendar'
+                : activity.type === 'certificate'
+                ? 'pi-file'
+                : 'pi-bell'
+            "
+          ></i>
         </div>
 
         <div class="activity-text">
@@ -103,7 +150,9 @@
           <p class="time">{{ activity.time }}</p>
         </div>
 
-        <button class="delete-btn" (click)="deleteActivity(activity)">🗑</button>
+        <button class="delete-btn" (click)="deleteActivity(activity)" type="button">
+          <i class="pi pi-trash"></i>
+        </button>
       </div>
     </div>
 
@@ -112,7 +161,5 @@
         <p>No activities found.</p>
       </div>
     </ng-template>
-
-    <button class="close-modal" (click)="closeAllActivity()">Close</button>
   </div>
 </div>

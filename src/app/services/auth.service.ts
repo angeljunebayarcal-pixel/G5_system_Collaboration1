@@ -10,7 +10,9 @@ import {
   Auth,
   updatePassword,
   EmailAuthProvider,
-  reauthenticateWithCredential
+  reauthenticateWithCredential,
+  updateProfile,
+  updateEmail
 } from 'firebase/auth';
 import {
   getFirestore,
@@ -25,6 +27,13 @@ import {
   where,
   deleteDoc
 } from 'firebase/firestore';
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  FirebaseStorage
+} from 'firebase/storage';
 import { environment } from '../../environments/environment';
 
 export interface UserProfileData {
@@ -40,6 +49,9 @@ export interface UserProfileData {
   gender?: string;
   validIdFileName?: string;
   validIdFileUrl?: string;
+  photoURL?: string;
+  emergencyContact?: string;
+  emergencyPhone?: string;
 }
 
 export interface DirectoryUserData {
@@ -55,6 +67,7 @@ export interface DirectoryUserData {
   gender?: string;
   validIdFileName?: string;
   validIdFileUrl?: string;
+  photoURL?: string;
   createdAt?: any;
 }
 
@@ -104,6 +117,7 @@ export class AuthService {
           gender: extraData['gender'] || '',
           validIdFileName: extraData['validIdFileName'] || '',
           validIdFileUrl: extraData['validIdFileUrl'] || '',
+          photoURL: extraData['photoURL'] || user['photoURL'] || '',
           createdAt: user['createdAt'] || extraData['createdAt'] || null
         } as DirectoryUserData;
       })
@@ -113,27 +127,29 @@ export class AuthService {
   }
 
   async deleteUserDirectoryRecord(
-  uid: string,
-  role: 'resident' | 'official' | 'admin'
-): Promise<void> {
-  await deleteDoc(doc(this.fs, 'users', uid));
+    uid: string,
+    role: 'resident' | 'official' | 'admin'
+  ): Promise<void> {
+    await deleteDoc(doc(this.fs, 'users', uid));
 
-  if (role === 'resident') {
-    await deleteDoc(doc(this.fs, 'residents', uid));
-  }
+    if (role === 'resident') {
+      await deleteDoc(doc(this.fs, 'residents', uid));
+    }
 
-  if (role === 'official') {
-    await deleteDoc(doc(this.fs, 'officials', uid));
+    if (role === 'official') {
+      await deleteDoc(doc(this.fs, 'officials', uid));
+    }
   }
-}
 
   private auth: Auth;
   private fs: Firestore;
+  private storage: FirebaseStorage;
 
   constructor() {
     const app = getApps().length ? getApp() : initializeApp(environment.firebase);
     this.auth = getAuth(app);
     this.fs = getFirestore(app);
+    this.storage = getStorage(app);
   }
 
   async waitForAuthReady(): Promise<User | null> {
@@ -157,6 +173,10 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.auth.currentUser;
+  }
+
+  getCurrentUserId(): string | null {
+    return this.auth.currentUser?.uid || null;
   }
 
   getAuthInstance(): Auth {
@@ -330,7 +350,10 @@ export class AuthService {
         status: user['status'] || 'active',
         username: resident['username'] || '',
         dob: resident['dob'] || '',
-        gender: resident['gender'] || ''
+        gender: resident['gender'] || '',
+        photoURL: resident['photoURL'] || user['photoURL'] || '',
+        emergencyContact: resident['emergencyContact'] || 'Barangay Admin Office',
+        emergencyPhone: resident['emergencyPhone'] || '09123456789'
       };
     }
 
@@ -349,7 +372,13 @@ export class AuthService {
         contact: user['contact'] || '',
         email: user['email'] || currentUser?.email || '',
         role: 'admin',
-        status: user['status'] || 'active'
+        status: user['status'] || 'active',
+        username: user['username'] || '',
+        dob: user['dob'] || '',
+        gender: user['gender'] || '',
+        photoURL: user['photoURL'] || '',
+        emergencyContact: user['emergencyContact'] || 'Barangay Admin Office',
+        emergencyPhone: user['emergencyPhone'] || '09123456789'
       };
     }
 
@@ -372,8 +401,14 @@ export class AuthService {
       email: official['email'] || user['email'] || currentUser?.email || '',
       role: 'official',
       status: official['status'] || user['status'] || 'pending',
+      username: official['username'] || user['username'] || '',
+      dob: official['dob'] || user['dob'] || '',
+      gender: official['gender'] || user['gender'] || '',
       validIdFileName: official['validIdFileName'] || '',
-      validIdFileUrl: official['validIdFileUrl'] || ''
+      validIdFileUrl: official['validIdFileUrl'] || '',
+      photoURL: official['photoURL'] || user['photoURL'] || '',
+      emergencyContact: official['emergencyContact'] || 'Barangay Admin Office',
+      emergencyPhone: official['emergencyPhone'] || '09123456789'
     };
   }
 
@@ -388,41 +423,118 @@ export class AuthService {
     const role = await this.getUserRole(userId);
     if (!role) throw new Error('No role found');
 
+    const emergencyContact = profile.emergencyContact ?? 'Barangay Admin Office';
+    const emergencyPhone = profile.emergencyPhone ?? '09123456789';
+
+    const commonProfileData: any = {
+      fullName: profile.fullName ?? '',
+      address: profile.address ?? '',
+      contact: profile.contact ?? '',
+      email: profile.email ?? '',
+      username: profile.username ?? '',
+      dob: profile.dob ?? '',
+      gender: profile.gender ?? '',
+      emergencyContact,
+      emergencyPhone
+    };
+
+    if (profile.photoURL !== undefined) {
+      commonProfileData.photoURL = profile.photoURL;
+    }
+
     if (role === 'resident') {
-      await updateDoc(doc(this.fs, 'residents', userId), {
+      await setDoc(
+        doc(this.fs, 'residents', userId),
+        commonProfileData,
+        { merge: true }
+      );
+
+      await setDoc(
+        doc(this.fs, 'users', userId),
+        {
+          email: profile.email ?? '',
+          fullName: profile.fullName ?? '',
+          emergencyContact,
+          emergencyPhone,
+          ...(profile.photoURL !== undefined ? { photoURL: profile.photoURL } : {})
+        },
+        { merge: true }
+      );
+
+      if (currentUser && currentUser.uid === userId) {
+        await updateProfile(currentUser, {
+          displayName: profile.fullName ?? currentUser.displayName ?? ''
+        });
+
+        if (profile.email && profile.email !== currentUser.email) {
+          try {
+            await updateEmail(currentUser, profile.email);
+          } catch (error: any) {
+            if (error?.code === 'auth/requires-recent-login') {
+              throw new Error('Changing email requires recent login. Please log out and log in again first.');
+            }
+            throw error;
+          }
+        }
+      }
+
+      return;
+    }
+
+    if (role === 'admin') {
+      await setDoc(
+        doc(this.fs, 'users', userId),
+        {
+          fullName: profile.fullName ?? '',
+          address: profile.address ?? '',
+          contact: profile.contact ?? '',
+          email: profile.email ?? '',
+          username: profile.username ?? '',
+          dob: profile.dob ?? '',
+          gender: profile.gender ?? '',
+          emergencyContact,
+          emergencyPhone,
+          ...(profile.photoURL !== undefined ? { photoURL: profile.photoURL } : {})
+        },
+        { merge: true }
+      );
+
+      if (currentUser && currentUser.uid === userId) {
+        await updateProfile(currentUser, {
+          displayName: profile.fullName ?? currentUser.displayName ?? ''
+        });
+
+        if (profile.email && profile.email !== currentUser.email) {
+          try {
+            await updateEmail(currentUser, profile.email);
+          } catch (error: any) {
+            if (error?.code === 'auth/requires-recent-login') {
+              throw new Error('Changing email requires recent login. Please log out and log in again first.');
+            }
+            throw error;
+          }
+        }
+      }
+
+      return;
+    }
+
+    await setDoc(
+      doc(this.fs, 'users', userId),
+      {
         fullName: profile.fullName ?? '',
         address: profile.address ?? '',
         contact: profile.contact ?? '',
         email: profile.email ?? '',
         username: profile.username ?? '',
         dob: profile.dob ?? '',
-        gender: profile.gender ?? ''
-      });
-
-      await updateDoc(doc(this.fs, 'users', userId), {
-        email: profile.email ?? ''
-      });
-
-      return;
-    }
-
-    if (role === 'admin') {
-      await updateDoc(doc(this.fs, 'users', userId), {
-        fullName: profile.fullName ?? '',
-        address: profile.address ?? '',
-        contact: profile.contact ?? '',
-        email: profile.email ?? ''
-      });
-
-      return;
-    }
-
-    await updateDoc(doc(this.fs, 'users', userId), {
-      fullName: profile.fullName ?? '',
-      address: profile.address ?? '',
-      contact: profile.contact ?? '',
-      email: profile.email ?? ''
-    });
+        gender: profile.gender ?? '',
+        emergencyContact,
+        emergencyPhone,
+        ...(profile.photoURL !== undefined ? { photoURL: profile.photoURL } : {})
+      },
+      { merge: true }
+    );
 
     const officialRef = doc(this.fs, 'officials', userId);
     const officialSnap = await getDoc(officialRef);
@@ -433,6 +545,12 @@ export class AuthService {
         address: profile.address ?? '',
         contact: profile.contact ?? '',
         email: profile.email ?? '',
+        username: profile.username ?? '',
+        dob: profile.dob ?? '',
+        gender: profile.gender ?? '',
+        emergencyContact,
+        emergencyPhone,
+        ...(profile.photoURL !== undefined ? { photoURL: profile.photoURL } : {}),
         validIdFileName: profile.validIdFileName ?? officialSnap.data()['validIdFileName'] ?? '',
         validIdFileUrl: profile.validIdFileUrl ?? officialSnap.data()['validIdFileUrl'] ?? ''
       });
@@ -442,6 +560,12 @@ export class AuthService {
         address: profile.address ?? '',
         contact: profile.contact ?? '',
         email: profile.email ?? '',
+        username: profile.username ?? '',
+        dob: profile.dob ?? '',
+        gender: profile.gender ?? '',
+        emergencyContact,
+        emergencyPhone,
+        ...(profile.photoURL !== undefined ? { photoURL: profile.photoURL } : {}),
         role: 'official',
         status: 'pending',
         validIdFileName: profile.validIdFileName ?? '',
@@ -449,6 +573,67 @@ export class AuthService {
         createdAt: new Date()
       });
     }
+
+    if (currentUser && currentUser.uid === userId) {
+      await updateProfile(currentUser, {
+        displayName: profile.fullName ?? currentUser.displayName ?? ''
+      });
+
+      if (profile.email && profile.email !== currentUser.email) {
+        try {
+          await updateEmail(currentUser, profile.email);
+        } catch (error: any) {
+          if (error?.code === 'auth/requires-recent-login') {
+            throw new Error('Changing email requires recent login. Please log out and log in again first.');
+          }
+          throw error;
+        }
+      }
+    }
+  }
+
+  async saveProfileImageBase64(base64: string, uid?: string): Promise<void> {
+    const currentUser = await this.getCurrentUserAsync();
+    const userId = uid || currentUser?.uid;
+    if (!userId) throw new Error('No user found');
+
+    const role = await this.getUserRole(userId);
+    if (!role) throw new Error('No role found');
+
+    await setDoc(
+      doc(this.fs, 'users', userId),
+      { photoURL: base64 },
+      { merge: true }
+    );
+
+    if (role === 'resident') {
+      await setDoc(
+        doc(this.fs, 'residents', userId),
+        { photoURL: base64 },
+        { merge: true }
+      );
+      return;
+    }
+
+    if (role === 'official') {
+      await setDoc(
+        doc(this.fs, 'officials', userId),
+        { photoURL: base64 },
+        { merge: true }
+      );
+      return;
+    }
+  }
+
+  async uploadProfileImage(file: File): Promise<string> {
+    const currentUser = await this.getCurrentUserAsync();
+    if (!currentUser) throw new Error('No logged in user');
+
+    const filePath = `profile-images/${currentUser.uid}/${Date.now()}_${file.name}`;
+    const storageRef = ref(this.storage, filePath);
+
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
   }
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {

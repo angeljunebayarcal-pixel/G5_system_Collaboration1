@@ -2,13 +2,24 @@
 
   <div class="success-frame" *ngIf="requestSubmitted">
     <div class="success-content">
-      <div class="check-icon">✓</div>
-      <h3>Request Submitted Successfully!</h3>
-      <p>Your certificate request has been sent for processing.</p>
+      <div class="check-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <h3>
+        <i class="pi pi-check"></i>
+        Request Submitted Successfully!
+      </h3>
+      <p>
+        <i class="pi pi-send"></i>
+        Your certificate request has been sent for processing.
+      </p>
     </div>
   </div>
 
-  <h2 class="page-title">Certificate Request</h2>
+  <h2 class="page-title">
+    <i class="pi pi-folder nav-icon"></i>
+    Certificate Request
+  </h2>
 
   <form
     *ngIf="!requestSubmitted"
@@ -17,7 +28,10 @@
     (ngSubmit)="submitRequest(certificateForm)">
 
     <div class="form-group">
-      <label>Certificate Type</label>
+      <label>
+        <i class="pi pi-list"></i>
+        Certificate Type
+      </label>
       <select [(ngModel)]="type" name="type" required class="form-control">
         <option value="">-- Select Certificate --</option>
         <option>Barangay Clearance</option>
@@ -32,7 +46,10 @@
     </div>
 
     <div class="form-group">
-      <label>Purpose</label>
+      <label>
+        <i class="pi pi-align-left"></i>
+        Purpose
+      </label>
       <textarea
         [(ngModel)]="purpose"
         name="purpose"
@@ -43,23 +60,35 @@
     </div>
 
     <div class="form-group">
-      <label>Attach Supporting Document (PDF Only)</label>
+      <label>
+        <i class="pi pi-file-pdf"></i>
+        Attach Supporting Document (PDF Only)
+      </label>
       <input
         type="file"
         (change)="onFileChange($event)"
         accept="application/pdf"
         class="form-control">
-      <small>{{ uploadedFileName }}</small>
+      <small>
+        <i class="pi pi-paperclip"></i>
+        {{ uploadedFileName }}
+      </small>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>Request Date</label>
+        <label>
+          <i class="pi pi-calendar"></i>
+          Request Date
+        </label>
         <input type="date" [(ngModel)]="date" name="date" required class="form-control">
       </div>
 
       <div class="form-group">
-        <label>Request Time</label>
+        <label>
+          <i class="pi pi-clock"></i>
+          Request Time
+        </label>
         <input type="time" [(ngModel)]="time" name="time" required class="form-control">
       </div>
     </div>
@@ -68,6 +97,7 @@
       type="submit"
       class="submit-btn"
       [disabled]="isSubmitting">
+      <i class="pi pi-send"></i>
       {{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
     </button>
 

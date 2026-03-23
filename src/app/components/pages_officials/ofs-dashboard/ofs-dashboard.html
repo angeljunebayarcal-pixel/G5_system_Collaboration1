@@ -5,7 +5,9 @@
         <h2>Official Dashboard</h2>
         <p>Managing Municipality of Villanueva Affairs.</p>
       </div>
-      <button class="refresh" (click)="refreshData()">🔄 Refresh Stats</button>
+      <button class="refresh" (click)="refreshData()">
+        <i class="pi pi-refresh"></i> Refresh Stats
+      </button>
     </div>
 
     <div class="dashboard-cards">
@@ -68,10 +70,14 @@
                 </span>
               </td>
               <td>
-                <button class="btn review" (click)="reviewRequest(item)">Review</button>
+                <button class="btn review" (click)="reviewRequest(item)">
+                  <i class="pi pi-eye"></i> Review
+                </button>
               </td>
               <td>
-                <button class="btn delete" (click)="deleteRequest(item)">🗑</button>
+                <button class="btn delete" (click)="deleteRequest(item)">
+                  <i class="pi pi-trash"></i>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -88,7 +94,9 @@
         <h3>Official Tools</h3>
         <div class="tools-list">
           <button class="tool-btn" (click)="announce()">
-            <span class="icon">📢</span>
+            <span class="icon">
+              <i class="pi pi-megaphone"></i>
+            </span>
             <div>
               <p>Broadcast Announcement</p>
               <p class="sub-text">Send announcement to residents</p>
@@ -96,7 +104,9 @@
           </button>
 
           <button class="tool-btn" (click)="manageResidents()">
-            <span class="icon">👥</span>
+            <span class="icon">
+              <i class="pi pi-users"></i>
+            </span>
             <div>
               <p>Resident Directory</p>
               <p class="sub-text">Manage profile and validation</p>
@@ -104,7 +114,9 @@
           </button>
 
           <button class="tool-btn" (click)="systemLogs()">
-            <span class="icon">📜</span>
+            <span class="icon">
+              <i class="pi pi-file"></i>
+            </span>
             <div>
               <p>System Audit Logs</p>
               <p class="sub-text">Track all system transactions</p>
@@ -117,7 +129,13 @@
 </div>
 
 <div class="all-activities-modal" *ngIf="showAllRequestsModal">
+  <div class="modal-overlay" (click)="closeAllRequests()"></div>
+
   <div class="modal-content large-modal">
+    <button class="modal-close" (click)="closeAllRequests()">
+      <i class="pi pi-times"></i>
+    </button>
+
     <h3>All Requests</h3>
 
     <div class="table-wrap" *ngIf="allApplications.length > 0; else emptyAllRequests">
@@ -148,10 +166,14 @@
               </span>
             </td>
             <td>
-              <button class="btn review" (click)="reviewRequest(item)">Review</button>
+              <button class="btn review" (click)="reviewRequest(item)">
+                <i class="pi pi-eye"></i> Review
+              </button>
             </td>
             <td>
-              <button class="btn delete" (click)="deleteRequest(item)">🗑</button>
+              <button class="btn delete" (click)="deleteRequest(item)">
+                <i class="pi pi-trash"></i>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -163,13 +185,17 @@
         <p>No requests found.</p>
       </div>
     </ng-template>
-
-    <button class="close-modal" (click)="closeAllRequests()">Close</button>
   </div>
 </div>
 
 <div class="all-activities-modal" *ngIf="showAuditLogsModal">
+  <div class="modal-overlay" (click)="closeAuditLogs()"></div>
+
   <div class="modal-content">
+    <button class="modal-close" (click)="closeAuditLogs()">
+      <i class="pi pi-times"></i>
+    </button>
+
     <h3>System Audit Logs</h3>
 
     <div class="logs-list" *ngIf="auditLogs.length > 0; else emptyLogs">
@@ -185,7 +211,5 @@
         <p>No logs found.</p>
       </div>
     </ng-template>
-
-    <button class="close-modal" (click)="closeAuditLogs()">Close</button>
   </div>
 </div>

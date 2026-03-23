@@ -1,6 +1,5 @@
 <div class="content">
   <div class="dashboard">
-
     <div class="dashboard-header">
       <div class="header-text">
         <h2>Control Center</h2>
@@ -8,7 +7,8 @@
       </div>
 
       <button class="refresh" (click)="refreshDashboard()" [disabled]="refreshing">
-        {{ refreshing ? 'Refreshing...' : '⟳ Refresh' }}
+        <i class="pi pi-refresh"></i>
+        {{ refreshing ? 'Refreshing...' : 'Refresh Stats' }}
       </button>
     </div>
 
@@ -17,7 +17,7 @@
         <p>Total Residents</p>
         <div class="card-info">
           <h3>{{ stats.residents }}</h3>
-          <span class="badge blue">Registry</span>
+          <span class="badge blue">Registry data</span>
         </div>
       </div>
 
@@ -25,7 +25,7 @@
         <p>Total Officials</p>
         <div class="card-info">
           <h3>{{ stats.officials }}</h3>
-          <span class="badge green">Verified</span>
+          <span class="badge green">Verified users</span>
         </div>
       </div>
 
@@ -33,7 +33,7 @@
         <p>Pending Approvals</p>
         <div class="card-info">
           <h3>{{ stats.pendingOfficials }}</h3>
-          <span class="badge red">Needs Review</span>
+          <span class="badge red">Needs review</span>
         </div>
       </div>
 
@@ -41,17 +41,13 @@
         <p>Active Requests</p>
         <div class="card-info">
           <h3>{{ stats.activeRequests }}</h3>
-          <span class="badge orange">In Progress</span>
+          <span class="badge orange">In progress</span>
         </div>
       </div>
     </div>
 
-    <div class="alert-strip" *ngIf="stats.pendingOfficials > 0">
-      {{ stats.pendingOfficials }} officials are currently waiting for approval.
-    </div>
-
     <div class="dashboard-main">
-      <div class="section">
+      <div class="recent-activities section">
         <div class="section-header">
           <h3>Live Activity</h3>
           <button class="view-all" (click)="openAllActivities()" *ngIf="activities.length > 0">
@@ -59,38 +55,44 @@
           </button>
         </div>
 
-        <div *ngIf="visibleActivities.length === 0" class="empty-state">
-          No recent activity.
-        </div>
-
-        <div class="activity-list" *ngIf="visibleActivities.length > 0">
-          <div class="activity-item" *ngFor="let activity of visibleActivities">
+        <div class="activity-list" *ngIf="visibleActivities.length > 0; else emptyActivities">
+          <div class="activity-item" *ngFor="let activity of visibleActivities; trackBy: trackByActivity">
             <span class="dot"></span>
-            <div>
+            <div class="activity-content">
               <p>{{ activity.message }}</p>
               <span class="time">{{ activity.time }}</span>
             </div>
           </div>
         </div>
+
+        <ng-template #emptyActivities>
+          <div class="empty-state">
+            <p>No recent activity.</p>
+          </div>
+        </ng-template>
       </div>
 
-      <div class="section official-tools">
+      <div class="official-tools section">
         <h3>Quick Actions</h3>
 
         <div class="tools-list">
           <button class="tool-btn" routerLink="/home-adm/approvalqueue">
-            <span class="icon">✅</span>
-            <div class="tool-text">
+            <span class="icon">
+              <i class="pi pi-check-circle"></i>
+            </span>
+            <div>
               <p>Approval Queue</p>
-              <div class="sub-text">Review pending officials</div>
+              <p class="sub-text">Review pending officials</p>
             </div>
           </button>
 
           <button class="tool-btn" routerLink="/home-adm/userdirectory">
-            <span class="icon">👥</span>
-            <div class="tool-text">
+            <span class="icon">
+              <i class="pi pi-users"></i>
+            </span>
+            <div>
               <p>User Directory</p>
-              <div class="sub-text">Browse all registered users</div>
+              <p class="sub-text">Browse all registered users</p>
             </div>
           </button>
         </div>
@@ -113,25 +115,30 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <div class="all-activities-modal" *ngIf="showAllActivitiesModal">
-  <div class="modal-content">
+  <div class="modal-overlay" (click)="closeAllActivities()"></div>
+
+  <div class="modal-content large-modal">
+    <button class="modal-close" (click)="closeAllActivities()">
+      <i class="pi pi-times"></i>
+    </button>
+
     <h3>All Live Activities</h3>
 
-    <div class="logs-list" *ngIf="activities.length > 0">
-      <div class="log-item" *ngFor="let activity of activities">
-        <p>{{ activity.message }}</p>
-        <div class="sub-text">{{ activity.time }}</div>
+    <div class="logs-list" *ngIf="activities.length > 0; else emptyAllActivities">
+      <div class="log-item" *ngFor="let activity of activities; trackBy: trackByActivity">
+        <p><strong>{{ activity.message }}</strong></p>
+        <p class="sub-text">{{ activity.time }}</p>
       </div>
     </div>
 
-    <div class="empty-state" *ngIf="activities.length === 0">
-      No recent activity.
-    </div>
-
-    <button class="close-modal" (click)="closeAllActivities()">Close</button>
+    <ng-template #emptyAllActivities>
+      <div class="empty-state">
+        <p>No recent activity.</p>
+      </div>
+    </ng-template>
   </div>
 </div>

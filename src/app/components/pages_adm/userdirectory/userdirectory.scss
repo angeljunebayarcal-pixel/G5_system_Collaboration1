@@ -95,6 +95,14 @@
   justify-content: center;
   font-weight: 700;
   font-size: 15px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-image {
+  object-fit: cover;
+  background: #e2e8f0;
+  color: transparent;
 }
 
 .user-main h3 {

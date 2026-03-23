@@ -18,6 +18,15 @@ type ActivityItem = {
   sortTime: number;
 };
 
+type DashboardCache = {
+  residentId: string;
+  activeAppointmentsCount: number;
+  pendingCertificatesCount: number;
+  newNotificationsCount: number;
+  recentActivities: ActivityItem[];
+  allActivities: ActivityItem[];
+};
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -56,6 +65,8 @@ export class Dashboard implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
+    this.loadLatestDashboardCacheImmediate();
+
     const auth = this.authService.getAuthInstance();
 
     this.authUnsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -66,20 +77,29 @@ export class Dashboard implements OnInit, OnDestroy {
         return;
       }
 
-      const role = await this.authService.getUserRole(user.uid);
+      this.residentId = user.uid;
 
-      if (role !== 'resident') {
+      this.loadDashboardCacheForCurrentResident();
+      this.clearSubscriptions();
+
+      try {
+        const role = await this.authService.getUserRole(user.uid);
+
+        if (role !== 'resident') {
+          this.resetDashboard();
+          this.clearSubscriptions();
+          this.router.navigate(['/login']);
+          return;
+        }
+
+        this.loadDashboardData();
+        this.cdr.detectChanges();
+      } catch (error) {
+        console.error('Role check error:', error);
         this.resetDashboard();
         this.clearSubscriptions();
         this.router.navigate(['/login']);
-        return;
       }
-
-      this.residentId = user.uid;
-
-      this.resetDashboard();
-      this.clearSubscriptions();
-      this.loadDashboardData();
     });
   }
 
@@ -90,6 +110,10 @@ export class Dashboard implements OnInit, OnDestroy {
       this.authUnsubscribe();
       this.authUnsubscribe = null;
     }
+  }
+
+  private get cacheKey(): string {
+    return this.residentId ? `resident_dashboard_cache_${this.residentId}` : 'resident_dashboard_cache';
   }
 
   private clearSubscriptions(): void {
@@ -108,6 +132,72 @@ export class Dashboard implements OnInit, OnDestroy {
     this.allActivities = [];
   }
 
+  private loadLatestDashboardCacheImmediate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const possibleKeys = [
+      'resident_dashboard_cache',
+      ...Object.keys(localStorage).filter((key) => key.startsWith('resident_dashboard_cache_'))
+    ];
+
+    for (const key of possibleKeys) {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+
+      try {
+        const cache: DashboardCache = JSON.parse(raw);
+
+        this.residentId = cache.residentId || this.residentId;
+        this.activeAppointmentsCount = cache.activeAppointmentsCount || 0;
+        this.pendingCertificatesCount = cache.pendingCertificatesCount || 0;
+        this.newNotificationsCount = cache.newNotificationsCount || 0;
+        this.recentActivities = cache.recentActivities || [];
+        this.allActivities = cache.allActivities || [];
+
+        this.cdr.detectChanges();
+        return;
+      } catch {
+        localStorage.removeItem(key);
+      }
+    }
+  }
+
+  private loadDashboardCacheForCurrentResident(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.residentId) return;
+
+    const raw = localStorage.getItem(this.cacheKey);
+    if (!raw) return;
+
+    try {
+      const cache: DashboardCache = JSON.parse(raw);
+
+      this.activeAppointmentsCount = cache.activeAppointmentsCount || 0;
+      this.pendingCertificatesCount = cache.pendingCertificatesCount || 0;
+      this.newNotificationsCount = cache.newNotificationsCount || 0;
+      this.recentActivities = cache.recentActivities || [];
+      this.allActivities = cache.allActivities || [];
+
+      this.cdr.detectChanges();
+    } catch {
+      localStorage.removeItem(this.cacheKey);
+    }
+  }
+
+  private saveDashboardCache(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.residentId) return;
+
+    const cache: DashboardCache = {
+      residentId: this.residentId,
+      activeAppointmentsCount: this.activeAppointmentsCount,
+      pendingCertificatesCount: this.pendingCertificatesCount,
+      newNotificationsCount: this.newNotificationsCount,
+      recentActivities: this.recentActivities,
+      allActivities: this.allActivities
+    };
+
+    localStorage.setItem(this.cacheKey, JSON.stringify(cache));
+  }
+
   private loadDashboardData(): void {
     const appointmentsSub = this.appointmentService
       .getResidentAppointments(this.residentId)
@@ -118,6 +208,7 @@ export class Dashboard implements OnInit, OnDestroy {
             (item) => item.status === 'pending' || item.status === 'approved'
           ).length;
           this.buildActivities();
+          this.saveDashboardCache();
           this.cdr.detectChanges();
         },
         error: (error) => console.error('Appointments load error:', error)
@@ -132,6 +223,7 @@ export class Dashboard implements OnInit, OnDestroy {
             (item) => item.status === 'pending' || item.status === 'approved'
           ).length;
           this.buildActivities();
+          this.saveDashboardCache();
           this.cdr.detectChanges();
         },
         error: (error) => console.error('Certifications load error:', error)
@@ -144,6 +236,7 @@ export class Dashboard implements OnInit, OnDestroy {
           this.notifications = data;
           this.newNotificationsCount = data.filter((item) => !item.isRead).length;
           this.buildActivities();
+          this.saveDashboardCache();
           this.cdr.detectChanges();
         },
         error: (error) => console.error('Notifications load error:', error)
@@ -162,7 +255,7 @@ export class Dashboard implements OnInit, OnDestroy {
           : a.status === 'canceled'
           ? 'Appointment Declined'
           : 'Appointment Submitted',
-      time: this.formatDate(a.createdAt, `${a.details.date} at ${a.details.time}`),
+      time: this.formatDate(a.createdAt, `${a.details?.date || ''} ${a.details?.time ? 'at ' + a.details.time : ''}`.trim()),
       sortTime: this.getSortTime(a.createdAt)
     }));
 
@@ -171,13 +264,13 @@ export class Dashboard implements OnInit, OnDestroy {
       type: 'certificate',
       title:
         c.status === 'approved'
-          ? `${c.details.type} Approved`
+          ? `${c.details?.type || 'Certificate'} Approved`
           : c.status === 'released'
-          ? `${c.details.type} Released`
+          ? `${c.details?.type || 'Certificate'} Released`
           : c.status === 'rejected'
-          ? `${c.details.type} Rejected`
-          : `${c.details.type} Request Submitted`,
-      time: this.formatDate(c.createdAt, `${c.details.date} at ${c.details.time}`),
+          ? `${c.details?.type || 'Certificate'} Rejected`
+          : `${c.details?.type || 'Certificate'} Request Submitted`,
+      time: this.formatDate(c.createdAt, `${c.details?.date || ''} ${c.details?.time ? 'at ' + c.details.time : ''}`.trim()),
       sortTime: this.getSortTime(c.createdAt)
     }));
 
@@ -195,18 +288,18 @@ export class Dashboard implements OnInit, OnDestroy {
       ...notificationActivities
     ].sort((a, b) => b.sortTime - a.sortTime);
 
-    this.recentActivities = this.allActivities.slice(0, 4);
+    this.recentActivities = this.allActivities.slice(0, 3);
   }
 
   private formatDate(createdAt: any, fallback: string): string {
-    if (!createdAt) return fallback;
+    if (!createdAt) return fallback || 'Recently';
 
     if (createdAt?.toDate) {
       return createdAt.toDate().toLocaleString();
     }
 
     const parsed = new Date(createdAt);
-    return isNaN(parsed.getTime()) ? fallback : parsed.toLocaleString();
+    return isNaN(parsed.getTime()) ? (fallback || 'Recently') : parsed.toLocaleString();
   }
 
   private getSortTime(createdAt: any): number {
@@ -218,6 +311,10 @@ export class Dashboard implements OnInit, OnDestroy {
 
     const parsed = new Date(createdAt);
     return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+  }
+
+  trackByActivityId(index: number, activity: ActivityItem): string {
+    return `${activity.type}-${activity.id}`;
   }
 
   async deleteActivity(activity: ActivityItem): Promise<void> {
@@ -249,7 +346,6 @@ export class Dashboard implements OnInit, OnDestroy {
         timer: 1800,
         showConfirmButton: false
       });
-
     } catch (error) {
       console.error('Delete activity error:', error);
 
@@ -263,11 +359,16 @@ export class Dashboard implements OnInit, OnDestroy {
 
   async refreshData(): Promise<void> {
     this.clearSubscriptions();
-    this.resetDashboard();
     this.loadDashboardData();
     this.cdr.detectChanges();
 
-    Swal.fire('Updated', 'Dashboard data refreshed.', 'success');
+    Swal.fire({
+      icon: 'success',
+      title: 'Updated',
+      text: 'Dashboard data refreshed.',
+      timer: 1200,
+      showConfirmButton: false
+    });
   }
 
   viewAppointments(): void {
@@ -284,10 +385,12 @@ export class Dashboard implements OnInit, OnDestroy {
 
   viewAllActivity(): void {
     this.showAllActivitiesModal = true;
+    this.cdr.detectChanges();
   }
 
   closeAllActivity(): void {
     this.showAllActivitiesModal = false;
+    this.cdr.detectChanges();
   }
 
   newAppointment(): void {

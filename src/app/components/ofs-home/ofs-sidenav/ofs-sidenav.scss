@@ -316,6 +316,14 @@ nav {
     letter-spacing: 0.2px;
   }
 }
+ .nav-icon {
+  width: 28px;
+  flex-shrink: 0;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
 // ─── Animations ──────────────────────────────────────────────────────────────
 @keyframes pulse-dot {
