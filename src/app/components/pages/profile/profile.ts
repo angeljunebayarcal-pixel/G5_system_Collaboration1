@@ -111,7 +111,10 @@ export class Profile implements OnInit {
     this.personal.gender = profile.gender || '';
     this.personal.photoURL = profile.photoURL || '';
     this.personal.emergency = profile.emergencyContact || 'Barangay Admin Office';
-    this.personal.emergencyPhone = profile.emergencyPhone || '09123456789';
+    this.personal.emergencyPhone =
+      profile.role === 'admin'
+        ? (profile.contact || profile.emergencyPhone || '09123456789')
+        : (profile.emergencyPhone || '09123456789');
   }
 
   async onProfileImageChange(event: Event) {
@@ -192,6 +195,11 @@ export class Profile implements OnInit {
         didOpen: () => Swal.showLoading()
       });
 
+      const computedEmergencyPhone =
+        this.personal.role === 'Admin'
+          ? this.personal.contact
+          : '09123456789';
+
       await this.authService.updateProfileData({
         fullName: this.personal.fullname,
         address: this.personal.address,
@@ -201,8 +209,10 @@ export class Profile implements OnInit {
         dob: this.personal.dob,
         gender: this.personal.gender,
         emergencyContact: 'Barangay Admin Office',
-        emergencyPhone: '09123456789'
+        emergencyPhone: computedEmergencyPhone
       });
+
+      this.personal.emergencyPhone = computedEmergencyPhone;
 
       const cacheKey = this.getProfileCacheKey();
       if (cacheKey) {
@@ -216,7 +226,7 @@ export class Profile implements OnInit {
           gender: this.personal.gender,
           photoURL: this.personal.photoURL,
           emergencyContact: 'Barangay Admin Office',
-          emergencyPhone: '09123456789',
+          emergencyPhone: computedEmergencyPhone,
           role: this.personal.role.toLowerCase()
         }));
       }

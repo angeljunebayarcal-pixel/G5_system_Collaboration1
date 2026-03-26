@@ -101,31 +101,40 @@ handleEnterKey(event: Event) {
         return;
       }
 
-      if (role === 'official' && status !== 'active') {
-        await this.authService.logout();
+      if (role === 'official') {
 
-        if (status === 'pending') {
-          Swal.fire(
-            'Approval Required',
-            'Your official account is still pending admin approval.',
-            'warning'
-          );
-        } else if (status === 'declined') {
-          Swal.fire(
-            'Access Denied',
-            'Your official registration has been declined by the admin.',
-            'error'
-          );
-        } else {
-          Swal.fire(
-            'Access Denied',
-            'Your official account is not yet allowed to login.',
-            'error'
-          );
-        }
+  if (status === 'pending') {
+    await this.authService.logout();
 
-        return;
-      }
+    Swal.fire(
+      'Approval Required',
+      'Your official account is still pending admin approval.',
+      'warning'
+    );
+    return;
+  }
+
+  if (status === 'declined') {
+    await this.authService.logout();
+
+    Swal.fire(
+      'Access Denied',
+      'Your official registration has been declined by the admin.',
+      'error'
+    );
+    return;
+  }
+
+  // ✅ INACTIVE (DEACTIVATED) → ALLOW LOGIN (OPTIONAL MESSAGE)
+  if (status === 'inactive') {
+    Swal.fire({
+      icon: 'info',
+      title: 'Account Inactive',
+      text: 'Your account is currently deactivated, but you can still access the system.'
+    });
+    // ❗ NO logout, NO return → continues login
+  }
+}
 
       await Swal.fire({
         title: 'Login Successful!',

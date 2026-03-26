@@ -9,16 +9,16 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="officialFullNameDisplay">Full Name</label>
-        <p id="officialFullNameDisplay">{{ fullName || 'No name set' }}</p>
+        <label for="adminFullNameDisplay">Full Name</label>
+        <p id="adminFullNameDisplay">{{ fullName || 'No name set' }}</p>
       </div>
       <button type="button" (click)="editFullName()">Edit</button>
     </div>
 
     <div class="setting-item clickable">
       <div>
-        <label for="officialEmailDisplay">Email Address</label>
-        <p id="officialEmailDisplay">{{ email || 'No email set' }}</p>
+        <label for="adminEmailDisplay">Email Address</label>
+        <p id="adminEmailDisplay">{{ email || 'No email set' }}</p>
       </div>
       <button type="button" (click)="editEmail()">Edit</button>
     </div>
@@ -31,13 +31,13 @@
 
     <div class="setting-item">
       <div>
-        <label for="officialEmailNotifications">Email Notifications</label>
+        <label for="adminEmailNotifications">Email Notifications</label>
         <p>Receive updates through email</p>
       </div>
 
-      <label class="switch" for="officialEmailNotifications">
+      <label class="switch" for="adminEmailNotifications">
         <input
-          id="officialEmailNotifications"
+          id="adminEmailNotifications"
           type="checkbox"
           [(ngModel)]="settings.emailNotifications"
           (change)="saveToggle('emailNotifications')"
@@ -48,13 +48,13 @@
 
     <div class="setting-item">
       <div>
-        <label for="officialSmsNotifications">SMS Notifications</label>
+        <label for="adminSmsNotifications">SMS Notifications</label>
         <p>Receive SMS alerts</p>
       </div>
 
-      <label class="switch" for="officialSmsNotifications">
+      <label class="switch" for="adminSmsNotifications">
         <input
-          id="officialSmsNotifications"
+          id="adminSmsNotifications"
           type="checkbox"
           [(ngModel)]="settings.smsNotifications"
           (change)="saveToggle('smsNotifications')"
@@ -71,19 +71,19 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="officialChangePasswordBtn">Change Password</label>
+        <label for="adminChangePasswordBtn">Change Password</label>
         <p>Update your account password</p>
       </div>
-      <button id="officialChangePasswordBtn" type="button" (click)="changePassword()">Change</button>
+      <button id="adminChangePasswordBtn" type="button" (click)="changePassword()">Change</button>
     </div>
 
     <div class="setting-item clickable danger">
       <div>
-        <label for="officialDeactivateBtn">Deactivate Account</label>
+        <label for="adminDeactivateBtn">Deactivate Account</label>
         <p>Permanently disable your account</p>
       </div>
       <button
-        id="officialDeactivateBtn"
+        id="adminDeactivateBtn"
         type="button"
         class="danger-btn"
         (click)="deactivateAccount()"
@@ -100,13 +100,13 @@
 
     <div class="setting-item">
       <div>
-        <label for="officialShowContactInfo">Show Contact Information</label>
+        <label for="adminShowContactInfo">Show Contact Information</label>
         <p>Allow authorized staff to view your contact details</p>
       </div>
 
-      <label class="switch" for="officialShowContactInfo">
+      <label class="switch" for="adminShowContactInfo">
         <input
-          id="officialShowContactInfo"
+          id="adminShowContactInfo"
           type="checkbox"
           [(ngModel)]="settings.showContactInfo"
           (change)="saveToggle('showContactInfo')"
@@ -117,13 +117,13 @@
 
     <div class="setting-item">
       <div>
-        <label for="officialActivityStatus">Activity Status</label>
+        <label for="adminActivityStatus">Activity Status</label>
         <p>Show when you are active in the system</p>
       </div>
 
-      <label class="switch" for="officialActivityStatus">
+      <label class="switch" for="adminActivityStatus">
         <input
-          id="officialActivityStatus"
+          id="adminActivityStatus"
           type="checkbox"
           [(ngModel)]="settings.activityStatus"
           (change)="saveToggle('activityStatus')"
@@ -134,11 +134,11 @@
 
     <div class="setting-item clickable danger">
       <div>
-        <label for="officialDeleteAccountBtn">Delete Account</label>
+        <label for="adminDeleteAccountBtn">Delete Account</label>
         <p>Permanently remove your personal data</p>
       </div>
       <button
-        id="officialDeleteAccountBtn"
+        id="adminDeleteAccountBtn"
         type="button"
         class="danger-btn"
         (click)="deleteAccount()"
@@ -151,10 +151,10 @@
   <div class="settings-card">
     <div class="setting-item clickable danger">
       <div>
-        <label for="officialLogoutBtn">Logout</label>
+        <label for="adminLogoutBtn">Logout</label>
         <p>Sign out and return to the login page</p>
       </div>
-      <button id="officialLogoutBtn" type="button" class="danger-btn" (click)="logout()">
+      <button id="adminLogoutBtn" type="button" class="danger-btn" (click)="logout()">
         Logout
       </button>
     </div>
@@ -163,7 +163,7 @@
 
 <ng-template #loadingState>
   <div class="settings-container">
-    <h1 class="page-title">Official Settings</h1>
+    <h1 class="page-title">Administrator Settings</h1>
     <div class="settings-card">
       <p>Loading settings...</p>
     </div>

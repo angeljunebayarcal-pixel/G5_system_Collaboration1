@@ -15,10 +15,12 @@ import { SettingsService, UserSettingsData } from '../../../services/settings.se
   styleUrl: './adm-settings.scss',
 })
 export class AdmSettings implements OnInit {
-  uid = '';
+  loading = true;
+
   fullName = '';
   email = '';
   roleLabel = 'Administrator';
+  uid = '';
 
   settings: UserSettingsData = {
     emailNotifications: true,
@@ -27,74 +29,85 @@ export class AdmSettings implements OnInit {
     activityStatus: true
   };
 
-  loading = true;
-  saving = false;
-
   constructor(
-    private router: Router,
     private authService: AuthService,
     private settingsService: SettingsService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
     private ngZone: NgZone
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.loading = true;
-    this.cdr.detectChanges();
-
     try {
-      const user = await this.authService.getCurrentUserAsync();
+      const currentUser = await this.authService.getCurrentUserAsync();
 
-      if (!user) {
-        this.ngZone.run(() => {
-          this.router.navigate(['/login']);
-        });
+      if (!currentUser) {
+        this.loading = false;
+        this.cdr.detectChanges();
         return;
       }
 
-      this.uid = user.uid;
+      this.uid = currentUser.uid;
 
-      const [profile, settings] = await Promise.all([
-        this.authService.getProfileData(user.uid),
-        this.settingsService.getSettings(user.uid)
+      const [profile, savedSettings] = await Promise.all([
+        this.authService.getProfileData(currentUser.uid),
+        this.settingsService.getSettings(currentUser.uid)
       ]);
 
-      this.ngZone.run(() => {
-        this.fullName = profile?.fullName || '';
-        this.email = profile?.email || user.email || '';
+      this.fullName = profile?.fullName || '';
+      this.email = profile?.email || currentUser.email || '';
+      this.settings = savedSettings;
+
+      if (profile?.role === 'official') {
+        this.roleLabel = 'Official';
+      } else if (profile?.role === 'admin') {
         this.roleLabel = 'Administrator';
-        this.settings = settings;
-        this.loading = false;
-        this.cdr.detectChanges();
-      });
+      } else {
+        this.roleLabel = 'Resident';
+      }
+
+      this.authService.updateOwnStatus(
+        this.uid,
+        this.settings.activityStatus ? 'active' : 'inactive'
+      );
+
+      this.loading = false;
+      this.cdr.detectChanges();
+
     } catch (error) {
-      console.error('Admin settings load error:', error);
-
-      this.ngZone.run(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      });
-
+      console.error('Failed to load settings:', error);
+      this.loading = false;
+      this.cdr.detectChanges();
       Swal.fire('Error', 'Failed to load settings.', 'error');
     }
   }
 
   async saveToggle(field: keyof UserSettingsData): Promise<void> {
-    if (!this.uid) return;
-
     try {
-      this.saving = true;
-      this.cdr.detectChanges();
+      if (!this.uid) return;
 
       await this.settingsService.updateSettings(this.uid, {
         [field]: this.settings[field]
       });
+
+      if (field === 'activityStatus') {
+        await this.authService.updateOwnStatus(
+          this.uid,
+          this.settings.activityStatus ? 'active' : 'inactive'
+        );
+      }
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Setting updated',
+        showConfirmButton: false,
+        timer: 1500
+      });
     } catch (error) {
-      console.error('Settings save error:', error);
+      console.error('Failed to save toggle:', error);
       Swal.fire('Error', 'Failed to save setting.', 'error');
-    } finally {
-      this.saving = false;
-      this.cdr.detectChanges();
     }
   }
 
@@ -111,17 +124,17 @@ export class AdmSettings implements OnInit {
     if (!result.isConfirmed || !result.value?.trim()) return;
 
     try {
-      await this.authService.updateProfileData(
-        { fullName: result.value.trim() },
-        this.uid
-      );
-
       this.fullName = result.value.trim();
-      this.cdr.detectChanges();
 
-      Swal.fire('Saved', 'Full name updated successfully.', 'success');
+      await this.authService.updateProfileData({
+        fullName: this.fullName,
+        email: this.email
+      });
+
+      this.cdr.detectChanges();
+      Swal.fire('Success', 'Full name updated successfully.', 'success');
     } catch (error) {
-      console.error('Update full name error:', error);
+      console.error('Failed to update full name:', error);
       Swal.fire('Error', 'Failed to update full name.', 'error');
     }
   }
@@ -131,7 +144,7 @@ export class AdmSettings implements OnInit {
       title: 'Edit Email Address',
       input: 'email',
       inputValue: this.email,
-      inputPlaceholder: 'Enter new email',
+      inputPlaceholder: 'Enter email address',
       showCancelButton: true,
       confirmButtonText: 'Save'
     });
@@ -139,18 +152,22 @@ export class AdmSettings implements OnInit {
     if (!result.isConfirmed || !result.value?.trim()) return;
 
     try {
-      await this.authService.updateProfileData(
-        { email: result.value.trim() },
-        this.uid
-      );
-
       this.email = result.value.trim();
-      this.cdr.detectChanges();
 
-      Swal.fire('Saved', 'Email updated successfully.', 'success');
-    } catch (error) {
-      console.error('Update email error:', error);
-      Swal.fire('Error', 'Failed to update email.', 'error');
+      await this.authService.updateProfileData({
+        fullName: this.fullName,
+        email: this.email
+      });
+
+      this.cdr.detectChanges();
+      Swal.fire('Success', 'Email updated successfully.', 'success');
+    } catch (error: any) {
+      console.error('Failed to update email:', error);
+      Swal.fire(
+        'Error',
+        error?.message || 'Failed to update email.',
+        'error'
+      );
     }
   }
 
@@ -160,16 +177,33 @@ export class AdmSettings implements OnInit {
       html: `
         <input id="currentPassword" class="swal2-input" type="password" placeholder="Current password">
         <input id="newPassword" class="swal2-input" type="password" placeholder="New password">
+        <input id="confirmPassword" class="swal2-input" type="password" placeholder="Confirm new password">
       `,
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: 'Change',
       preConfirm: () => {
-        const currentPassword = (document.getElementById('currentPassword') as HTMLInputElement)?.value;
-        const newPassword = (document.getElementById('newPassword') as HTMLInputElement)?.value;
+        const currentPassword = (document.getElementById('currentPassword') as HTMLInputElement)?.value.trim();
+        const newPassword = (document.getElementById('newPassword') as HTMLInputElement)?.value.trim();
+        const confirmPassword = (document.getElementById('confirmPassword') as HTMLInputElement)?.value.trim();
 
-        if (!currentPassword || !newPassword) {
-          Swal.showValidationMessage('Please fill in both password fields.');
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          Swal.showValidationMessage('Please fill in all password fields.');
+          return;
+        }
+
+        if (newPassword.length < 6) {
+          Swal.showValidationMessage('New password must be at least 6 characters.');
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          Swal.showValidationMessage('New password and confirm password do not match.');
+          return;
+        }
+
+        if (currentPassword === newPassword) {
+          Swal.showValidationMessage('New password must be different from your current password.');
           return;
         }
 
@@ -184,6 +218,7 @@ export class AdmSettings implements OnInit {
         formValues.currentPassword,
         formValues.newPassword
       );
+
       Swal.fire('Success', 'Password changed successfully.', 'success');
     } catch (error: any) {
       console.error('Change password error:', error);
@@ -194,7 +229,7 @@ export class AdmSettings implements OnInit {
   async deactivateAccount(): Promise<void> {
     const result = await Swal.fire({
       title: 'Deactivate Account?',
-      text: 'This is currently a placeholder action.',
+      text: 'Your account will become inactive.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Deactivate'
@@ -202,29 +237,60 @@ export class AdmSettings implements OnInit {
 
     if (!result.isConfirmed) return;
 
-    Swal.fire('Done', 'Deactivate account request submitted.', 'success');
+    try {
+      await this.settingsService.updateSettings(this.uid, {
+        activityStatus: false
+      });
+
+      this.settings.activityStatus = false;
+
+      await this.authService.deactivateCurrentUserAccount(this.uid);
+
+      Swal.fire('Success', 'Account deactivated successfully.', 'success');
+    } catch (error) {
+      console.error('Deactivate account error:', error);
+      Swal.fire('Error', 'Failed to deactivate account.', 'error');
+    }
   }
 
   async deleteAccount(): Promise<void> {
     const result = await Swal.fire({
-      title: 'Delete Account?',
-      text: 'This is currently a placeholder action.',
-      icon: 'warning',
+      title: 'Delete Account',
+      input: 'password',
+      inputLabel: 'Enter your current password to continue',
+      inputPlaceholder: 'Current password',
       showCancelButton: true,
-      confirmButtonText: 'Delete'
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#d33'
     });
 
-    if (!result.isConfirmed) return;
+    if (!result.isConfirmed || !result.value) return;
 
-    Swal.fire('Notice', 'Delete account flow is not yet fully implemented.', 'info');
+    try {
+      await this.authService.deleteOwnAccount(result.value);
+      Swal.fire('Deleted', 'Your account has been deleted.', 'success');
+    } catch (error: any) {
+      console.error('Delete account error:', error);
+      Swal.fire(
+        'Error',
+        error?.message || 'Failed to delete account.',
+        'error'
+      );
+    }
   }
 
   async logout(): Promise<void> {
     try {
+      if (this.uid && !this.settings.activityStatus) {
+        await this.authService.updateOwnStatus(this.uid, 'inactive');
+      }
+
       await this.authService.logout();
+
       this.ngZone.run(() => {
         this.router.navigate(['/login']);
       });
+
     } catch (error) {
       console.error('Logout error:', error);
       Swal.fire('Error', 'Failed to logout.', 'error');

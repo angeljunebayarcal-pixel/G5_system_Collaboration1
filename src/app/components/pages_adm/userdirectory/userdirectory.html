@@ -5,6 +5,7 @@
   <div class="card">
     <h2 class="section-title">User Registry</h2>
 
+    <!-- FILTER -->
     <div class="filter-bar">
       <input
         type="text"
@@ -29,43 +30,72 @@
       </select>
     </div>
 
+    <!-- LOADING -->
     <div *ngIf="loading" class="no-users">
       Loading users...
     </div>
 
-    <div class="directory-grid" *ngIf="!loading">
+    <!-- LIST VIEW -->
+    <div class="directory-list" *ngIf="!loading">
 
-      <div class="user-box" *ngFor="let user of filteredUsers">
-        <div class="user-top">
-          <ng-container *ngIf="user.photoURL; else initialsAvatar">
-            <img [src]="user.photoURL" alt="Profile Photo" class="avatar avatar-image">
-          </ng-container>
+      <div class="user-row" *ngFor="let user of filteredUsers">
 
-          <ng-template #initialsAvatar>
-            <div class="avatar">{{ getInitials(user.fullName) }}</div>
-          </ng-template>
+        <!-- LEFT -->
+        <div class="user-row-left">
+          <div class="avatar-wrap">
 
-          <div class="user-main">
+            <ng-container *ngIf="user.photoURL; else initialsAvatar">
+              <img [src]="user.photoURL" class="avatar avatar-image">
+            </ng-container>
+
+            <ng-template #initialsAvatar>
+              <div class="avatar">{{ getInitials(user.fullName) }}</div>
+            </ng-template>
+
+            <!-- GREEN ONLINE DOT -->
+            <span
+              *ngIf="shouldShowPresence(user)"
+              class="presence-dot"
+              title="Online"
+            ></span>
+
+          </div>
+
+          <div class="user-basic">
             <h3>{{ user.fullName }}</h3>
             <p>{{ user.email }}</p>
+            <span class="user-id">ID: {{ user.uid }}</span>
           </div>
         </div>
 
-        <div class="user-meta">
+        <!-- MIDDLE -->
+        <div class="user-row-middle">
           <span class="mini-role">{{ getRoleLabel(user.role) }}</span>
-          <span class="status-badge" [ngClass]="getStatusClass(user.status)">
+
+          <!-- ONLY SHOW STATUS IF NOT ACTIVE -->
+          <span
+            *ngIf="user.status !== 'active'"
+            class="status-badge"
+            [ngClass]="getStatusClass(user.status)"
+          >
             {{ user.status }}
           </span>
         </div>
 
-        <div class="user-id">
-          ID: {{ user.uid }}
+        <!-- RIGHT -->
+        <div class="user-row-right">
+          <button class="view-btn" (click)="openViewUser(user)">
+            View Full Info
+          </button>
+
+          <button class="delete-btn" (click)="deleteUser(user)">
+            Delete
+          </button>
         </div>
 
-        <button class="view-btn" (click)="openViewUser(user)">View Full Info</button>
-        <button class="delete-btn" (click)="deleteUser(user)">Delete</button>
       </div>
 
+      <!-- EMPTY -->
       <div *ngIf="filteredUsers.length === 0" class="no-users">
         No users found.
       </div>
@@ -74,8 +104,10 @@
   </div>
 </div>
 
+<!-- MODAL -->
 <div class="modal-overlay" *ngIf="showViewModal && selectedUser">
   <div class="modal">
+
     <h3>User Details</h3>
 
     <div class="modal-row">
@@ -99,8 +131,15 @@
     </div>
 
     <div class="modal-row">
-      <span class="label">Status:</span>
+      <span class="label">Directory Status:</span>
       <span class="value">{{ selectedUser.status }}</span>
+    </div>
+
+    <div class="modal-row">
+      <span class="label">Activity Light:</span>
+      <span class="value">
+        {{ selectedUser.activityStatus ? 'Visible' : 'Hidden' }}
+      </span>
     </div>
 
     <div class="modal-row">
@@ -113,29 +152,51 @@
       <span class="value">{{ selectedUser.contact || '—' }}</span>
     </div>
 
-    <div class="modal-row" *ngIf="selectedUser.role === 'resident'">
+    <!-- COMMON FIELDS (ALL ROLES) -->
+    <div class="modal-row" *ngIf="selectedUser.role === 'resident' || selectedUser.role === 'official' || selectedUser.role === 'admin'">
       <span class="label">Username:</span>
       <span class="value">{{ selectedUser.username || '—' }}</span>
     </div>
 
-    <div class="modal-row" *ngIf="selectedUser.role === 'resident'">
+    <div class="modal-row" *ngIf="selectedUser.role === 'resident' || selectedUser.role === 'official' || selectedUser.role === 'admin'">
       <span class="label">Birth Date:</span>
       <span class="value">{{ selectedUser.dob || '—' }}</span>
     </div>
 
-    <div class="modal-row" *ngIf="selectedUser.role === 'resident'">
+    <div class="modal-row" *ngIf="selectedUser.role === 'resident' || selectedUser.role === 'official' || selectedUser.role === 'admin'">
       <span class="label">Gender:</span>
       <span class="value">{{ selectedUser.gender || '—' }}</span>
     </div>
 
-    <div class="modal-row" *ngIf="selectedUser.role === 'official'">
-      <span class="label">Valid ID File:</span>
-      <span class="value">{{ selectedUser.validIdFileName || '—' }}</span>
+   <div class="modal-row" *ngIf="selectedUser.role === 'official'">
+  <span class="label">Valid ID File:</span>
+  <span class="value">
+
+    <a
+      *ngIf="selectedUser.validIdFileUrl; else noValidIdFile"
+      href="javascript:void(0)"
+      (click)="viewPdf(selectedUser.validIdFileUrl)"
+      class="valid-id-link"
+    >
+      {{ selectedUser.validIdFileName || 'View Valid ID File' }}
+    </a>
+
+    <ng-template #noValidIdFile>
+      —
+    </ng-template>
+
+  </span>
+</div>
+    <!-- ACTIONS -->
+    <div class="modal-actions">
+      <button class="delete-btn" (click)="deleteUser(selectedUser)">
+        Delete
+      </button>
+
+      <button class="close-btn" (click)="closeViewModal()">
+        Close
+      </button>
     </div>
 
-    <div class="modal-actions">
-      <button class="delete-btn" (click)="deleteUser(selectedUser)">Delete</button>
-      <button class="close-btn" (click)="closeViewModal()">Close</button>
-    </div>
   </div>
 </div>

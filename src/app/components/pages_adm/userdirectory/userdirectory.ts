@@ -1,25 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService, DirectoryUserData } from '../../../services/auth.service';
 import Swal from 'sweetalert2';
-
-interface DirectoryUserData {
-  uid: string;
-  fullName: string;
-  email: string;
-  role: 'resident' | 'official' | 'admin';
-  status: 'pending' | 'active' | 'declined' | 'inactive';
-  address?: string;
-  contact?: string;
-  username?: string;
-  dob?: string;
-  gender?: string;
-  validIdFileName?: string;
-  validIdFileUrl?: string;
-  photoURL?: string;
-  createdAt?: any;
-}
+import { NavigationEnd, Router } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-userdirectory',
@@ -28,7 +13,7 @@ interface DirectoryUserData {
   templateUrl: './userdirectory.html',
   styleUrl: './userdirectory.scss',
 })
-export class Userdirectory implements OnInit {
+export class Userdirectory implements OnInit, OnDestroy {
   searchTerm = '';
   selectedRole = 'all';
   selectedStatus = 'all';
@@ -40,24 +25,29 @@ export class Userdirectory implements OnInit {
   showViewModal = false;
   loading = true;
 
+  private routerSub?: Subscription;
+
   constructor(
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private router: Router
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.loading = true;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      if (this.loading) {
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    }, 8000);
-
     await this.loadUsers();
+
+    this.routerSub = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(async () => {
+        if (this.router.url.includes('/userdirectory')) {
+          await this.loadUsers();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
   }
 
   async loadUsers(): Promise<void> {
@@ -120,10 +110,45 @@ export class Userdirectory implements OnInit {
     this.cdr.detectChanges();
   }
 
+  viewPdf(base64: string): void {
+    if (!base64) {
+      Swal.fire('No File', 'No PDF was uploaded by this official.', 'info');
+      return;
+    }
+
+    const pdfWindow = window.open('', '_blank');
+    if (pdfWindow) {
+      pdfWindow.document.write(`
+        <html>
+          <head>
+            <title>Official PDF Preview</title>
+            <style>
+              html, body {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow: hidden;
+              }
+              iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+              }
+            </style>
+          </head>
+          <body>
+            <iframe src="${base64}"></iframe>
+          </body>
+        </html>
+      `);
+      pdfWindow.document.close();
+    }
+  }
+
   async deleteUser(user: DirectoryUserData): Promise<void> {
     const result = await Swal.fire({
       title: 'Delete User?',
-      text: `This will remove ${user.fullName} from the directory records.`,
+      text: `This will remove ${user.fullName} from Firestore directory records.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Delete',
@@ -164,6 +189,10 @@ export class Userdirectory implements OnInit {
     if (status === 'pending') return 'status-pending';
     if (status === 'declined') return 'status-declined';
     return '';
+  }
+
+  shouldShowPresence(user: DirectoryUserData): boolean {
+    return user.status === 'active' && user.activityStatus !== false;
   }
 
   getInitials(name: string): string {

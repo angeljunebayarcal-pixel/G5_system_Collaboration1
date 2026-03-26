@@ -12,7 +12,8 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   updateProfile,
-  updateEmail
+  updateEmail,
+  deleteUser
 } from 'firebase/auth';
 import {
   getFirestore,
@@ -25,7 +26,10 @@ import {
   getDocs,
   query,
   where,
-  deleteDoc
+  deleteDoc,
+  limit,
+  DocumentData,
+  QueryDocumentSnapshot
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -43,7 +47,7 @@ export interface UserProfileData {
   contact: string;
   email: string;
   role: 'resident' | 'official' | 'admin';
-  status?: 'pending' | 'active' | 'declined';
+  status?: 'pending' | 'active' | 'declined' | 'inactive';
   username?: string;
   dob?: string;
   gender?: string;
@@ -69,61 +73,101 @@ export interface DirectoryUserData {
   validIdFileUrl?: string;
   photoURL?: string;
   createdAt?: any;
+  activityStatus?: boolean;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private auth: Auth;
+  private fs: Firestore;
+  private storage: FirebaseStorage;
+
+  constructor() {
+    const app = getApps().length ? getApp() : initializeApp(environment.firebase);
+    this.auth = getAuth(app);
+    this.fs = getFirestore(app);
+    this.storage = getStorage(app);
+  }
+
+  private createDocMap(
+    docs: QueryDocumentSnapshot<DocumentData>[]
+  ): Record<string, any> {
+    return docs.reduce((acc, item) => {
+      acc[item.id] = item.data();
+      return acc;
+    }, {} as Record<string, any>);
+  }
+
+  private async getAdminEmergencyPhone(): Promise<string> {
+    try {
+      const adminQuery = query(
+        collection(this.fs, 'users'),
+        where('role', '==', 'admin'),
+        limit(1)
+      );
+
+      const adminSnapshot = await getDocs(adminQuery);
+
+      if (!adminSnapshot.empty) {
+        const adminData = adminSnapshot.docs[0].data();
+        return adminData['contact'] || '09123456789';
+      }
+
+      return '09123456789';
+    } catch (error) {
+      console.error('Failed to fetch admin emergency phone:', error);
+      return '09123456789';
+    }
+  }
+
   async getAllUsersForDirectory(): Promise<DirectoryUserData[]> {
-    const snapshot = await getDocs(collection(this.fs, 'users'));
+    const [usersSnapshot, residentsSnapshot, officialsSnapshot, settingsSnapshot] =
+      await Promise.all([
+        getDocs(collection(this.fs, 'users')),
+        getDocs(collection(this.fs, 'residents')),
+        getDocs(collection(this.fs, 'officials')),
+        getDocs(collection(this.fs, 'userSettings'))
+      ]);
 
-    const users = await Promise.all(
-      snapshot.docs.map(async (docSnap) => {
-        const userId = docSnap.id;
-        const user = docSnap.data();
+    const residentsMap = this.createDocMap(residentsSnapshot.docs);
+    const officialsMap = this.createDocMap(officialsSnapshot.docs);
+    const settingsMap = this.createDocMap(settingsSnapshot.docs);
 
-        const role = (user['role'] || 'resident') as 'resident' | 'official' | 'admin';
+    return usersSnapshot.docs.map((docSnap) => {
+      const userId = docSnap.id;
+      const user = docSnap.data();
 
-        let extraData: any = {};
+      const role = (user['role'] || 'resident') as 'resident' | 'official' | 'admin';
 
-        if (role === 'resident') {
-          const residentSnap = await getDoc(doc(this.fs, 'residents', userId));
-          if (residentSnap.exists()) {
-            extraData = residentSnap.data();
-          }
-        }
+      let extraData: any = {};
+      if (role === 'resident') extraData = residentsMap[userId] || {};
+      if (role === 'official') extraData = officialsMap[userId] || {};
 
-        if (role === 'official') {
-          const officialSnap = await getDoc(doc(this.fs, 'officials', userId));
-          if (officialSnap.exists()) {
-            extraData = officialSnap.data();
-          }
-        }
+      const settingsData = settingsMap[userId] || {};
 
-        return {
-          uid: userId,
-          fullName:
-            extraData['fullName'] ||
-            user['fullName'] ||
-            (user['email'] ? String(user['email']).split('@')[0] : 'User'),
-          email: extraData['email'] || user['email'] || '',
-          role,
-          status: user['status'] || extraData['status'] || 'active',
-          address: extraData['address'] || user['address'] || '',
-          contact: extraData['contact'] || user['contact'] || '',
-          username: extraData['username'] || '',
-          dob: extraData['dob'] || '',
-          gender: extraData['gender'] || '',
-          validIdFileName: extraData['validIdFileName'] || '',
-          validIdFileUrl: extraData['validIdFileUrl'] || '',
-          photoURL: extraData['photoURL'] || user['photoURL'] || '',
-          createdAt: user['createdAt'] || extraData['createdAt'] || null
-        } as DirectoryUserData;
-      })
-    );
-
-    return users;
+      return {
+        uid: userId,
+        fullName:
+          extraData['fullName'] ||
+          user['fullName'] ||
+          (user['email'] ? String(user['email']).split('@')[0] : 'User'),
+        email: extraData['email'] || user['email'] || '',
+        role,
+        status: user['status'] || extraData['status'] || 'active',
+        address: extraData['address'] || user['address'] || '',
+        contact: extraData['contact'] || user['contact'] || '',
+        username: extraData['username'] || user['username'] || '',
+        dob: extraData['dob'] || user['dob'] || '',
+        gender: extraData['gender'] || user['gender'] || '',
+        validIdFileName: extraData['validIdFileName'] || user['validIdFileName'] || '',
+        validIdFileUrl: extraData['validIdFileUrl'] || user['validIdFileUrl'] || '',
+        photoURL: extraData['photoURL'] || user['photoURL'] || '',
+        createdAt: user['createdAt'] || extraData['createdAt'] || null,
+        activityStatus: settingsData['activityStatus'] ?? true
+      } as DirectoryUserData;
+    });
   }
 
   async deleteUserDirectoryRecord(
@@ -139,17 +183,8 @@ export class AuthService {
     if (role === 'official') {
       await deleteDoc(doc(this.fs, 'officials', uid));
     }
-  }
 
-  private auth: Auth;
-  private fs: Firestore;
-  private storage: FirebaseStorage;
-
-  constructor() {
-    const app = getApps().length ? getApp() : initializeApp(environment.firebase);
-    this.auth = getAuth(app);
-    this.fs = getFirestore(app);
-    this.storage = getStorage(app);
+    await deleteDoc(doc(this.fs, 'userSettings', uid));
   }
 
   async waitForAuthReady(): Promise<User | null> {
@@ -251,7 +286,7 @@ export class AuthService {
     return (data?.['role'] as 'resident' | 'official' | 'admin' | null) ?? null;
   }
 
-  async getUserStatus(uid?: string): Promise<'pending' | 'active' | 'declined' | null> {
+  async getUserStatus(uid?: string): Promise<'pending' | 'active' | 'declined' | 'inactive' | null> {
     const userId = uid || (await this.getCurrentUserAsync())?.uid;
     if (!userId) return null;
 
@@ -259,55 +294,103 @@ export class AuthService {
     if (!snap.exists()) return null;
 
     const data = snap.data();
-    return (data?.['status'] as 'pending' | 'active' | 'declined' | null) ?? null;
+    return (data?.['status'] as 'pending' | 'active' | 'declined' | 'inactive' | null) ?? null;
   }
 
-  async updateUserStatus(uid: string, status: 'pending' | 'active' | 'declined'): Promise<void> {
+  async updateUserStatus(uid: string, status: 'pending' | 'active' | 'declined' | 'inactive'): Promise<void> {
     await updateDoc(doc(this.fs, 'users', uid), {
       status
     });
 
+    const residentRef = doc(this.fs, 'residents', uid);
     const officialRef = doc(this.fs, 'officials', uid);
-    const officialSnap = await getDoc(officialRef);
+
+    const [residentSnap, officialSnap] = await Promise.all([
+      getDoc(residentRef),
+      getDoc(officialRef)
+    ]);
+
+    const updates: Promise<void>[] = [];
+
+    if (residentSnap.exists()) {
+      updates.push(updateDoc(residentRef, { status }));
+    }
 
     if (officialSnap.exists()) {
-      await updateDoc(officialRef, {
-        status
-      });
+      updates.push(updateDoc(officialRef, { status }));
     }
+
+    await Promise.all(updates);
+  }
+
+  async updateOwnStatus(uid: string, status: 'pending' | 'active' | 'declined' | 'inactive'): Promise<void> {
+    await this.updateUserStatus(uid, status);
+  }
+
+  async deactivateCurrentUserAccount(uid: string): Promise<void> {
+    await this.updateUserStatus(uid, 'inactive');
+    await setDoc(
+      doc(this.fs, 'userSettings', uid),
+      { activityStatus: false },
+      { merge: true }
+    );
+  }
+
+  async deleteOwnAccount(currentPassword: string): Promise<void> {
+    const user = await this.getCurrentUserAsync();
+    if (!user || !user.email) throw new Error('No logged in user');
+
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+
+    const uid = user.uid;
+    const role = await this.getUserRole(uid);
+
+    await deleteDoc(doc(this.fs, 'users', uid));
+
+    if (role === 'resident') {
+      await deleteDoc(doc(this.fs, 'residents', uid));
+    }
+
+    if (role === 'official') {
+      await deleteDoc(doc(this.fs, 'officials', uid));
+    }
+
+    await deleteDoc(doc(this.fs, 'userSettings', uid));
+
+    await deleteUser(user);
   }
 
   async getPendingOfficials(): Promise<any[]> {
-    const q = query(
+    const pendingOfficialsQuery = query(
       collection(this.fs, 'users'),
       where('role', '==', 'official'),
       where('status', '==', 'pending')
     );
 
-    const snapshot = await getDocs(q);
+    const [usersSnapshot, officialsSnapshot] = await Promise.all([
+      getDocs(pendingOfficialsQuery),
+      getDocs(collection(this.fs, 'officials'))
+    ]);
 
-    const results = await Promise.all(
-      snapshot.docs.map(async (docSnap) => {
-        const userData = docSnap.data();
-        const uid = docSnap.id;
+    const officialsMap = this.createDocMap(officialsSnapshot.docs);
 
-        const officialSnap = await getDoc(doc(this.fs, 'officials', uid));
-        const officialData = officialSnap.exists() ? officialSnap.data() : {};
+    return usersSnapshot.docs.map((docSnap) => {
+      const userData = docSnap.data();
+      const uid = docSnap.id;
+      const officialData = officialsMap[uid] || {};
 
-        return {
-          uid,
-          ...userData,
-          validIdFileName: officialData?.['validIdFileName'] || '',
-          validIdFileUrl: officialData?.['validIdFileUrl'] || '',
-          fullName: officialData?.['fullName'] || userData?.['fullName'] || '',
-          address: officialData?.['address'] || userData?.['address'] || '',
-          contact: officialData?.['contact'] || userData?.['contact'] || '',
-          email: officialData?.['email'] || userData?.['email'] || ''
-        };
-      })
-    );
-
-    return results;
+      return {
+        uid,
+        ...userData,
+        validIdFileName: officialData['validIdFileName'] || '',
+        validIdFileUrl: officialData['validIdFileUrl'] || '',
+        fullName: officialData['fullName'] || userData['fullName'] || '',
+        address: officialData['address'] || userData['address'] || '',
+        contact: officialData['contact'] || userData['contact'] || '',
+        email: officialData['email'] || userData['email'] || ''
+      };
+    });
   }
 
   async isOfficial(uid?: string): Promise<boolean> {
@@ -331,9 +414,13 @@ export class AuthService {
     const role = await this.getUserRole(userId);
     if (!role) return null;
 
+    const adminEmergencyPhone = await this.getAdminEmergencyPhone();
+
     if (role === 'resident') {
-      const residentSnap = await getDoc(doc(this.fs, 'residents', userId));
-      const userSnap = await getDoc(doc(this.fs, 'users', userId));
+      const [residentSnap, userSnap] = await Promise.all([
+        getDoc(doc(this.fs, 'residents', userId)),
+        getDoc(doc(this.fs, 'users', userId))
+      ]);
 
       if (!residentSnap.exists()) return null;
 
@@ -352,8 +439,8 @@ export class AuthService {
         dob: resident['dob'] || '',
         gender: resident['gender'] || '',
         photoURL: resident['photoURL'] || user['photoURL'] || '',
-        emergencyContact: resident['emergencyContact'] || 'Barangay Admin Office',
-        emergencyPhone: resident['emergencyPhone'] || '09123456789'
+        emergencyContact: 'Barangay Admin Office',
+        emergencyPhone: adminEmergencyPhone
       };
     }
 
@@ -376,14 +463,14 @@ export class AuthService {
         username: user['username'] || '',
         dob: user['dob'] || '',
         gender: user['gender'] || '',
-        photoURL: user['photoURL'] || '',
-        emergencyContact: user['emergencyContact'] || 'Barangay Admin Office',
-        emergencyPhone: user['emergencyPhone'] || '09123456789'
+        photoURL: user['photoURL'] || ''
       };
     }
 
-    const officialSnap = await getDoc(doc(this.fs, 'officials', userId));
-    const userSnap = await getDoc(doc(this.fs, 'users', userId));
+    const [officialSnap, userSnap] = await Promise.all([
+      getDoc(doc(this.fs, 'officials', userId)),
+      getDoc(doc(this.fs, 'users', userId))
+    ]);
 
     if (!userSnap.exists()) return null;
 
@@ -407,8 +494,8 @@ export class AuthService {
       validIdFileName: official['validIdFileName'] || '',
       validIdFileUrl: official['validIdFileUrl'] || '',
       photoURL: official['photoURL'] || user['photoURL'] || '',
-      emergencyContact: official['emergencyContact'] || 'Barangay Admin Office',
-      emergencyPhone: official['emergencyPhone'] || '09123456789'
+      emergencyContact: 'Barangay Admin Office',
+      emergencyPhone: adminEmergencyPhone
     };
   }
 
@@ -443,23 +530,24 @@ export class AuthService {
     }
 
     if (role === 'resident') {
-      await setDoc(
-        doc(this.fs, 'residents', userId),
-        commonProfileData,
-        { merge: true }
-      );
-
-      await setDoc(
-        doc(this.fs, 'users', userId),
-        {
-          email: profile.email ?? '',
-          fullName: profile.fullName ?? '',
-          emergencyContact,
-          emergencyPhone,
-          ...(profile.photoURL !== undefined ? { photoURL: profile.photoURL } : {})
-        },
-        { merge: true }
-      );
+      await Promise.all([
+        setDoc(
+          doc(this.fs, 'residents', userId),
+          commonProfileData,
+          { merge: true }
+        ),
+        setDoc(
+          doc(this.fs, 'users', userId),
+          {
+            email: profile.email ?? '',
+            fullName: profile.fullName ?? '',
+            emergencyContact,
+            emergencyPhone,
+            ...(profile.photoURL !== undefined ? { photoURL: profile.photoURL } : {})
+          },
+          { merge: true }
+        )
+      ]);
 
       if (currentUser && currentUser.uid === userId) {
         await updateProfile(currentUser, {
@@ -492,8 +580,6 @@ export class AuthService {
           username: profile.username ?? '',
           dob: profile.dob ?? '',
           gender: profile.gender ?? '',
-          emergencyContact,
-          emergencyPhone,
           ...(profile.photoURL !== undefined ? { photoURL: profile.photoURL } : {})
         },
         { merge: true }

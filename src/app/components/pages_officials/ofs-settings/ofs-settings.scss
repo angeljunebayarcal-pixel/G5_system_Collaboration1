@@ -7,7 +7,7 @@
   background: #f8fafc;
   border-radius: 20px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
 
   font-family: 'Segoe UI', sans-serif;
   box-sizing: border-box;
@@ -18,17 +18,23 @@
   margin: 0 0 30px 0;
   font-size: 28px;
   font-weight: 700;
-  color: #1e293b;
+  color: #0f172a;
+  letter-spacing: -0.5px;
 }
 
 /* CARD */
 .settings-card {
-  background: white;
+  background: #ffffff;
   border-radius: 18px;
   padding: 25px;
   margin-bottom: 25px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-  font-family: inherit;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+  transition: 0.3s ease;
+}
+
+.settings-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
 }
 
 /* CARD HEADER */
@@ -38,8 +44,8 @@
   h2 {
     font-size: 20px;
     font-weight: 600;
-    color: #0f172a;
-    font-family: inherit;
+    color: #1e293b;
+    letter-spacing: -0.3px;
   }
 }
 
@@ -48,10 +54,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 0;
+  padding: 18px 4px;
   border-bottom: 1px solid #e2e8f0;
-  transition: 0.25s;
-  font-family: inherit;
+  transition: all 0.25s ease;
 
   &:last-child {
     border-bottom: none;
@@ -59,15 +64,13 @@
 
   label {
     font-weight: 600;
-    color: #1e293b;
-    font-family: inherit;
+    color: #0f172a;
   }
 
   p {
     font-size: 13px;
     color: #64748b;
-    margin-top: 3px;
-    font-family: inherit;
+    margin-top: 4px;
   }
 
   button {
@@ -77,34 +80,43 @@
     padding: 8px 18px;
     border-radius: 10px;
     cursor: pointer;
-    transition: 0.25s;
-    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
   }
 
   button:hover {
-    background: #0d5a1a; 
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+  }
+
+  button:active {
+    transform: scale(0.96);
   }
 }
 
 /* CLICKABLE FEEL */
 .clickable {
   cursor: pointer;
+  border-radius: 12px;
 
   &:hover {
     background: #f1f5f9;
-    padding-left: 10px;
-    border-radius: 12px;
+    padding-left: 12px;
   }
 }
 
 /* DANGER */
 .danger {
   .danger-btn {
-    background: #2563eb; 
+    background: #ef4444;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
   }
 
   .danger-btn:hover {
-    background: #7e0b0b; 
+    background: #dc2626;
+    box-shadow: 0 6px 14px rgba(239, 68, 68, 0.35);
   }
 }
 
@@ -125,11 +137,8 @@
   cursor: pointer;
   background: #cbd5e1;
   border-radius: 34px;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  transition: .3s;
+  inset: 0;
+  transition: 0.3s ease;
 }
 
 .slider:before {
@@ -141,7 +150,8 @@
   bottom: 3px;
   background: white;
   border-radius: 50%;
-  transition: .3s;
+  transition: 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 .switch input:checked + .slider {
@@ -150,4 +160,21 @@
 
 .switch input:checked + .slider:before {
   transform: translateX(22px);
+}
+
+/* EXTRA: SMOOTH FADE IN */
+.settings-container,
+.settings-card {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
