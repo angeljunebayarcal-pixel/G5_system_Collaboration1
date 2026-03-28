@@ -18,6 +18,12 @@ export class AdmTopbar implements OnInit, OnDestroy {
   isLoaded = false;
   menuOpen = false;
 
+  // ADDED: notification count for pending official registrations
+  notificationCount = 0;
+
+  // ADDED: auto refresh timer
+  private notificationInterval: any;
+
   constructor(
     private authService: AuthService,
     private zone: NgZone,
@@ -27,10 +33,19 @@ export class AdmTopbar implements OnInit, OnDestroy {
   async ngOnInit() {
     this.loadFastThenFresh();
     window.addEventListener('profile-updated', this.handleProfileUpdated);
+
+    // ADDED: initial load + auto refresh for pending approvals
+    await this.loadPendingApprovalCount();
+    this.startNotificationAutoRefresh();
   }
 
   ngOnDestroy() {
     window.removeEventListener('profile-updated', this.handleProfileUpdated);
+
+    // ADDED: clear timer
+    if (this.notificationInterval) {
+      clearInterval(this.notificationInterval);
+    }
   }
 
   private handleProfileUpdated = () => {
@@ -116,6 +131,33 @@ export class AdmTopbar implements OnInit, OnDestroy {
         this.isLoaded = true;
       });
     }
+  }
+
+  // ADDED: load pending official registrations count
+  private async loadPendingApprovalCount() {
+    try {
+      const pendingOfficials = await this.authService.getPendingOfficials();
+
+      this.zone.run(() => {
+        this.notificationCount = pendingOfficials.length;
+      });
+    } catch (error) {
+      console.error('Failed to load pending approvals count:', error);
+    }
+  }
+
+  // ADDED: auto refresh so bell updates when officials register
+  private startNotificationAutoRefresh() {
+    this.notificationInterval = setInterval(() => {
+      this.loadPendingApprovalCount();
+    }, 10000);
+  }
+
+  // ADDED: navigate to approval queue
+  goToApprovalQueue(event: Event) {
+    event.stopPropagation();
+    this.menuOpen = false;
+    this.router.navigate(['/home-adm/approvalqueue']);
   }
 
   toggleMenu(event: Event) {

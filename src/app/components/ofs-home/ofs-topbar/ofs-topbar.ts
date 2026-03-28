@@ -3,6 +3,10 @@ import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/cor
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 
+// ✅ ADDED
+import { NotificationService, AppNotification } from '../../../services/notification.service';
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-ofs-topbar',
   standalone: true,
@@ -18,19 +22,55 @@ export class OfsTopbar implements OnInit, OnDestroy {
   isLoaded = false;
   menuOpen = false;
 
+  // ✅ ADDED
+  notificationCount = 0;
+  private notifSub?: Subscription;
+  private officialId: string | null = null;
+
   constructor(
     private authService: AuthService,
     private zone: NgZone,
-    private router: Router
+    private router: Router,
+
+    // ✅ ADDED
+    private notifService: NotificationService
   ) {}
 
   async ngOnInit() {
     this.loadFastThenFresh();
     window.addEventListener('profile-updated', this.handleProfileUpdated);
+
+    // ✅ ADDED
+    await this.initNotifications();
   }
 
   ngOnDestroy() {
     window.removeEventListener('profile-updated', this.handleProfileUpdated);
+
+    // ✅ ADDED
+    this.notifSub?.unsubscribe();
+  }
+
+  // ✅ ADDED: initialize official notifications
+  private async initNotifications() {
+    const currentUser = await this.authService.getCurrentUserAsync();
+    this.officialId = currentUser?.uid || null;
+
+    if (!this.officialId) return;
+
+    this.notifSub = this.notifService
+      .loadNotifications('official', this.officialId)
+      .subscribe({
+        next: (data: AppNotification[]) => {
+          this.zone.run(() => {
+            // count unread only
+            this.notificationCount = data.filter(n => !n.isRead).length;
+          });
+        },
+        error: (err) => {
+          console.error('Official notification error:', err);
+        }
+      });
   }
 
   private handleProfileUpdated = () => {
@@ -116,6 +156,13 @@ export class OfsTopbar implements OnInit, OnDestroy {
         this.isLoaded = true;
       });
     }
+  }
+
+  // ✅ ADDED (already used in HTML)
+  goToNotifications(event: Event) {
+    event.stopPropagation();
+    this.menuOpen = false;
+    this.router.navigate(['/ofs-home/ofs-notification']);
   }
 
   toggleMenu(event: Event) {

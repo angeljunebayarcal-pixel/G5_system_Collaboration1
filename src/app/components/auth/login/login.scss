@@ -180,6 +180,19 @@ form, .popup-content {
   font-weight: 600;
   cursor: pointer;
 }
+.forgot-link {
+  text-align: center;
+  margin-top: -6px;
+  margin-bottom: 0.85px;
+  font-size: 0.85rem;
+
+  .link {
+    color: #0f172a;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+  }
+}
 
 @keyframes modalPop {
   from { transform: scale(0.92); opacity: 0; }

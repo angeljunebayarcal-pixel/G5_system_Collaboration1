@@ -30,6 +30,11 @@ export class Login implements OnInit {
   isLoggingIn = false;
   isRegistering = false;
 
+  // ADDED: forgot password state
+  showForgotPassword = false;
+  resetEmail = '';
+  isSendingReset = false;
+
   constructor(
     private router: Router,
     private authService: AuthService
@@ -40,14 +45,13 @@ export class Login implements OnInit {
     this.showRegPassword = false;
   }
 
-  // ✅ ENTER KEY LOGIN
   @HostListener('document:keydown.enter', ['$event'])
-handleEnterKey(event: Event) {
-  if (!this.showRegister) {
-    event.preventDefault();
-    this.login();
+  handleEnterKey(event: Event) {
+    if (!this.showRegister && !this.showForgotPassword) {
+      event.preventDefault();
+      this.login();
+    }
   }
-}
 
   togglePassword() {
     this.showPassword = !this.showPassword;
@@ -78,8 +82,6 @@ handleEnterKey(event: Event) {
     });
 
     try {
-      // ❌ REMOVED logout() → this was slowing things down
-
       const cred = await this.authService.login(
         this.email.trim(),
         this.password
@@ -87,7 +89,6 @@ handleEnterKey(event: Event) {
 
       const uid = cred.user.uid;
 
-      // ⚡ PARALLEL FETCH (already optimized)
       const [role, status] = await Promise.all([
         this.authService.getUserRole(uid),
         this.authService.getUserStatus(uid)
@@ -102,48 +103,44 @@ handleEnterKey(event: Event) {
       }
 
       if (role === 'official') {
+        if (status === 'pending') {
+          await this.authService.logout();
 
-  if (status === 'pending') {
-    await this.authService.logout();
+          Swal.fire(
+            'Approval Required',
+            'Your official account is still pending admin approval.',
+            'warning'
+          );
+          return;
+        }
 
-    Swal.fire(
-      'Approval Required',
-      'Your official account is still pending admin approval.',
-      'warning'
-    );
-    return;
-  }
+        if (status === 'declined') {
+          await this.authService.logout();
 
-  if (status === 'declined') {
-    await this.authService.logout();
+          Swal.fire(
+            'Access Denied',
+            'Your official registration has been declined by the admin.',
+            'error'
+          );
+          return;
+        }
 
-    Swal.fire(
-      'Access Denied',
-      'Your official registration has been declined by the admin.',
-      'error'
-    );
-    return;
-  }
-
-  // ✅ INACTIVE (DEACTIVATED) → ALLOW LOGIN (OPTIONAL MESSAGE)
-  if (status === 'inactive') {
-    Swal.fire({
-      icon: 'info',
-      title: 'Account Inactive',
-      text: 'Your account is currently deactivated, but you can still access the system.'
-    });
-    // ❗ NO logout, NO return → continues login
-  }
-}
+        if (status === 'inactive') {
+          Swal.fire({
+            icon: 'info',
+            title: 'Account Inactive',
+            text: 'Your account is currently deactivated, but you can still access the system.'
+          });
+        }
+      }
 
       await Swal.fire({
         title: 'Login Successful!',
         icon: 'success',
-        timer: 800, // ⚡ slightly faster
+        timer: 800,
         showConfirmButton: false
       });
 
-      // ⚡ faster redirect (no reload flicker)
       if (role === 'admin') {
         this.router.navigate(['/home-adm/controlcenter']);
       } else if (role === 'official') {
@@ -228,6 +225,60 @@ handleEnterKey(event: Event) {
       );
     } finally {
       this.isRegistering = false;
+    }
+  }
+
+  async sendResetLink() {
+    if (this.isSendingReset) return;
+
+    if (!this.resetEmail.trim()) {
+      Swal.fire('Missing Email', 'Please enter your email address.', 'warning');
+      return;
+    }
+
+    this.isSendingReset = true;
+
+    Swal.fire({
+      title: 'Sending reset link...',
+      text: 'Please wait a moment',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    try {
+      await this.authService.forgotPassword(this.resetEmail.trim());
+
+      Swal.close();
+
+    await Swal.fire(
+      'Email Sent',
+      'If the email is registered, a password reset link has been sent. Please check your Inbox, Spam, or Promotions folder.',
+      'success'
+    );
+
+      this.resetEmail = '';
+      this.showForgotPassword = false;
+    } catch (err: any) {
+      Swal.close();
+
+      let errorMessage = err?.message || 'Unable to send password reset email.';
+
+      if (err?.code === 'auth/user-not-found') {
+        errorMessage = 'No account found for that email address.';
+      } else if (err?.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (err?.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later.';
+      } else if (err?.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
+
+      Swal.fire('Reset Failed', errorMessage, 'error');
+    } finally {
+      this.isSendingReset = false;
     }
   }
 

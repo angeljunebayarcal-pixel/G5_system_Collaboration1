@@ -16,6 +16,20 @@
   </div>
 
   <div class="topbar-action" *ngIf="isLoaded">
+    <!-- ADDED: NOTIFICATION ICON -->
+    <button
+      class="notification-btn"
+      type="button"
+      (click)="goToNotifications($event)"
+      aria-label="Notifications"
+    >
+      <i class="pi pi-bell"></i>
+
+      <span class="notification-badge" *ngIf="notificationCount > 0">
+        {{ notificationCount > 99 ? '99+' : notificationCount }}
+      </span>
+    </button>
+
     <div class="user-dropdown">
       <button class="user-pill" type="button" (click)="toggleMenu($event)">
         <div class="user-avatar" *ngIf="!photoURL">

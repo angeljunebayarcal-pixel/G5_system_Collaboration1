@@ -13,7 +13,8 @@ import {
   reauthenticateWithCredential,
   updateProfile,
   updateEmail,
-  deleteUser
+  deleteUser,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import {
   getFirestore,
@@ -204,6 +205,16 @@ export class AuthService {
 
   async logout() {
     return signOut(this.auth);
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail) {
+      throw new Error('Please enter your email address.');
+    }
+
+    await sendPasswordResetEmail(this.auth, cleanEmail);
   }
 
   getCurrentUser(): User | null {

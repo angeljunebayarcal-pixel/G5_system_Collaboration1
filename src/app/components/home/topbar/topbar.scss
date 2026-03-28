@@ -166,6 +166,56 @@ $accent-cyan: #22d3ee;
   }
 }
 
+/* ADDED: notification button */
+.notification-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin-right: 12px;
+  border: 1px solid rgba(56,189,248,0.18);
+  border-radius: 50%;
+  background: linear-gradient(
+    115deg,
+    rgba(56,189,248,0.08),
+    rgba(129,140,248,0.05)
+  );
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+  flex-shrink: 0;
+
+  i {
+    font-size: 18px;
+  }
+
+  &:hover {
+    border-color: rgba(56,189,248,0.35);
+    box-shadow: 0 6px 18px rgba(56,189,248,0.18);
+  }
+}
+
+/* ADDED: notification badge */
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 2px #0d1e3a;
+}
+
 .user-dropdown {
   position: relative;
 }

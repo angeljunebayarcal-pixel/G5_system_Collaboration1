@@ -9,6 +9,10 @@ import {
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
+// ✅ ADDED
+import { NotificationService, AppNotification } from '../../../services/notification.service';
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-topbar',
   standalone: true,
@@ -24,19 +28,57 @@ export class Topbar implements OnInit, OnDestroy {
   isLoaded = false;
   menuOpen = false;
 
+  // ✅ ADDED: notification count
+  notificationCount = 0;
+
+  // ✅ ADDED
+  private notifSub?: Subscription;
+  private residentId: string | null = null;
+
   constructor(
     private authService: AuthService,
     private zone: NgZone,
-    private router: Router
+    private router: Router,
+
+    // ✅ ADDED
+    private notifService: NotificationService
   ) {}
 
   async ngOnInit() {
     this.loadFastThenFresh();
     window.addEventListener('profile-updated', this.handleProfileUpdated);
+
+    // ✅ ADDED: init notification system
+    await this.initNotifications();
   }
 
   ngOnDestroy() {
     window.removeEventListener('profile-updated', this.handleProfileUpdated);
+
+    // ✅ ADDED
+    this.notifSub?.unsubscribe();
+  }
+
+  // ✅ ADDED: initialize notification listener
+  private async initNotifications() {
+    const user = await this.authService.getCurrentUserAsync();
+    this.residentId = user?.uid || null;
+
+    if (!this.residentId) return;
+
+    this.notifSub = this.notifService
+      .loadNotifications('resident', this.residentId)
+      .subscribe({
+        next: (data: AppNotification[]) => {
+          this.zone.run(() => {
+            // count unread only
+            this.notificationCount = data.filter(n => !n.isRead).length;
+          });
+        },
+        error: (err) => {
+          console.error('Topbar notification error:', err);
+        }
+      });
   }
 
   private handleProfileUpdated = () => {
@@ -122,6 +164,13 @@ export class Topbar implements OnInit, OnDestroy {
         this.isLoaded = true;
       });
     }
+  }
+
+  // ✅ ALREADY ADDED BEFORE (keep this)
+  goToNotifications(event: Event) {
+    event.stopPropagation();
+    this.menuOpen = false;
+    this.router.navigate(['/home/notification']);
   }
 
   toggleMenu(event: Event) {

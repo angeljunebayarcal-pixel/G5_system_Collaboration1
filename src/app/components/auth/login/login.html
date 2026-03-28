@@ -64,6 +64,13 @@
 
     </div>
 
+    <!-- ADDED: FORGOT PASSWORD LINK -->
+    <p class="forgot-link">
+      <span (click)="showForgotPassword = true; resetEmail = email" class="link">
+        Forgot Password?
+      </span>
+    </p>
+
     <button type="submit" [disabled]="!email || !password">
       Login
     </button>
@@ -79,107 +86,143 @@
 
 
   <!-- REGISTER OFFICIAL POPUP -->
-<div class="register-popup" *ngIf="showRegister">
+  <div class="register-popup" *ngIf="showRegister">
 
-  <form class="popup-content" (ngSubmit)="registerOfficial()">
+    <form class="popup-content" (ngSubmit)="registerOfficial()">
 
-    <img
-      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s"
-      alt="Logo"
-      class="login-logo"
-    />
+      <img
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s"
+        alt="Logo"
+        class="login-logo"
+      />
 
-    <h2>Register Official Account</h2>
-
-    <input
-      type="text"
-      [(ngModel)]="regFullName"
-      name="regFullName"
-      placeholder="Full Name"
-      required
-    />
-
-    <input
-      type="email"
-      [(ngModel)]="regEmail"
-      name="regEmail"
-      placeholder="Email"
-      required
-    />
-
-    <!-- PASSWORD -->
-    <div class="password-field">
+      <h2>Register Official Account</h2>
 
       <input
-        [type]="showRegPassword ? 'text' : 'password'"
-        [(ngModel)]="regPassword"
-        name="regPassword"
-        placeholder="Password"
+        type="text"
+        [(ngModel)]="regFullName"
+        name="regFullName"
+        placeholder="Full Name"
         required
       />
 
-      <span class="toggle-eye" (click)="toggleRegPassword()">
-
-        <svg *ngIf="showRegPassword"
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round">
-
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
-          <line x1="1" y1="1" x2="23" y2="23"></line>
-
-        </svg>
-
-        <svg *ngIf="!showRegPassword"
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round">
-
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-
-        </svg>
-
-      </span>
-
-    </div>
-
-    <div class="file-upload">
-
-      <label>Upload Valid ID (PDF)</label>
-
       <input
-        type="file"
-        accept="application/pdf"
-        (change)="onOfficialFileChange($event)"
+        type="email"
+        [(ngModel)]="regEmail"
+        name="regEmail"
+        placeholder="Email"
+        required
       />
 
-      <small *ngIf="uploadedOfficialFileName">
-        Selected: {{ uploadedOfficialFileName }}
-      </small>
+      <!-- PASSWORD -->
+      <div class="password-field">
 
-    </div>
+        <input
+          [type]="showRegPassword ? 'text' : 'password'"
+          [(ngModel)]="regPassword"
+          name="regPassword"
+          placeholder="Password"
+          required
+        />
 
-    <button type="submit">Register</button>
+        <span class="toggle-eye" (click)="toggleRegPassword()">
 
-    <button type="button" (click)="showRegister = false">
-      Cancel
-    </button>
+          <svg *ngIf="showRegPassword"
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
 
-  </form>
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
 
-</div>
+          </svg>
+
+          <svg *ngIf="!showRegPassword"
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+
+          </svg>
+
+        </span>
+
+      </div>
+
+      <div class="file-upload">
+
+        <label>Upload Valid ID (PDF)</label>
+
+        <input
+          type="file"
+          accept="application/pdf"
+          (change)="onOfficialFileChange($event)"
+        />
+
+        <small *ngIf="uploadedOfficialFileName">
+          Selected: {{ uploadedOfficialFileName }}
+        </small>
+
+      </div>
+
+      <button type="submit">Register</button>
+
+      <button type="button" (click)="showRegister = false">
+        Cancel
+      </button>
+
+    </form>
+
+  </div>
+
+  <!-- ADDED: FORGOT PASSWORD POPUP -->
+  <div class="register-popup" *ngIf="showForgotPassword">
+
+    <form class="popup-content" (ngSubmit)="sendResetLink()">
+
+      <img
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s"
+        alt="Logo"
+        class="login-logo"
+      />
+
+      <h2>Forgot Password</h2>
+
+      <input
+        type="email"
+        [(ngModel)]="resetEmail"
+        name="resetEmail"
+        placeholder="Enter your email"
+        required
+      />
+
+      <button type="submit" [disabled]="!resetEmail || isSendingReset">
+        Continue
+      </button>
+
+      <button
+        type="button"
+        (click)="showForgotPassword = false; resetEmail = ''"
+      >
+        Cancel
+      </button>
+
+    </form>
+
+  </div>
 
 </div>
