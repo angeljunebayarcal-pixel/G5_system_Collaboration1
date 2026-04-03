@@ -11,3 +11,54 @@ $topbar-height: 80px;
   overflow-y: auto;
   background: transparent;
 }
+
+/* =========================================
+   iPAD / LARGE TABLET
+   ========================================= */
+@media (max-width: 1024px) {
+  .content {
+    left: 200px; 
+    top: 80px;
+    padding: 12px;
+  }
+}
+
+/* =========================================
+   TABLET
+   ========================================= */
+@media (max-width: 768px) {
+  .content {
+    left: 0; 
+    top: 80px; 
+    padding: 0;
+  }
+}
+
+/* =========================================
+   MOBILE PHONES
+   ========================================= */
+@media (max-width: 480px) {
+  .content {
+    left: 0;
+    top: 80px;
+    padding: 8px; 
+  }
+}
+
+/* =========================================
+   MEDIUM MOBILE (NEW)
+   ========================================= */
+@media (max-width: 420px) {
+  .content {
+    padding: 7px; 
+  }
+}
+
+/* =========================================
+   VERY SMALL PHONES
+   ========================================= */
+@media (max-width: 360px) {
+  .content {
+    padding: 6px;
+  }
+}

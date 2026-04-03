@@ -37,26 +37,30 @@ export class Settings implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    try {
-      const currentUser = await this.authService.getCurrentUserAsync();
+  try {
+    const currentUser = await this.authService.getCurrentUserAsync();
 
-      if (!currentUser) {
-        this.loading = false;
-        this.cdr.detectChanges();
-        return;
-      }
+    if (!currentUser) {
+      this.loading = false;
+      return;
+    }
 
-      this.uid = currentUser.uid;
+    this.uid = currentUser.uid;
+    this.email = currentUser.email || '';
 
-      // 🚀 FAST LOAD (parallel)
-      const [profile, savedSettings] = await Promise.all([
-        this.authService.getProfileData(currentUser.uid),
-        this.settingsService.getSettings(currentUser.uid)
-      ]);
+    this.loading = false;
+    this.cdr.detectChanges();
+
+    const [profileResult, settingsResult] = await Promise.allSettled([
+      this.authService.getProfileData(currentUser.uid),
+      this.settingsService.getSettings(currentUser.uid)
+    ]);
+
+    if (profileResult.status === 'fulfilled') {
+      const profile = profileResult.value;
 
       this.fullName = profile?.fullName || '';
       this.email = profile?.email || currentUser.email || '';
-      this.settings = savedSettings;
 
       if (profile?.role === 'official') {
         this.roleLabel = 'Official';
@@ -65,23 +69,26 @@ export class Settings implements OnInit {
       } else {
         this.roleLabel = 'Resident';
       }
-
-      // ⚡ non-blocking
-      this.authService.updateOwnStatus(
-        this.uid,
-        this.settings.activityStatus ? 'active' : 'inactive'
-      );
-
-      this.loading = false;
-      this.cdr.detectChanges();
-
-    } catch (error) {
-      console.error('Failed to load settings:', error);
-      this.loading = false;
-      this.cdr.detectChanges();
-      Swal.fire('Error', 'Failed to load settings.', 'error');
     }
+
+    if (settingsResult.status === 'fulfilled' && settingsResult.value) {
+      this.settings = settingsResult.value;
+    }
+
+    this.authService.updateOwnStatus(
+      this.uid,
+      this.settings.activityStatus ? 'active' : 'inactive'
+    ).catch((err) => console.error('Status update failed:', err));
+
+    this.cdr.detectChanges();
+
+  } catch (error) {
+    console.error('Failed to load settings:', error);
+    this.loading = false;
+    this.cdr.detectChanges();
+    Swal.fire('Error', 'Failed to load settings.', 'error');
   }
+}
 
   async saveToggle(field: keyof UserSettingsData): Promise<void> {
     try {
@@ -172,60 +179,77 @@ export class Settings implements OnInit {
     }
   }
 
-  async changePassword(): Promise<void> {
-    const { value: formValues } = await Swal.fire({
-      title: 'Change Password',
-      html: `
-        <input id="currentPassword" class="swal2-input" type="password" placeholder="Current password">
-        <input id="newPassword" class="swal2-input" type="password" placeholder="New password">
-        <input id="confirmPassword" class="swal2-input" type="password" placeholder="Confirm new password">
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Change',
-      preConfirm: () => {
-        const currentPassword = (document.getElementById('currentPassword') as HTMLInputElement)?.value.trim();
-        const newPassword = (document.getElementById('newPassword') as HTMLInputElement)?.value.trim();
-        const confirmPassword = (document.getElementById('confirmPassword') as HTMLInputElement)?.value.trim();
+ async changePassword(): Promise<void> {
+  await Swal.fire({
+    title: 'Change Password',
+    html: `
+      <div style="width:100%; display:flex; flex-direction:column; gap:10px; margin:0; padding:0;">
+        <input id="currentPassword"
+               class="swal2-input"
+               type="password"
+               placeholder="Current password"
+               aria-label="Current password"
+               style="width:100%; margin:0; box-sizing:border-box;">
 
-        if (!currentPassword || !newPassword || !confirmPassword) {
-          Swal.showValidationMessage('Please fill in all password fields.');
-          return;
-        }
+        <input id="newPassword"
+               class="swal2-input"
+               type="password"
+               placeholder="New password"
+               aria-label="New password"
+               style="width:100%; margin:0; box-sizing:border-box;">
 
-        if (newPassword.length < 6) {
-          Swal.showValidationMessage('New password must be at least 6 characters.');
-          return;
-        }
+        <input id="confirmPassword"
+               class="swal2-input"
+               type="password"
+               placeholder="Confirm new password"
+               aria-label="Confirm new password"
+               style="width:100%; margin:0; box-sizing:border-box;">
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Change',
+    showLoaderOnConfirm: true,
+    allowOutsideClick: () => !Swal.isLoading(),
+    preConfirm: async () => {
+      const currentPassword = (document.getElementById('currentPassword') as HTMLInputElement)?.value.trim();
+      const newPassword = (document.getElementById('newPassword') as HTMLInputElement)?.value.trim();
+      const confirmPassword = (document.getElementById('confirmPassword') as HTMLInputElement)?.value.trim();
 
-        if (newPassword !== confirmPassword) {
-          Swal.showValidationMessage('New password and confirm password do not match.');
-          return;
-        }
-
-        if (currentPassword === newPassword) {
-          Swal.showValidationMessage('New password must be different from your current password.');
-          return;
-        }
-
-        return { currentPassword, newPassword };
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        Swal.showValidationMessage('Please fill in all password fields.');
+        return false;
       }
-    });
 
-    if (!formValues) return;
+      if (newPassword.length < 6) {
+        Swal.showValidationMessage('New password must be at least 6 characters.');
+        return false;
+      }
 
-    try {
-      await this.authService.changePassword(
-        formValues.currentPassword,
-        formValues.newPassword
-      );
+      if (newPassword !== confirmPassword) {
+        Swal.showValidationMessage('New password and confirm password do not match.');
+        return false;
+      }
 
-      Swal.fire('Success', 'Password changed successfully.', 'success');
-    } catch (error: any) {
-      console.error('Change password error:', error);
-      Swal.fire('Error', error?.message || 'Failed to change password.', 'error');
+      if (currentPassword === newPassword) {
+        Swal.showValidationMessage('New password must be different from your current password.');
+        return false;
+      }
+
+      try {
+        await this.authService.changePassword(currentPassword, newPassword);
+        return true;
+      } catch (error: any) {
+        Swal.showValidationMessage(error?.message || 'Failed to change password.');
+        return false;
+      }
     }
-  }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire('Success', 'Password changed successfully.', 'success');
+    }
+  });
+}
 
   async deactivateAccount(): Promise<void> {
     const result = await Swal.fire({

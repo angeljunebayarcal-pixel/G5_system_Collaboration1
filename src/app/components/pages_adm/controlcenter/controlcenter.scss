@@ -476,3 +476,242 @@
     width: min(460px, calc(100vw - 24px));
   }
 }
+
+
+/* ======================================================
+   CONTROL CENTER RESPONSIVE
+   ====================================================== */
+
+ /* ================= iPAD / LARGE TABLET ONLY ================= */
+@media (min-width: 769px) and (max-width: 1090px) {
+
+  .modal-content,
+  .large-modal {
+    position: fixed !important;
+    top: 50% !important;
+
+    left: calc(50% + 120px) !important; 
+
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+  }
+}
+
+/* ================= TABLET ================= */
+@media (max-width: 768px) {
+
+  .dashboard-header h2 {
+    font-size: 22px !important;
+  }
+
+  .dashboard-header p {
+    font-size: 13px !important;
+  }
+
+  .refresh {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    min-height: 36px !important;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.9rem !important;
+  }
+
+  .dashboard-cards .card {
+    padding: 0.85rem !important;
+    border-radius: 12px !important;
+    min-height: 85px !important;
+  }
+
+  .dashboard-cards .card h3 {
+    font-size: 1.35rem !important;
+  }
+
+  .dashboard-cards .card p {
+    font-size: 0.75rem !important;
+  }
+
+  .dashboard-main {
+    grid-template-columns: 1fr !important;
+    gap: 0.9rem !important;
+  }
+
+  .dashboard-main .section,
+  .dashboard-main .official-tools {
+    padding: 0.9rem !important;
+  }
+
+  .dashboard-main h3 {
+    font-size: 0.88rem !important;
+  }
+
+  .tool-btn {
+    padding: 0.75rem !important;
+    font-size: 0.75rem !important;
+    min-height: 52px !important;
+  }
+
+  .section table th,
+  .section table td {
+    font-size: 0.7rem !important;
+    padding: 0.55rem !important;
+  }
+
+  .modal-content,
+  .large-modal {
+    width: 390px !important;
+    max-width: calc(100vw - 24px) !important;
+    padding: 1rem !important;
+  }
+}
+
+
+/* ================= MOBILE ================= */
+@media (max-width: 480px) {
+
+  .dashboard-header h2 {
+    font-size: 19px !important;
+  }
+
+  .dashboard-header p {
+    font-size: 12px !important;
+  }
+
+  .refresh {
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+    width: 45% !important;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr !important;
+    gap: 0.7rem !important;
+  }
+
+  .dashboard-cards .card {
+    padding: 0.75rem !important;
+    min-height: 75px !important;
+  }
+
+  .dashboard-cards .card h3 {
+    font-size: 1.2rem !important;
+  }
+
+  .dashboard-cards .card p {
+    font-size: 0.7rem !important;
+  }
+
+  .dashboard-main {
+    gap: 0.7rem !important;
+  }
+
+  .dashboard-main .section,
+  .dashboard-main .official-tools {
+    padding: 0.8rem !important;
+  }
+
+  .dashboard-main h3 {
+    font-size: 0.76rem !important;
+  }
+
+  .tool-btn {
+    padding: 0.6rem !important;
+    font-size: 0.65rem !important;
+    min-height: 48px !important;
+  }
+
+  .section table th,
+  .section table td {
+    font-size: 0.62rem !important;
+    padding: 0.45rem !important;
+  }
+
+  .modal-content,
+  .large-modal {
+    width: 330px !important;
+    max-width: calc(100vw - 20px) !important;
+  }
+}
+
+
+/* ================= MEDIUM MOBILE ================= */
+@media (max-width: 420px) {
+
+  .dashboard-header h2 {
+    font-size: 17px !important;
+  }
+
+  .dashboard-header p {
+    font-size: 11px !important;
+  }
+
+  .refresh {
+    padding: 6px 9px !important;
+    font-size: 11px !important;
+  }
+
+  .dashboard-cards .card {
+    padding: 0.7rem !important;
+    min-height: 68px !important;
+  }
+
+  .dashboard-cards .card h3 {
+    font-size: 1.1rem !important;
+  }
+
+  .dashboard-main h3 {
+    font-size: 0.72rem !important;
+  }
+
+  .tool-btn {
+    padding: 0.55rem !important;
+    font-size: 0.62rem !important;
+  }
+
+  .modal-content {
+    width: 310px !important;
+  }
+}
+
+
+/* ================= SMALL PHONES ================= */
+@media (max-width: 360px) {
+
+  .dashboard-header h2 {
+    font-size: 15px !important;
+  }
+
+  .dashboard-header p {
+    font-size: 10px !important;
+  }
+
+  .refresh {
+    padding: 5px 8px !important;
+    font-size: 10px !important;
+    width: 30% !important;
+  }
+
+  .dashboard-cards .card {
+    padding: 0.65rem !important;
+    min-height: 60px !important;
+  }
+
+  .dashboard-cards .card h3 {
+    font-size: 1.05rem !important;
+  }
+
+  .dashboard-main h3 {
+    font-size: 0.68rem !important;
+  }
+
+  .tool-btn {
+    padding: 0.5rem !important;
+    font-size: 0.58rem !important;
+  }
+
+  .modal-content {
+    width: 290px !important;
+  }
+}

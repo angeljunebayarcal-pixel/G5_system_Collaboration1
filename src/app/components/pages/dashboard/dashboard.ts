@@ -288,7 +288,7 @@ export class Dashboard implements OnInit, OnDestroy {
       ...notificationActivities
     ].sort((a, b) => b.sortTime - a.sortTime);
 
-    this.recentActivities = this.allActivities.slice(0, 3);
+    this.recentActivities = this.allActivities.slice(0, 2);
   }
 
   private formatDate(createdAt: any, fallback: string): string {

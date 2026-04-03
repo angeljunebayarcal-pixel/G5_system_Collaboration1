@@ -178,3 +178,781 @@
     transform: translateY(0);
   }
 }
+
+
+/* ======================================================
+   RESPONSIVE SETTINGS
+   ====================================================== */
+
+   /* ================= iPAD ONLY (769px - 1024px) ================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .settings-container {
+    width: calc(97% - 1rem) !important;
+    margin-left: 35px !important;
+    padding: 1.4rem !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    border-radius: 18px !important;
+  }
+}
+
+/* ================= LARGE TABLETS / SMALL LAPTOPS ================= */
+@media (max-width: 1024px) {
+  .settings-container {
+    width: calc(100% - 1.5rem);
+    min-height: auto;
+    margin: 12px;
+    padding: 1.5rem;
+    border-radius: 18px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .settings-card {
+    padding: 22px;
+    margin-bottom: 20px;
+    border-radius: 16px;
+  }
+
+  .card-header {
+    margin-bottom: 16px;
+  }
+
+  .card-header h2 {
+    font-size: 18px;
+  }
+
+  .setting-item {
+    padding: 16px 4px;
+  }
+}
+
+.modal-overlay,
+.settings-modal-overlay,
+.change-password-overlay {
+  padding: 12px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content,
+.settings-modal,
+.change-password-modal,
+.change-password-frame,
+.password-modal,
+.password-frame {
+  width: min(520px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.modal-content form,
+.settings-modal form,
+.change-password-modal form,
+.change-password-frame form,
+.password-modal form,
+.password-frame form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.modal-content .form-group,
+.settings-modal .form-group,
+.change-password-modal .form-group,
+.change-password-frame .form-group,
+.password-modal .form-group,
+.password-frame .form-group {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 14px 0;
+  box-sizing: border-box;
+}
+
+.modal-content input,
+.settings-modal input,
+.change-password-modal input,
+.change-password-frame input,
+.password-modal input,
+.password-frame input {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.modal-content hr,
+.settings-modal hr,
+.change-password-modal hr,
+.change-password-frame hr,
+.password-modal hr,
+.password-frame hr {
+  width: 100%;
+  max-width: 100%;
+  margin: 6px 0 16px 0;
+  box-sizing: border-box;
+  display: block;
+}
+
+.modal-content .form-actions,
+.settings-modal .form-actions,
+.change-password-modal .form-actions,
+.change-password-frame .form-actions,
+.password-modal .form-actions,
+.password-frame .form-actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  box-sizing: border-box;
+}
+
+/* ================= TABLETS ================= */
+@media (max-width: 768px) {
+  .settings-container {
+    width: calc(100% - 1rem);
+    min-height: auto;
+    margin: 8px;
+    padding: 1.2rem;
+    border-radius: 16px;
+  }
+
+  .page-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+    line-height: 1.25;
+  }
+
+  .settings-card {
+    padding: 18px;
+    margin-bottom: 16px;
+    border-radius: 14px;
+  }
+
+  .card-header {
+    margin-bottom: 14px;
+  }
+
+  .card-header h2 {
+    font-size: 17px;
+  }
+
+  .setting-item {
+    padding: 14px 2px;
+    gap: 12px;
+  }
+
+  .setting-item label {
+    font-size: 14px;
+  }
+
+  .setting-item p {
+    font-size: 12px;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  .setting-item button {
+    padding: 7px 14px;
+    font-size: 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .clickable:hover {
+    padding-left: 8px;
+  }
+
+  .switch {
+    width: 42px;
+    height: 22px;
+  }
+
+  .slider:before {
+    height: 16px;
+    width: 16px;
+  }
+
+  .switch input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+
+  .modal-content,
+  .settings-modal,
+  .change-password-modal,
+  .change-password-frame,
+  .password-modal,
+  .password-frame {
+    width: min(460px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    padding: 20px;
+    border-radius: 16px;
+    margin: 0 auto;
+  }
+
+  .modal-content h2,
+  .settings-modal h2,
+  .change-password-modal h2,
+  .change-password-frame h2,
+  .password-modal h2,
+  .password-frame h2 {
+    font-size: 30px;
+    line-height: 1.2;
+    margin: 0 0 18px 0;
+    text-align: center;
+  }
+
+  .modal-content form,
+  .settings-modal form,
+  .change-password-modal form,
+  .change-password-frame form,
+  .password-modal form,
+  .password-frame form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content .form-group,
+  .settings-modal .form-group,
+  .change-password-modal .form-group,
+  .change-password-frame .form-group,
+  .password-modal .form-group,
+  .password-frame .form-group {
+    width: 100%;
+    margin-bottom: 14px;
+  }
+
+  .modal-content input,
+  .settings-modal input,
+  .change-password-modal input,
+  .change-password-frame input,
+  .password-modal input,
+  .password-frame input {
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .modal-content hr,
+  .settings-modal hr,
+  .change-password-modal hr,
+  .change-password-frame hr,
+  .password-modal hr,
+  .password-frame hr {
+    width: 100%;
+    margin: 4px 0 16px 0;
+    box-sizing: border-box;
+  }
+
+  .modal-content .form-actions,
+  .settings-modal .form-actions,
+  .change-password-modal .form-actions,
+  .change-password-frame .form-actions,
+  .password-modal .form-actions,
+  .password-frame .form-actions {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  .modal-content .form-actions button,
+  .settings-modal .form-actions button,
+  .change-password-modal .form-actions button,
+  .change-password-frame .form-actions button,
+  .password-modal .form-actions button,
+  .password-frame .form-actions button {
+    min-width: 110px;
+    padding: 10px 16px;
+  }
+}
+
+/* ================= MOBILE PHONES ================= */
+@media (max-width: 480px) {
+  .settings-container {
+    width: calc(100% - 0.75rem);
+    margin: 6px;
+    padding: 1rem;
+    border-radius: 14px;
+  }
+
+  .page-title {
+    font-size: 19px;
+    margin-bottom: 16px;
+    line-height: 1.25;
+  }
+
+  .settings-card {
+    padding: 14px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+  }
+
+  .card-header {
+    margin-bottom: 12px;
+  }
+
+  .card-header h2 {
+    font-size: 16px;
+  }
+
+  .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 2px;
+  }
+
+  .setting-item label {
+    font-size: 13px;
+  }
+
+  .setting-item p {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .setting-item button {
+    padding: 7px 12px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  .clickable:hover {
+    padding-left: 0;
+    background: #f1f5f9;
+  }
+
+  .switch {
+    width: 40px;
+    height: 21px;
+  }
+
+  .slider:before {
+    height: 15px;
+    width: 15px;
+    left: 3px;
+    bottom: 3px;
+  }
+
+  .switch input:checked + .slider:before {
+    transform: translateX(19px);
+  }
+
+  .modal-overlay,
+  .settings-modal-overlay,
+  .change-password-overlay {
+    padding: 10px;
+  }
+
+  .modal-content,
+  .settings-modal,
+  .change-password-modal,
+  .change-password-frame,
+  .password-modal,
+  .password-frame {
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+    padding: 16px 14px;
+    border-radius: 14px;
+    margin: 0 auto;
+  }
+
+  .modal-content h2,
+  .settings-modal h2,
+  .change-password-modal h2,
+  .change-password-frame h2,
+  .password-modal h2,
+  .password-frame h2 {
+    font-size: 24px;
+    margin: 0 0 14px 0;
+    text-align: center;
+  }
+
+  .modal-content form,
+  .settings-modal form,
+  .change-password-modal form,
+  .change-password-frame form,
+  .password-modal form,
+  .password-frame form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .modal-content .form-group,
+  .settings-modal .form-group,
+  .change-password-modal .form-group,
+  .change-password-frame .form-group,
+  .password-modal .form-group,
+  .password-frame .form-group {
+    width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .modal-content input,
+  .settings-modal input,
+  .change-password-modal input,
+  .change-password-frame input,
+  .password-modal input,
+  .password-frame input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    margin: 0;
+  }
+
+  .modal-content hr,
+  .settings-modal hr,
+  .change-password-modal hr,
+  .change-password-frame hr,
+  .password-modal hr,
+  .password-frame hr {
+    width: 100%;
+    margin: 4px 0 14px 0;
+  }
+
+  .modal-content .form-actions,
+  .settings-modal .form-actions,
+  .change-password-modal .form-actions,
+  .change-password-frame .form-actions,
+  .password-modal .form-actions,
+  .password-frame .form-actions {
+    width: 100%;
+    gap: 8px;
+    margin-top: 6px;
+    justify-content: center;
+  }
+
+  .modal-content .form-actions button,
+  .settings-modal .form-actions button,
+  .change-password-modal .form-actions button,
+  .change-password-frame .form-actions button,
+  .password-modal .form-actions button,
+  .password-frame .form-actions button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
+
+/* ================= MEDIUM MOBILE (≈ 393px devices) ================= */
+@media (max-width: 420px) {
+  .settings-container {
+    width: calc(100% - 0.65rem);
+    margin: 5px;
+    padding: 0.95rem;
+    border-radius: 13px;
+  }
+
+  .page-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .settings-card {
+    padding: 13px;
+    border-radius: 11px;
+  }
+
+  .card-header h2 {
+    font-size: 15px;
+  }
+
+  .setting-item {
+    padding: 11px 2px;
+  }
+
+  .setting-item label {
+    font-size: 12.5px;
+  }
+
+  .setting-item p {
+    font-size: 10.5px;
+  }
+
+  .setting-item button {
+    padding: 6px 11px;
+    font-size: 10.5px;
+    border-radius: 7px;
+  }
+
+  .switch {
+    width: 38px;
+    height: 20px;
+  }
+
+  .slider:before {
+    height: 14px;
+    width: 14px;
+  }
+
+  .switch input:checked + .slider:before {
+    transform: translateX(18px);
+  }
+
+  .modal-content,
+  .settings-modal,
+  .change-password-modal,
+  .change-password-frame,
+  .password-modal,
+  .password-frame {
+    width: calc(100vw - 18px);
+    max-width: calc(100vw - 18px);
+    padding: 14px 13px;
+    border-radius: 13px;
+  }
+
+  .modal-content h2,
+  .settings-modal h2,
+  .change-password-modal h2,
+  .change-password-frame h2,
+  .password-modal h2,
+  .password-frame h2 {
+    font-size: 22px;
+  }
+
+  .modal-content input,
+  .settings-modal input,
+  .change-password-modal input,
+  .change-password-frame input,
+  .password-modal input,
+  .password-frame input {
+    padding: 10px 11px;
+  }
+
+  .modal-content .form-actions button,
+  .settings-modal .form-actions button,
+  .change-password-modal .form-actions button,
+  .change-password-frame .form-actions button,
+  .password-modal .form-actions button,
+  .password-frame .form-actions button {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+}
+
+/* ================= VERY SMALL PHONES ================= */
+@media (max-width: 360px) {
+  .settings-container {
+    width: calc(100% - 0.5rem);
+    margin: 4px;
+    padding: 0.85rem;
+    border-radius: 12px;
+  }
+
+  .page-title {
+    font-size: 17px;
+    margin-bottom: 14px;
+  }
+
+  .settings-card {
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+  }
+
+  .card-header {
+    margin-bottom: 10px;
+  }
+
+  .card-header h2 {
+    font-size: 14px;
+  }
+
+  .setting-item {
+    padding: 10px 2px;
+    gap: 8px;
+  }
+
+  .setting-item label {
+    font-size: 12px;
+  }
+
+  .setting-item p {
+    font-size: 10px;
+  }
+
+  .setting-item button {
+    padding: 6px 10px;
+    font-size: 10px;
+    border-radius: 7px;
+  }
+
+  .switch {
+    width: 36px;
+    height: 19px;
+  }
+
+  .slider:before {
+    height: 13px;
+    width: 13px;
+  }
+
+  .switch input:checked + .slider:before {
+    transform: translateX(17px);
+  }
+
+  .modal-overlay,
+  .settings-modal-overlay,
+  .change-password-overlay {
+    padding: 8px;
+  }
+
+  .modal-content,
+  .settings-modal,
+  .change-password-modal,
+  .change-password-frame,
+  .password-modal,
+  .password-frame {
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .modal-content h2,
+  .settings-modal h2,
+  .change-password-modal h2,
+  .change-password-frame h2,
+  .password-modal h2,
+  .password-frame h2 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .modal-content input,
+  .settings-modal input,
+  .change-password-modal input,
+  .change-password-frame input,
+  .password-modal input,
+  .password-frame input {
+    padding: 9px 10px;
+    border-radius: 9px;
+  }
+
+  .modal-content .form-actions button,
+  .settings-modal .form-actions button,
+  .change-password-modal .form-actions button,
+  .change-password-frame .form-actions button,
+  .password-modal .form-actions button,
+  .password-frame .form-actions button {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}
+
+/* ======================================================
+   SWEETALERT MOBILE 
+   ====================================================== */
+
+@media (max-width: 480px) {
+  .swal2-popup {
+    width: 92vw !important;
+    max-width: 92vw !important;
+    padding: 14px !important;
+    box-sizing: border-box !important;
+  }
+
+  .swal2-html-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .swal2-html-container > div,
+  .swal2-html-container form,
+  .swal2-html-container .form-group,
+  .swal2-html-container .input-group {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .swal2-html-container input,
+  .swal2-input {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 0 12px 0 !important;
+    padding: 10px 12px !important;
+    box-sizing: border-box !important;
+    font-size: 16px !important;
+    border-radius: 10px !important;
+  }
+
+  .swal2-html-container hr {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 4px 0 12px 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .swal2-actions {
+    width: 100% !important;
+    margin: 8px 0 0 0 !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  .swal2-styled {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .swal2-popup {
+    width: 94vw !important;
+    max-width: 94vw !important;
+    padding: 12px !important;
+  }
+
+  .swal2-html-container input,
+  .swal2-input {
+    padding: 9px 10px !important;
+    font-size: 15px !important;
+  }
+}

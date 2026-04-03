@@ -1,5 +1,29 @@
-<div class="sidenav">
+<!-- MOBILE / TABLET ARROW TOGGLE -->
+<button
+  class="menu-toggle hamburger-toggle"
+  type="button"
+  *ngIf="isMobileOrTablet && !isSidebarOpen"
+  (click)="toggleSidebar()"
+  aria-label="Open Admin Menu"
+>
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
 
+<!-- OVERLAY FOR TABLET / MOBILE -->
+<div
+  class="sidebar-overlay"
+  [class.show]="isMobileOrTablet && isSidebarOpen"
+  (click)="closeSidebar()"
+></div>
+
+<div
+  class="sidenav"
+  [class.mobile-hidden]="isMobileOrTablet && !isSidebarOpen"
+  [class.mobile-open]="isMobileOrTablet && isSidebarOpen"
+>
+  <!-- Header -->
   <div class="nav-header">
     <div class="nav-header-inner">
       <div class="menu-badge">
@@ -11,10 +35,15 @@
     </div>
   </div>
 
+  <!-- Navigation -->
   <nav>
     <ul>
       <li>
-        <a routerLink="/home-adm/controlcenter" routerLinkActive="active">
+        <a
+          routerLink="/home-adm/controlcenter"
+          routerLinkActive="active"
+          (click)="handleNavClick()"
+        >
           <i class="pi pi-th-large nav-icon"></i>
           <span class="nav-label">Control Center</span>
           <span class="nav-arrow">›</span>
@@ -22,7 +51,11 @@
       </li>
 
       <li>
-        <a routerLink="/home-adm/userdirectory" routerLinkActive="active">
+        <a
+          routerLink="/home-adm/userdirectory"
+          routerLinkActive="active"
+          (click)="handleNavClick()"
+        >
           <i class="pi pi-users nav-icon"></i>
           <span class="nav-label">User Directory</span>
           <span class="nav-arrow">›</span>
@@ -30,7 +63,11 @@
       </li>
 
       <li>
-        <a routerLink="/home-adm/approvalqueue" routerLinkActive="active">
+        <a
+          routerLink="/home-adm/approvalqueue"
+          routerLinkActive="active"
+          (click)="handleNavClick()"
+        >
           <i class="pi pi-check-square nav-icon"></i>
           <span class="nav-label">Approval Queue</span>
           <span class="nav-arrow">›</span>
@@ -38,7 +75,11 @@
       </li>
 
       <li>
-        <a routerLink="/home-adm/adm-profile" routerLinkActive="active">
+        <a
+          routerLink="/home-adm/adm-profile"
+          routerLinkActive="active"
+          (click)="handleNavClick()"
+        >
           <i class="pi pi-user nav-icon"></i>
           <span class="nav-label">Profile</span>
           <span class="nav-arrow">›</span>
@@ -47,10 +88,12 @@
     </ul>
   </nav>
 
+  <!-- Divider -->
   <div class="nav-divider">
     <span></span>
   </div>
 
+  <!-- Footer -->
   <div class="sidenav-footer">
     <div class="footer-status">
       <span class="status-dot"></span>

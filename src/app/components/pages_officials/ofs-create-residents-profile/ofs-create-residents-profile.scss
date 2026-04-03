@@ -75,10 +75,256 @@
   }
 }
 
-/* Optional: responsive */
 @media (max-width: 600px) {
   .resident-form-container {
     margin: 1rem;
     padding: 1rem;
+  }
+}
+
+/* ======================================================
+   RESPONSIVE SYSTEM - RESIDENT FORM
+   ====================================================== */
+
+     /* ================= iPAD ONLY (769px - 1024px) ================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+   .resident-form-container {
+    max-width: calc(96% - 1rem) !important;
+    margin-left: 35px !important;
+    padding: 1.4rem !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    border-radius: 18px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .resident-form-container {
+    max-width: calc(95% - 1rem) !important;
+    margin: 1rem auto !important;
+    padding: 1.4rem !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+
+    .form-title {
+      font-size: 1.5rem !important;
+      margin-bottom: 1.2rem !important;
+      line-height: 1.2 !important;
+    }
+
+    .resident-form {
+      .form-group {
+        margin-bottom: 0.9rem !important;
+
+        label {
+          font-size: 0.95rem !important;
+          margin-bottom: 0.45rem !important;
+          line-height: 1.2 !important;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"] {
+          padding: 0.58rem 0.75rem !important;
+          border-radius: 6px !important;
+          font-size: 0.95rem !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+
+        .gender-options {
+          gap: 1rem !important;
+          flex-wrap: wrap !important;
+
+          label {
+            font-size: 0.92rem !important;
+
+            input {
+              margin-right: 0.28rem !important;
+            }
+          }
+        }
+      }
+
+      .submit-btn {
+        width: 100% !important;
+        padding: 0.75rem 0.95rem !important;
+        border-radius: 8px !important;
+        font-size: 0.95rem !important;
+        margin-top: 0.9rem !important;
+      }
+    }
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 480px) {
+  .resident-form-container {
+    max-width: calc(91% - 0.75rem) !important;
+    margin: 6px auto !important;
+    padding: 1rem !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+
+    .form-title {
+      font-size: 1.25rem !important;
+      margin-bottom: 1rem !important;
+      line-height: 1.15 !important;
+    }
+
+    .resident-form {
+      .form-group {
+        margin-bottom: 0.8rem !important;
+
+        label {
+          font-size: 0.84rem !important;
+          margin-bottom: 0.38rem !important;
+          line-height: 1.15 !important;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"] {
+          padding: 0.52rem 0.68rem !important;
+          border-radius: 6px !important;
+          font-size: 0.84rem !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+
+        .gender-options {
+          gap: 0.75rem !important;
+          flex-direction: column !important;
+          align-items: flex-start !important;
+
+          label {
+            font-size: 0.82rem !important;
+            display: flex !important;
+            align-items: center !important;
+
+            input {
+              margin-right: 0.3rem !important;
+            }
+          }
+        }
+      }
+
+      .submit-btn {
+        width: 100% !important;
+        padding: 0.68rem 0.9rem !important;
+        border-radius: 8px !important;
+        font-size: 0.84rem !important;
+        margin-top: 0.8rem !important;
+      }
+    }
+  }
+}
+
+/* ================= MEDIUM MOBILE ================= */
+@media (max-width: 420px) {
+  .resident-form-container {
+    max-width: calc(91% - 0.7rem) !important;
+    margin: 6px auto !important;
+    padding: 0.9rem !important;
+    border-radius: 9px !important;
+
+    .form-title {
+      font-size: 1.15rem !important;
+      margin-bottom: 0.9rem !important;
+    }
+
+    .resident-form {
+      .form-group {
+        margin-bottom: 0.72rem !important;
+
+        label {
+          font-size: 0.78rem !important;
+          margin-bottom: 0.34rem !important;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"] {
+          padding: 0.48rem 0.62rem !important;
+          font-size: 0.78rem !important;
+          border-radius: 6px !important;
+        }
+
+        .gender-options {
+          gap: 0.62rem !important;
+
+          label {
+            font-size: 0.76rem !important;
+          }
+        }
+      }
+
+      .submit-btn {
+        padding: 0.62rem 0.82rem !important;
+        font-size: 0.78rem !important;
+        border-radius: 7px !important;
+      }
+    }
+  }
+}
+
+/* ================= SMALL PHONES ================= */
+@media (max-width: 360px) {
+  .resident-form-container {
+    max-width: calc(100% - 0.5rem) !important;
+    margin: 0.25rem auto !important;
+    padding: 0.8rem !important;
+    border-radius: 8px !important;
+
+    .form-title {
+      font-size: 1.05rem !important;
+      margin-bottom: 0.8rem !important;
+      line-height: 1.1 !important;
+    }
+
+    .resident-form {
+      .form-group {
+        margin-bottom: 0.65rem !important;
+
+        label {
+          font-size: 0.72rem !important;
+          margin-bottom: 0.3rem !important;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"] {
+          padding: 0.44rem 0.56rem !important;
+          font-size: 0.72rem !important;
+          border-radius: 5px !important;
+        }
+
+        .gender-options {
+          gap: 0.55rem !important;
+
+          label {
+            font-size: 0.7rem !important;
+
+            input {
+              margin-right: 0.25rem !important;
+            }
+          }
+        }
+      }
+
+      .submit-btn {
+        padding: 0.56rem 0.75rem !important;
+        font-size: 0.72rem !important;
+        border-radius: 6px !important;
+        margin-top: 0.7rem !important;
+      }
+    }
   }
 }

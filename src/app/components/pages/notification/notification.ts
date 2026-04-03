@@ -1,8 +1,8 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { NotificationService, AppNotification } from '../../../services/notification.service';
 import { AuthService } from '../../../services/auth.service';
+import { CommonModule } from '@angular/common';
 
 interface ResidentNotification {
   id: string;

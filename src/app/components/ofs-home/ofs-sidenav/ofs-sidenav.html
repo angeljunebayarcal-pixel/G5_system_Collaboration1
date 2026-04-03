@@ -1,5 +1,29 @@
-<div class="sidenav">
+<!-- MOBILE / TABLET ARROW TOGGLE -->
+<button
+  class="menu-toggle hamburger-toggle"
+  type="button"
+  *ngIf="isMobileOrTablet && !isSidebarOpen"
+  (click)="toggleSidebar()"
+  aria-label="Open Main Menu"
+>
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
 
+<!-- OVERLAY FOR TABLET / MOBILE -->
+<div
+  class="sidebar-overlay"
+  [class.show]="isMobileOrTablet && isSidebarOpen"
+  (click)="closeSidebar()"
+></div>
+
+<div
+  class="sidenav"
+  [class.mobile-hidden]="isMobileOrTablet && !isSidebarOpen"
+  [class.mobile-open]="isMobileOrTablet && isSidebarOpen"
+>
+  <!-- Header -->
   <div class="nav-header">
     <div class="nav-header-inner">
       <div class="menu-badge">
@@ -11,10 +35,15 @@
     </div>
   </div>
 
+  <!-- Navigation -->
   <nav>
     <ul>
       <li>
-        <a routerLink="/ofs-home/ofs-dashboard" routerLinkActive="active">
+        <a
+          routerLink="/ofs-home/ofs-dashboard"
+          routerLinkActive="active"
+          (click)="handleNavClick()"
+        >
           <i class="pi pi-clipboard nav-icon"></i>
           <span class="nav-label">Dashboard</span>
           <span class="nav-arrow">›</span>
@@ -22,7 +51,11 @@
       </li>
 
       <li>
-        <a routerLink="/ofs-home/ofs-residentsdirectory" routerLinkActive="active">
+        <a
+          routerLink="/ofs-home/ofs-residentsdirectory"
+          routerLinkActive="active"
+          (click)="handleNavClick()"
+        >
           <i class="pi pi-folder-open nav-icon"></i>
           <span class="nav-label">Residents Directory</span>
           <span class="nav-arrow">›</span>
@@ -30,7 +63,11 @@
       </li>
 
       <li>
-        <a routerLink="/ofs-home/ofs-createresidentsprofile" routerLinkActive="active">
+        <a
+          routerLink="/ofs-home/ofs-createresidentsprofile"
+          routerLinkActive="active"
+          (click)="handleNavClick()"
+        >
           <i class="pi pi-file-edit nav-icon"></i>
           <span class="nav-label">Create Resident Profile</span>
           <span class="nav-arrow">›</span>
@@ -38,27 +75,37 @@
       </li>
 
       <li>
-        <a routerLink="/ofs-home/ofs-notification" routerLinkActive="active">
+        <a
+          routerLink="/ofs-home/ofs-notification"
+          routerLinkActive="active"
+          (click)="handleNavClick()"
+        >
           <i class="pi pi-bell nav-icon"></i>
-          <span class="nav-label">Notification</span>
+          <span class="nav-label">Notifications</span>
           <span class="nav-arrow">›</span>
         </a>
       </li>
 
       <li>
-        <a routerLink="/ofs-home/ofs-profile" routerLinkActive="active">
+        <a
+          routerLink="/ofs-home/ofs-profile"
+          routerLinkActive="active"
+          (click)="handleNavClick()"
+        >
           <i class="pi pi-user nav-icon"></i>
-          <span class="nav-label">Profile</span>
+          <span class="nav-label">My Profile</span>
           <span class="nav-arrow">›</span>
         </a>
       </li>
     </ul>
   </nav>
 
+  <!-- Divider -->
   <div class="nav-divider">
     <span></span>
   </div>
 
+  <!-- Footer -->
   <div class="sidenav-footer">
     <div class="footer-status">
       <span class="status-dot"></span>

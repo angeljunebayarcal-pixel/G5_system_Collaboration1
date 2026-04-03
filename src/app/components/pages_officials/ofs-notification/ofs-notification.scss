@@ -13,7 +13,6 @@
   box-sizing: border-box;
 }
 
-
 .notif-header {
   display: flex;
   justify-content: space-between;
@@ -131,7 +130,7 @@
 
 .toast-popup {
   position: fixed;
-  top: 100px;
+  top: 100px; 
   right: 24px;
   max-width: 360px;
   background: #0f172a;
@@ -177,5 +176,260 @@
     left: 16px;
     right: 16px;
     max-width: unset;
+  }
+}
+
+/* ======================================================
+   RESPONSIVE NOTIFICATIONS
+   ====================================================== */
+
+      /* ================= iPAD ONLY (769px - 1024px) ================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+   .notifications {
+    width: calc(97% - 1rem) !important;
+    margin-left: 35px !important;
+    padding: 1.4rem !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    border-radius: 18px !important;
+  }
+}
+
+/* ================= LARGE TABLETS ================= */
+@media (max-width: 1024px) {
+  .notifications {
+    width: calc(100% - 1.5rem);
+    margin: 12px;
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .notif-header h2 {
+    font-size: 24px;
+  }
+
+  .notification {
+    padding: 16px 18px;
+    border-radius: 12px;
+  }
+}
+
+
+/* ================= TABLETS ================= */
+@media (max-width: 768px) {
+  .notifications {
+    width: calc(100% - 1rem);
+    margin: 8px;
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .notif-header {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .notif-header h2 {
+    font-size: 22px;
+  }
+
+  .notif-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .btn-read,
+  .btn-delete {
+    flex: none !important;
+    width: fit-content !important;
+    max-width: max-content;
+    display: inline-block;
+
+    padding: 7px 12px;
+    font-size: 11.5px;
+    border-radius: 8px;
+
+    white-space: nowrap;
+  }
+
+  .notification-list {
+    gap: 12px;
+  }
+
+  .notification {
+    padding: 15px 16px;
+    border-radius: 12px;
+  }
+
+  .notification-content {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .notification-content p {
+    font-size: 13px;
+  }
+
+  .notification-content .time {
+    font-size: 11px;
+  }
+
+  .toast-popup {
+    left: 16px;
+    right: 16px;
+    top: 92px;
+  }
+}
+
+
+/* ================= MOBILE ================= */
+@media (max-width: 480px) {
+  .notifications {
+    width: calc(100% - 0.75rem);
+    margin: 6px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .notif-header {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .notif-header h2 {
+    font-size: 19px;
+  }
+
+  .notif-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .btn-read,
+  .btn-delete {
+    flex: none !important;
+    width: fit-content !important;
+    min-width: unset !important;
+
+    display: inline-block;
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 7px;
+
+    white-space: nowrap;
+  }
+
+  .notification {
+    padding: 13px 14px;
+  }
+
+  .notification-content p {
+    font-size: 13px;
+  }
+
+  .notification-content .time {
+    font-size: 11px;
+  }
+
+  .toast-popup {
+    top: 88px;
+    left: 12px;
+    right: 12px;
+  }
+}
+
+/* ================= MEDIUM MOBILE (≈ 393px devices) ================= */
+@media (max-width: 420px) {
+  .notifications {
+    width: calc(100% - 0.65rem);
+    margin: 5px;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .notif-header {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .notif-header h2 {
+    font-size: 18px;
+  }
+
+ 
+  .notif-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 5px;
+  }
+
+  .btn-read,
+  .btn-delete {
+    flex: none !important;
+    width: fit-content !important;
+    min-width: unset !important;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 5px 9px;
+    font-size: 10.5px;
+    border-radius: 7px;
+
+    white-space: nowrap;
+  }
+
+  .notification {
+    padding: 12px 13px;
+    border-radius: 11px;
+  }
+
+  .notification-content p {
+    font-size: 12.5px;
+  }
+
+  .notification-content .time {
+    font-size: 10.5px;
+  }
+
+  .toast-popup {
+    top: 86px;
+    left: 10px;
+    right: 10px;
+  }
+}
+
+/* ================= VERY SMALL PHONES ================= */
+@media (max-width: 360px) {
+  .notif-actions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+
+  .btn-read,
+  .btn-delete {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: unset !important;
+    max-width: max-content;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 5px 8px;
+    font-size: 10px;
+    line-height: 1;
+    border-radius: 6px;
+    white-space: nowrap;
   }
 }

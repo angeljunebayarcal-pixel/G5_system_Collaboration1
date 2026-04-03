@@ -1,7 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { AuthService } from '../../../services/auth.service';
+import {
+  Component,
+  HostListener,
+  NgZone,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-adm-topbar',
@@ -18,10 +24,7 @@ export class AdmTopbar implements OnInit, OnDestroy {
   isLoaded = false;
   menuOpen = false;
 
-  // ADDED: notification count for pending official registrations
   notificationCount = 0;
-
-  // ADDED: auto refresh timer
   private notificationInterval: any;
 
   constructor(
@@ -34,7 +37,6 @@ export class AdmTopbar implements OnInit, OnDestroy {
     this.loadFastThenFresh();
     window.addEventListener('profile-updated', this.handleProfileUpdated);
 
-    // ADDED: initial load + auto refresh for pending approvals
     await this.loadPendingApprovalCount();
     this.startNotificationAutoRefresh();
   }
@@ -42,7 +44,6 @@ export class AdmTopbar implements OnInit, OnDestroy {
   ngOnDestroy() {
     window.removeEventListener('profile-updated', this.handleProfileUpdated);
 
-    // ADDED: clear timer
     if (this.notificationInterval) {
       clearInterval(this.notificationInterval);
     }
@@ -53,32 +54,22 @@ export class AdmTopbar implements OnInit, OnDestroy {
   };
 
   private async loadFastThenFresh() {
-    const currentUid = this.authService.getCurrentUserId();
+    const uid = this.authService.getCurrentUserId();
 
-    if (currentUid) {
-      this.loadFromUserCacheByUid(currentUid);
-    } else {
-      this.authService.getCurrentUserAsync().then((user) => {
-        if (user?.uid && !this.isLoaded) {
-          this.loadFromUserCacheByUid(user.uid);
-        }
-      });
+    if (uid) {
+      this.loadFromCache(uid);
     }
 
     await this.loadProfileFresh();
   }
 
-  private getProfileCacheKey(uid?: string): string | null {
-    const resolvedUid = uid || this.authService.getCurrentUserId();
-    return resolvedUid ? `adm_profile_cache_${resolvedUid}` : null;
+  private getCacheKey(uid: string) {
+    return `adm_profile_cache_${uid}`;
   }
 
-  private loadFromUserCacheByUid(uid: string) {
+  private loadFromCache(uid: string) {
     try {
-      const cacheKey = this.getProfileCacheKey(uid);
-      if (!cacheKey) return;
-
-      const raw = localStorage.getItem(cacheKey);
+      const raw = localStorage.getItem(this.getCacheKey(uid));
       if (!raw) return;
 
       const profile = JSON.parse(raw);
@@ -90,9 +81,7 @@ export class AdmTopbar implements OnInit, OnDestroy {
         this.photoURL = profile.photoURL || '';
         this.isLoaded = true;
       });
-    } catch (error) {
-      console.error('Admin topbar cache load failed:', error);
-    }
+    } catch {}
   }
 
   private async loadProfileFresh() {
@@ -106,54 +95,37 @@ export class AdmTopbar implements OnInit, OnDestroy {
           this.initials = this.getInitials(this.displayName);
           this.photoURL = profile.photoURL || '';
 
-          const cacheKey = this.getProfileCacheKey(profile.uid);
-          if (cacheKey) {
-            localStorage.setItem(cacheKey, JSON.stringify(profile));
-          }
-        } else {
-          this.displayName = 'Admin User';
-          this.displayRole = 'Administrator';
-          this.initials = 'AU';
-          this.photoURL = '';
+          localStorage.setItem(
+            this.getCacheKey(profile.uid),
+            JSON.stringify(profile)
+          );
         }
 
         this.isLoaded = true;
       });
-    } catch (error) {
-      console.error('Admin topbar load failed:', error);
-      this.zone.run(() => {
-        if (!this.displayName) {
-          this.displayName = 'Admin User';
-          this.displayRole = 'Administrator';
-          this.initials = 'AU';
-          this.photoURL = '';
-        }
-        this.isLoaded = true;
-      });
+    } catch {
+      this.isLoaded = true;
     }
   }
 
-  // ADDED: load pending official registrations count
   private async loadPendingApprovalCount() {
     try {
-      const pendingOfficials = await this.authService.getPendingOfficials();
+      const data = await this.authService.getPendingOfficials();
 
       this.zone.run(() => {
-        this.notificationCount = pendingOfficials.length;
+        this.notificationCount = data.length;
       });
-    } catch (error) {
-      console.error('Failed to load pending approvals count:', error);
+    } catch (err) {
+      console.error(err);
     }
   }
 
-  // ADDED: auto refresh so bell updates when officials register
   private startNotificationAutoRefresh() {
     this.notificationInterval = setInterval(() => {
       this.loadPendingApprovalCount();
     }, 10000);
   }
 
-  // ADDED: navigate to approval queue
   goToApprovalQueue(event: Event) {
     event.stopPropagation();
     this.menuOpen = false;
@@ -174,19 +146,19 @@ export class AdmTopbar implements OnInit, OnDestroy {
   async logout(event: Event) {
     event.stopPropagation();
     this.menuOpen = false;
+
     await this.authService.logout();
     this.router.navigate(['/login']);
   }
 
   @HostListener('document:click')
-  closeMenuOnOutsideClick() {
+  closeMenu() {
     this.menuOpen = false;
   }
 
   private mapRole(role: string): string {
-    if (role === 'resident') return 'Residents';
-    if (role === 'official') return 'Officials';
     if (role === 'admin') return 'Administrator';
+    if (role === 'official') return 'Officials';
     return 'Administrator';
   }
 
@@ -195,7 +167,7 @@ export class AdmTopbar implements OnInit, OnDestroy {
       .split(' ')
       .filter(Boolean)
       .slice(0, 2)
-      .map(part => part[0].toUpperCase())
+      .map(p => p[0].toUpperCase())
       .join('');
   }
 }

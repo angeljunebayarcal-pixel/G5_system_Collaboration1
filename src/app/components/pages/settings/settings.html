@@ -9,7 +9,7 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="residentFullNameDisplay">Full Name</label>
+        <span>Full Name</span>
         <p id="residentFullNameDisplay">{{ fullName || 'No name set' }}</p>
       </div>
       <button type="button" (click)="editFullName()">Edit</button>
@@ -17,7 +17,7 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="residentEmailDisplay">Email Address</label>
+        <span>Email Address</span>
         <p id="residentEmailDisplay">{{ email || 'No email set' }}</p>
       </div>
       <button type="button" (click)="editEmail()">Edit</button>
@@ -71,7 +71,7 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="residentChangePasswordBtn">Change Password</label>
+        <span>Change Password</span>
         <p>Update your account password</p>
       </div>
       <button id="residentChangePasswordBtn" type="button" (click)="changePassword()">Change</button>
@@ -79,7 +79,7 @@
 
     <div class="setting-item clickable danger">
       <div>
-        <label for="residentDeactivateBtn">Deactivate Account</label>
+        <span>Deactivate Account</span>
         <p>Permanently disable your account</p>
       </div>
       <button
@@ -134,7 +134,7 @@
 
     <div class="setting-item clickable danger">
       <div>
-        <label for="residentDeleteAccountBtn">Delete Account</label>
+        <span>Delete Account</span>
         <p>Permanently remove your personal data</p>
       </div>
       <button
@@ -151,7 +151,7 @@
   <div class="settings-card">
     <div class="setting-item clickable danger">
       <div>
-        <label for="residentLogoutBtn">Logout</label>
+        <span>Logout</span>
         <p>Sign out and return to the login page</p>
       </div>
       <button id="residentLogoutBtn" type="button" class="danger-btn" (click)="logout()">

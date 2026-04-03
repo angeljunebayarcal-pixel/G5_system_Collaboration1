@@ -2,7 +2,10 @@
   <div class="topbar-left">
     <div class="logo-wrapper">
       <div class="logo-ring"></div>
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s" alt="Logo">
+      <img
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s"
+        alt="Logo"
+      />
     </div>
 
     <div class="brand-text">
@@ -16,7 +19,6 @@
   </div>
 
   <div class="topbar-action" *ngIf="isLoaded">
-    <!-- ADDED: NOTIFICATION ICON -->
     <button
       class="notification-btn"
       type="button"
@@ -38,7 +40,7 @@
         </div>
 
         <div class="user-avatar image-avatar" *ngIf="photoURL">
-          <img [src]="photoURL" alt="Profile">
+          <img [src]="photoURL" alt="Profile" />
           <div class="avatar-glow"></div>
         </div>
 

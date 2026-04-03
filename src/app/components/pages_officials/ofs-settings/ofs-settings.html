@@ -9,7 +9,7 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="officialFullNameDisplay">Full Name</label>
+        <span>Full Name</span>
         <p id="officialFullNameDisplay">{{ fullName || 'No name set' }}</p>
       </div>
       <button type="button" (click)="editFullName()">Edit</button>
@@ -17,7 +17,7 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="officialEmailDisplay">Email Address</label>
+        <span>Email Address</span>
         <p id="officialEmailDisplay">{{ email || 'No email set' }}</p>
       </div>
       <button type="button" (click)="editEmail()">Edit</button>
@@ -35,7 +35,7 @@
         <p>Receive updates through email</p>
       </div>
 
-      <label class="switch">
+      <label class="switch" for="officialEmailNotifications">
         <input
           id="officialEmailNotifications"
           type="checkbox"
@@ -52,7 +52,7 @@
         <p>Receive SMS alerts</p>
       </div>
 
-      <label class="switch">
+      <label class="switch" for="officialSmsNotifications">
         <input
           id="officialSmsNotifications"
           type="checkbox"
@@ -71,7 +71,7 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="officialChangePasswordBtn">Change Password</label>
+        <span>Change Password</span>
         <p>Update your account password</p>
       </div>
       <button id="officialChangePasswordBtn" type="button" (click)="changePassword()">Change</button>
@@ -79,7 +79,7 @@
 
     <div class="setting-item clickable danger">
       <div>
-        <label for="officialDeactivateBtn">Deactivate Account</label>
+        <span>Deactivate Account</span>
         <p>Permanently disable your account</p>
       </div>
       <button
@@ -104,7 +104,7 @@
         <p>Allow authorized staff to view your contact details</p>
       </div>
 
-      <label class="switch">
+      <label class="switch" for="officialShowContactInfo">
         <input
           id="officialShowContactInfo"
           type="checkbox"
@@ -121,7 +121,7 @@
         <p>Show when you are active in the system</p>
       </div>
 
-      <label class="switch">
+      <label class="switch" for="officialActivityStatus">
         <input
           id="officialActivityStatus"
           type="checkbox"
@@ -134,7 +134,7 @@
 
     <div class="setting-item clickable danger">
       <div>
-        <label for="officialDeleteAccountBtn">Delete Account</label>
+        <span>Delete Account</span>
         <p>Permanently remove your personal data</p>
       </div>
       <button
@@ -151,7 +151,7 @@
   <div class="settings-card">
     <div class="setting-item clickable danger">
       <div>
-        <label for="officialLogoutBtn">Logout</label>
+        <span>Logout</span>
         <p>Sign out and return to the login page</p>
       </div>
       <button id="officialLogoutBtn" type="button" class="danger-btn" (click)="logout()">

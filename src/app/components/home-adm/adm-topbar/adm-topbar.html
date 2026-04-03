@@ -16,7 +16,7 @@
   </div>
 
   <div class="topbar-action" *ngIf="isLoaded">
-    <!-- ADDED: NOTIFICATION ICON -->
+    <!-- 🔔 ADMIN NOTIFICATION (APPROVAL QUEUE) -->
     <button
       class="notification-btn"
       type="button"
@@ -30,18 +30,23 @@
       </span>
     </button>
 
+    <!-- 👤 USER DROPDOWN -->
     <div class="user-dropdown">
       <button class="user-pill" type="button" (click)="toggleMenu($event)">
+        
+        <!-- AVATAR (NO IMAGE) -->
         <div class="user-avatar" *ngIf="!photoURL">
           <span>{{ initials }}</span>
           <div class="avatar-glow"></div>
         </div>
 
+        <!-- AVATAR (WITH IMAGE) -->
         <div class="user-avatar image-avatar" *ngIf="photoURL">
           <img [src]="photoURL" alt="Profile">
           <div class="avatar-glow"></div>
         </div>
 
+        <!-- USER INFO -->
         <div class="user-details">
           <span class="name">{{ displayName }}</span>
           <span class="role">
@@ -50,16 +55,26 @@
           </span>
         </div>
 
+        <!-- DROPDOWN ARROW -->
         <span class="pill-arrow" [class.open]="menuOpen">›</span>
       </button>
 
+      <!-- DROPDOWN MENU -->
       <div class="dropdown-menu" *ngIf="menuOpen">
-        <button class="dropdown-item" type="button" (click)="goToSettings($event)">
+        <button
+          class="dropdown-item"
+          type="button"
+          (click)="goToSettings($event)"
+        >
           <i class="pi pi-cog"></i>
           <span>Settings</span>
         </button>
 
-        <button class="dropdown-item logout" type="button" (click)="logout($event)">
+        <button
+          class="dropdown-item logout"
+          type="button"
+          (click)="logout($event)"
+        >
           <i class="pi pi-sign-out"></i>
           <span>Logout</span>
         </button>

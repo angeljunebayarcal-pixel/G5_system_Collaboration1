@@ -1,11 +1,10 @@
-// ─── Variables ───────────────────────────────────────────────────────────────
+
 $sidebar-width: 240px;
 $accent-blue:   #38bdf8;
 $accent-indigo: #818cf8;
 $accent-cyan:   #22d3ee;
 $nav-radius:    10px;
 
-// ─── Sidebar Shell ───────────────────────────────────────────────────────────
 .sidenav {
   width: $sidebar-width;
   height: 100vh;
@@ -16,22 +15,19 @@ $nav-radius:    10px;
   flex-direction: column;
   z-index: 1000;
   overflow: hidden;
+  transform: translateX(0);
+  transition: transform 0.32s ease, box-shadow 0.3s ease;
 
-  // Layered dark background with subtle blue depth
   background:
     radial-gradient(ellipse at 10% 20%, rgba(56, 189, 248, 0.07) 0%, transparent 55%),
     radial-gradient(ellipse at 90% 80%, rgba(129, 140, 248, 0.07) 0%, transparent 55%),
     linear-gradient(180deg, #0b1628 0%, #0d1b33 50%, #0a1525 100%);
 
-  // Right-edge glow line
   box-shadow:
     4px 0 32px rgba(0, 0, 0, 0.5),
     inset -1px 0 0 rgba(56, 189, 248, 0.12),
     inset 1px 0 0 rgba(255, 255, 255, 0.03);
 
-  transition: all 0.3s ease;
-
-  // Subtle grid texture overlay
   &::before {
     content: '';
     position: absolute;
@@ -44,7 +40,6 @@ $nav-radius:    10px;
     z-index: 0;
   }
 
-  // Top accent glow
   &::after {
     content: '';
     position: absolute;
@@ -58,7 +53,6 @@ $nav-radius:    10px;
   }
 }
 
-// All inner elements sit above the texture
 .nav-header,
 nav,
 .nav-divider,
@@ -67,7 +61,48 @@ nav,
   z-index: 2;
 }
 
-// ─── Header ──────────────────────────────────────────────────────────────────
+
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 8px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  cursor: pointer;
+  z-index: 1200;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.hamburger-toggle span {
+  display: block;
+  width: 14px;
+  height: 2px;
+  margin: 3px auto;
+  border-radius: 2px;
+  background: linear-gradient(90deg, $accent-blue, $accent-indigo);
+}
+
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
 .nav-header {
   padding: 2.3rem 1.5rem 1.4rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -109,15 +144,20 @@ nav,
   }
 }
 
-// ─── Navigation ──────────────────────────────────────────────────────────────
 nav {
   flex: 1;
   padding: 1rem 0.75rem 0;
   overflow-y: auto;
 
-  &::-webkit-scrollbar        { width: 2px; }
-  &::-webkit-scrollbar-track  { background: transparent; }
-  &::-webkit-scrollbar-thumb  {
+  &::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
     background: rgba(56, 189, 248, 0.2);
     border-radius: 2px;
   }
@@ -131,7 +171,6 @@ nav {
     gap: 0.2rem;
 
     li {
-      // Stagger animation base — wire up with Angular *ngFor index if needed
       a {
         display: flex;
         align-items: center;
@@ -142,11 +181,10 @@ nav {
         text-decoration: none;
         border-radius: $nav-radius;
         position: relative;
-        gap: 0px;
+        gap: 0;
         transition: color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
         overflow: hidden;
 
-        // Shimmer / hover fill layer
         &::before {
           content: '';
           position: absolute;
@@ -162,7 +200,6 @@ nav {
           transition: opacity 0.22s ease;
         }
 
-        // Left accent bar
         &::after {
           content: '';
           position: absolute;
@@ -181,6 +218,9 @@ nav {
           width: 28px;
           flex-shrink: 0;
           font-size: 15px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s;
         }
 
@@ -201,12 +241,16 @@ nav {
           flex-shrink: 0;
         }
 
-        // ── Hover ──
         &:hover {
           color: #cbd5e1;
 
-          &::before { opacity: 1; }
-          &::after  { transform: translateY(-50%) scaleY(1); }
+          &::before {
+            opacity: 1;
+          }
+
+          &::after {
+            transform: translateY(-50%) scaleY(1);
+          }
 
           .nav-icon {
             transform: scale(1.15) translateX(1px);
@@ -223,10 +267,8 @@ nav {
           }
         }
 
-        // ── Active ──
         &.active {
           color: #e0f2fe !important;
-
           background:
             linear-gradient(
               115deg,
@@ -242,8 +284,13 @@ nav {
 
           border: 1px solid rgba(56,189,248,0.14);
 
-          &::before { opacity: 0; }
-          &::after  { transform: translateY(-50%) scaleY(1); }
+          &::before {
+            opacity: 0;
+          }
+
+          &::after {
+            transform: translateY(-50%) scaleY(1);
+          }
 
           .nav-icon {
             transform: scale(1.1);
@@ -265,7 +312,7 @@ nav {
   }
 }
 
-// ─── Divider ─────────────────────────────────────────────────────────────────
+
 .nav-divider {
   padding: 0.75rem 1.5rem;
 
@@ -276,7 +323,7 @@ nav {
   }
 }
 
-// ─── Footer ──────────────────────────────────────────────────────────────────
+
 .sidenav-footer {
   padding: 1.5rem;
   background:
@@ -316,18 +363,97 @@ nav {
     letter-spacing: 0.2px;
   }
 }
- .nav-icon {
-  width: 28px;
-  flex-shrink: 0;
-  font-size: 15px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+
+// ==============================
+// TABLET
+// ==============================
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .sidenav {
+    width: $sidebar-width;
+    transform: translateX(-100%);
+  }
+
+  .sidenav.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidenav.mobile-hidden {
+    transform: translateX(-100%);
+  }
 }
 
-// ─── Animations ──────────────────────────────────────────────────────────────
+// ==============================
+// MOBILE PHONES
+// ==============================
+@media (max-width: 480px) {
+  .menu-toggle {
+    top: 12px;
+    left: 6px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .arrow-toggle .arrow-icon {
+    font-size: 20px;
+  }
+
+  .sidenav {
+    width: min(240px, 82vw);
+  }
+
+  .nav-header {
+    padding: 2rem 1.2rem 1.2rem;
+  }
+
+  nav {
+    padding: 0.9rem 0.65rem 0;
+  }
+
+  .sidenav-footer {
+    padding: 1.2rem;
+  }
+}
+
+// ==============================
+// VERY SMALL MOBILE PHONES
+// ==============================
+@media (max-width: 360px) {
+  .menu-toggle {
+    top: 10px;
+    left: 6px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .arrow-toggle .arrow-icon {
+    font-size: 18px;
+  }
+
+  .sidenav {
+    width: min(230px, 84vw);
+  }
+
+  nav ul li a {
+    padding: 0.75rem 0.85rem;
+    font-size: 14px;
+  }
+
+  .nav-header .header-label {
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+  }
+}
+
+// ==============================
+// ANIMATION
+// ==============================
 @keyframes pulse-dot {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 2px rgba(34,211,238,0.2), 0 0 8px rgba(34,211,238,0.5);
     opacity: 1;
   }

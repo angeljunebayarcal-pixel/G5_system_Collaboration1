@@ -1,5 +1,28 @@
-<div class="sidenav">
+<!-- MOBILE / TABLET ARROW TOGGLE -->
+<button
+  class="menu-toggle hamburger-toggle"
+  type="button"
+  *ngIf="isMobileOrTablet && !isSidebarOpen"
+  (click)="toggleSidebar()"
+  aria-label="Open Main Menu"
+>
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
 
+<!-- OVERLAY FOR TABLET / MOBILE -->
+<div
+  class="sidebar-overlay"
+  [class.show]="isMobileOrTablet && isSidebarOpen"
+  (click)="closeSidebar()"
+></div>
+
+<div
+  class="sidenav"
+  [class.mobile-hidden]="isMobileOrTablet && !isSidebarOpen"
+  [class.mobile-open]="isMobileOrTablet && isSidebarOpen"
+>
   <!-- Header -->
   <div class="nav-header">
     <div class="nav-header-inner">
@@ -16,7 +39,7 @@
   <nav>
     <ul>
       <li>
-        <a routerLink="/home/dashboard" routerLinkActive="active">
+        <a routerLink="/home/dashboard" routerLinkActive="active" (click)="handleNavClick()">
           <i class="pi pi-clipboard nav-icon"></i>
           <span class="nav-label">Dashboard</span>
           <span class="nav-arrow">›</span>
@@ -24,7 +47,7 @@
       </li>
 
       <li>
-        <a routerLink="/home/bookappointment" routerLinkActive="active">
+        <a routerLink="/home/bookappointment" routerLinkActive="active" (click)="handleNavClick()">
           <i class="pi pi-book nav-icon"></i>
           <span class="nav-label">Book Appointments</span>
           <span class="nav-arrow">›</span>
@@ -32,7 +55,7 @@
       </li>
 
       <li>
-        <a routerLink="/home/certificaterequest" routerLinkActive="active">
+        <a routerLink="/home/certificaterequest" routerLinkActive="active" (click)="handleNavClick()">
           <i class="pi pi-folder nav-icon"></i>
           <span class="nav-label">Certificates Request</span>
           <span class="nav-arrow">›</span>
@@ -40,7 +63,7 @@
       </li>
 
       <li>
-        <a routerLink="/home/notification" routerLinkActive="active">
+        <a routerLink="/home/notification" routerLinkActive="active" (click)="handleNavClick()">
           <i class="pi pi-bell nav-icon"></i>
           <span class="nav-label">Notifications</span>
           <span class="nav-arrow">›</span>
@@ -48,7 +71,7 @@
       </li>
 
       <li>
-        <a routerLink="/home/profile" routerLinkActive="active">
+        <a routerLink="/home/profile" routerLinkActive="active" (click)="handleNavClick()">
           <i class="pi pi-user nav-icon"></i>
           <span class="nav-label">My Profile</span>
           <span class="nav-arrow">›</span>

@@ -1,30 +1,59 @@
-/* ===== PAGE BACKGROUND ===== */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-y: hidden;
+}
+
+/* =========================
+   MAIN LOGIN BACKGROUND
+   DESKTOP / PC DEFAULT
+   ========================= */
 .login-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
 
   background:
-    linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
     url('https://image2url.com/r2/default/images/1773974840577-42c0f0fe-ff3d-4bd7-891c-39604a07a464.jpg')
     no-repeat center center;
   background-size: cover;
-  padding: 20px;
 }
 
-/* ===== LOGIN & REGISTER CARD ===== */
-form, .popup-content {
+.login-title {
+  text-align: center;
+  margin-bottom: 1px;
+  margin-top: 0.50px;
+
+  h2 {
+    margin: 8px 0 4px;
+  }
+
+  .login-subtitle {
+    font-size: 12px;
+    color: #64748b;
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+  }
+}
+
+form,
+.popup-content {
   background: rgba(255, 255, 255, 0.96);
-  padding: 2.5rem 3rem;
+  width: 100%;
+  max-width: 480px; /* PC size */
+  padding: 3rem 3.5rem; /* PC size */
   border-radius: 18px;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
-  width: 100%;
-  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   backdrop-filter: blur(4px);
+  box-sizing: border-box;
 
   h2 {
     text-align: center;
@@ -35,6 +64,8 @@ form, .popup-content {
   }
 
   input {
+    width: 100%;
+    box-sizing: border-box;
     padding: 12px 14px;
     border-radius: 10px;
     border: 1px solid #d1d5db;
@@ -51,6 +82,8 @@ form, .popup-content {
   }
 
   button {
+    width: 100%;
+    box-sizing: border-box;
     padding: 0.8rem;
     border: none;
     border-radius: 10px;
@@ -90,7 +123,6 @@ form, .popup-content {
   }
 }
 
-/* ===== LOGO ===== */
 .login-logo {
   width: 92px;
   height: 92px;
@@ -98,14 +130,13 @@ form, .popup-content {
   margin: 0 auto 10px auto;
   display: block;
   border-radius: 50%;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* ===== REGISTER POPUP ===== */
 .register-popup {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
@@ -113,9 +144,9 @@ form, .popup-content {
   padding: 1rem;
   z-index: 1000;
   animation: modalPop 0.2s ease-out;
+  box-sizing: border-box;
 }
 
-/* PASSWORD FIELD WITH EYE ICON */
 .password-field {
   position: relative;
   width: 100%;
@@ -151,7 +182,6 @@ form, .popup-content {
   pointer-events: none;
 }
 
-/* FILE INPUT SIZE FIX */
 .file-upload input[type="file"] {
   width: 100%;
   box-sizing: border-box;
@@ -180,6 +210,7 @@ form, .popup-content {
   font-weight: 600;
   cursor: pointer;
 }
+
 .forgot-link {
   text-align: center;
   margin-top: -6px;
@@ -194,7 +225,270 @@ form, .popup-content {
   }
 }
 
+/* =========================
+   iPAD / LARGE TABLET
+   ========================= */
+@media (max-width: 1024px) {
+
+  html,
+  body {
+    overflow-y: auto;
+  }
+
+  .login-container {
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  form,
+  .popup-content {
+    max-width: 520px; 
+    padding: 2.2rem 2rem;
+    border-radius: 18px;
+  }
+
+  .login-logo {
+    width: 90px;
+    height: 90px;
+  }
+
+  form h2,
+  .popup-content h2 {
+    font-size: 1.4rem;
+  }
+
+  form input,
+  .popup-content input {
+    font-size: 15px;
+    padding: 12px 14px;
+  }
+
+  form button,
+  .popup-content button {
+    font-size: 1rem;
+    padding: 0.9rem;
+  }
+
+  .forgot-link {
+    font-size: 0.9rem;
+  }
+
+  form .register-link {
+    font-size: 0.95rem;
+  }
+
+  .register-popup {
+    align-items: center;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 1024px) {
+  .login-title .login-subtitle {
+    font-size: 12px;
+  }
+}
+
+/* =========================
+   TABLET SIZE
+   ========================= */
+@media (max-width: 768px) {
+  html,
+  body {
+    overflow-y: auto;
+  }
+
+  .login-container {
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  form,
+  .popup-content {
+    max-width: 420px; 
+    padding: 2rem 1.75rem;
+    border-radius: 16px;
+  }
+
+  .login-logo {
+    width: 84px;
+    height: 84px;
+  }
+
+  .forgot-link {
+    font-size: 0.84rem;
+  }
+
+  form .register-link {
+    font-size: 0.92rem;
+  }
+
+  .register-popup {
+    align-items: center;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-title .login-subtitle {
+    font-size: 11px;
+  }
+}
+
+
+/* =========================
+   MOBILE PHONE SIZE
+   ========================= */
+@media (max-width: 480px) {
+  html,
+  body {
+    overflow-y: auto;
+  }
+
+  .login-container {
+    padding: 12px;
+    justify-content: center;
+    align-items: center; 
+  }
+
+  form,
+  .popup-content {
+    max-width: 100%;
+    padding: 1.35rem 1rem; 
+    border-radius: 14px;
+    gap: 0.85rem;
+  }
+
+  form h2,
+  .popup-content h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.35rem;
+  }
+
+  form input,
+  .popup-content input,
+  .file-upload input[type="file"] {
+    font-size: 16px;
+    padding: 11px 12px;
+  }
+
+  form button,
+  .popup-content button {
+    font-size: 0.95rem;
+    padding: 0.78rem;
+  }
+
+  .login-logo {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 6px;
+  }
+
+  .toggle-eye {
+    right: 10px;
+    font-size: 17px;
+  }
+
+  .file-upload input[type="file"]::file-selector-button {
+    display: block;
+    width: 100%;
+    margin: 0 0 8px 0;
+  }
+
+  .forgot-link {
+    margin-top: -2px;
+    margin-bottom: 2px;
+    font-size: 0.8rem;
+  }
+
+  form .register-link {
+    font-size: 0.86rem;
+  }
+
+  .register-popup {
+    padding: 12px;
+    align-items: center;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-title .login-subtitle {
+    font-size: 10px;
+    padding: 0 8px;
+  }
+}
+
+/* =========================
+   VERY SMALL PHONES
+   ========================= */
+@media (max-width: 360px) {
+  .login-container {
+    padding: 10px;
+  }
+
+  form,
+  .popup-content {
+    padding: 1.1rem 0.9rem;
+    border-radius: 12px;
+  }
+
+  form h2,
+  .popup-content h2 {
+    font-size: 1.05rem;
+  }
+
+  .login-logo {
+    width: 64px;
+    height: 64px;
+  }
+
+  form button,
+  .popup-content button {
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-title .login-subtitle {
+    font-size: 9px;
+  }
+}
+
+/* =========================
+   SHORT HEIGHT PHONES
+   ========================= */
+@media (max-height: 700px) and (max-width: 768px) {
+  html,
+  body {
+    overflow-y: auto;
+  }
+
+  .login-container {
+    justify-content: center;
+    align-items: center;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .register-popup {
+    align-items: center;
+    overflow-y: auto;
+  }
+}
+
+/* =========================
+   ANIMATION
+   ========================= */
 @keyframes modalPop {
-  from { transform: scale(0.92); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

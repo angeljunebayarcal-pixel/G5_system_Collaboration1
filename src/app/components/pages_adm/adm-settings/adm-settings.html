@@ -2,6 +2,7 @@
 
   <h1 class="page-title">{{ roleLabel }} Settings</h1>
 
+  <!-- PROFILE -->
   <div class="settings-card">
     <div class="card-header">
       <h2>Profile Settings</h2>
@@ -9,7 +10,7 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="adminFullNameDisplay">Full Name</label>
+        <span>Full Name</span>
         <p id="adminFullNameDisplay">{{ fullName || 'No name set' }}</p>
       </div>
       <button type="button" (click)="editFullName()">Edit</button>
@@ -17,13 +18,14 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="adminEmailDisplay">Email Address</label>
+        <span>Email Address</span>
         <p id="adminEmailDisplay">{{ email || 'No email set' }}</p>
       </div>
       <button type="button" (click)="editEmail()">Edit</button>
     </div>
   </div>
 
+  <!-- NOTIFICATIONS -->
   <div class="settings-card">
     <div class="card-header">
       <h2>Notifications</h2>
@@ -64,6 +66,7 @@
     </div>
   </div>
 
+  <!-- SECURITY -->
   <div class="settings-card">
     <div class="card-header">
       <h2>Security</h2>
@@ -71,7 +74,7 @@
 
     <div class="setting-item clickable">
       <div>
-        <label for="adminChangePasswordBtn">Change Password</label>
+        <span>Change Password</span>
         <p>Update your account password</p>
       </div>
       <button id="adminChangePasswordBtn" type="button" (click)="changePassword()">Change</button>
@@ -79,7 +82,7 @@
 
     <div class="setting-item clickable danger">
       <div>
-        <label for="adminDeactivateBtn">Deactivate Account</label>
+        <span>Deactivate Account</span>
         <p>Permanently disable your account</p>
       </div>
       <button
@@ -93,6 +96,7 @@
     </div>
   </div>
 
+  <!-- PRIVACY -->
   <div class="settings-card">
     <div class="card-header">
       <h2>Account Privacy</h2>
@@ -134,7 +138,7 @@
 
     <div class="setting-item clickable danger">
       <div>
-        <label for="adminDeleteAccountBtn">Delete Account</label>
+        <span>Delete Account</span>
         <p>Permanently remove your personal data</p>
       </div>
       <button
@@ -148,10 +152,11 @@
     </div>
   </div>
 
+  <!-- LOGOUT -->
   <div class="settings-card">
     <div class="setting-item clickable danger">
       <div>
-        <label for="adminLogoutBtn">Logout</label>
+        <span>Logout</span>
         <p>Sign out and return to the login page</p>
       </div>
       <button id="adminLogoutBtn" type="button" class="danger-btn" (click)="logout()">
@@ -159,6 +164,7 @@
       </button>
     </div>
   </div>
+
 </div>
 
 <ng-template #loadingState>
