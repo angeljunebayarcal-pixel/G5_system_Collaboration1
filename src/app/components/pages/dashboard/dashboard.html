@@ -46,7 +46,10 @@
         <div class="recent-activity">
           <h3>Recent Activities</h3>
 
-          <div class="activity-list" *ngIf="recentActivities.length > 0; else emptyState">
+          <div
+            class="activity-list"
+            *ngIf="recentActivities.length > 0; else emptyState"
+          >
             <div
               class="activity-item"
               *ngFor="let activity of recentActivities; trackBy: trackByActivityId"
@@ -111,6 +114,7 @@
   </div>
 </div>
 
+<!-- ALL ACTIVITIES -->
 <div class="all-activities-modal" *ngIf="showAllActivitiesModal">
   <div class="modal-overlay" (click)="closeAllActivity()"></div>
 
@@ -126,7 +130,10 @@
 
     <h3>All Activities</h3>
 
-    <div class="activity-list" *ngIf="allActivities.length > 0; else emptyAllState">
+    <div
+      class="activity-list"
+      *ngIf="allActivities.length > 0; else emptyAllState"
+    >
       <div
         class="activity-item"
         *ngFor="let activity of allActivities; trackBy: trackByActivityId"
@@ -150,7 +157,11 @@
           <p class="time">{{ activity.time }}</p>
         </div>
 
-        <button class="delete-btn" (click)="deleteActivity(activity)" type="button">
+        <button
+          class="delete-btn"
+          (click)="deleteActivity(activity)"
+          type="button"
+        >
           <i class="pi pi-trash"></i>
         </button>
       </div>
@@ -159,6 +170,111 @@
     <ng-template #emptyAllState>
       <div class="empty-state">
         <p>No activities found.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- APPOINTMENTS MODAL -->
+<div class="all-activities-modal" *ngIf="showAppointmentsModal">
+  <div class="modal-overlay" (click)="closeAppointmentsModal()"></div>
+
+  <div class="modal-content small-modal">
+    <button
+      class="modal-close right-close"
+      (click)="closeAppointmentsModal()"
+      aria-label="Close modal"
+      type="button"
+    >
+      <i class="pi pi-times"></i>
+    </button>
+
+    <h3>Active Appointments</h3>
+
+    <div
+      class="activity-list"
+      *ngIf="appointments.length > 0; else emptyAppointmentsState"
+    >
+      <div
+        class="activity-item appointment"
+        *ngFor="let appointment of appointments"
+      >
+        <div class="icon">
+          <i class="pi pi-calendar"></i>
+        </div>
+
+        <div class="activity-text">
+          <p class="title">
+            {{ appointment.details.description || 'Appointment' }}
+          </p>
+          <p class="time">
+            {{ appointment.details.date || 'No date' }}
+            <span *ngIf="appointment.details.time">
+              • {{ appointment.details.time }}
+            </span>
+            • {{ appointment.status | titlecase }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyAppointmentsState>
+      <div class="empty-state">
+        <p>No active appointments found.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- CERTIFICATES MODAL -->
+<div class="all-activities-modal" *ngIf="showCertificatesModal">
+  <div class="modal-overlay" (click)="closeCertificatesModal()"></div>
+
+  <div class="modal-content small-modal">
+    <button
+      class="modal-close right-close"
+      (click)="closeCertificatesModal()"
+      aria-label="Close modal"
+      type="button"
+    >
+      <i class="pi pi-times"></i>
+    </button>
+
+    <h3>Certificate Status</h3>
+
+    <div
+      class="activity-list"
+      *ngIf="certifications.length > 0; else emptyCertificatesState"
+    >
+      <div
+        class="activity-item certificate"
+        *ngFor="let certificate of certifications"
+      >
+        <div class="icon">
+          <i class="pi pi-file"></i>
+        </div>
+
+        <div class="activity-text">
+          <p class="title">
+            {{ certificate.details.type || 'Certificate Request' }}
+          </p>
+          <p class="time">
+            {{ certificate.details.date || 'No date' }}
+            <span *ngIf="certificate.details.time">
+              • {{ certificate.details.time }}
+            </span>
+            <span *ngIf="certificate.details.purpose">
+              • {{ certificate.details.purpose }}
+            </span>
+            • {{ certificate.status | titlecase }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyCertificatesState>
+      <div class="empty-state">
+        <p>No certificate requests found.</p>
       </div>
     </ng-template>
   </div>

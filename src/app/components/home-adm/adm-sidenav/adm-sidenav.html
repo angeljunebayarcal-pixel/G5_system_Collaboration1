@@ -1,6 +1,6 @@
 <!-- MOBILE / TABLET ARROW TOGGLE -->
 <button
-  class="menu-toggle hamburger-toggle"
+  class="menu-toggle"
   type="button"
   *ngIf="isMobileOrTablet && !isSidebarOpen"
   (click)="toggleSidebar()"
@@ -23,22 +23,25 @@
   [class.mobile-hidden]="isMobileOrTablet && !isSidebarOpen"
   [class.mobile-open]="isMobileOrTablet && isSidebarOpen"
 >
+  <!-- Left accent stripe -->
+  <div class="sidenav-accent-stripe" aria-hidden="true"></div>
+
   <!-- Header -->
   <div class="nav-header">
     <div class="nav-header-inner">
-      <div class="menu-badge">
-        <span class="badge-line"></span>
-        <span class="badge-line short"></span>
-        <span class="badge-line"></span>
+       <div class="menu-badge">
+        <i class="pi pi-slack"></i>
       </div>
-      <p class="header-label">Admin Panel</p>
+
+      <p class="header-label">Main Menu</p>
+
     </div>
   </div>
 
   <!-- Navigation -->
   <nav>
     <ul>
-      <li>
+      <li class="nav-accent-blue">
         <a
           routerLink="/home-adm/controlcenter"
           routerLinkActive="active"
@@ -50,7 +53,7 @@
         </a>
       </li>
 
-      <li>
+      <li class="nav-accent-violet">
         <a
           routerLink="/home-adm/userdirectory"
           routerLinkActive="active"
@@ -62,7 +65,7 @@
         </a>
       </li>
 
-      <li>
+      <li class="nav-accent-green">
         <a
           routerLink="/home-adm/approvalqueue"
           routerLinkActive="active"
@@ -74,7 +77,7 @@
         </a>
       </li>
 
-      <li>
+      <li class="nav-accent-orange">
         <a
           routerLink="/home-adm/adm-profile"
           routerLinkActive="active"

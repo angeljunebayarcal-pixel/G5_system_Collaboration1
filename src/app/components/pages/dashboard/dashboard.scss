@@ -52,32 +52,43 @@
 
 /* ================= REFRESH BUTTON ================= */
 .refresh {
-  border: none;
-  background: #0f172a;
-  color: #fff;
-  padding: 0.8rem 1rem;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-
-  &:hover {
-    opacity: 0.92;
-  }
+    padding: 0.7rem 1.2rem;
+    background: #0b1f5e;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: 0.25s ease;
+    font-weight: 600;
+    
+    &:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
 }
 
 /* ================= STATS GRID ================= */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.30rem;
 
   .stat-card {
     background: white;
-    padding: 1.5rem;
+    padding: 1.1rem 1.5rem 1rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     border-top: 4px solid;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
 
     &.active-appointments {
       border-top-color: #3b82f6;
@@ -91,33 +102,45 @@
       border-top-color: #f59e0b;
     }
 
-    p {
-      color: #64748b;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      margin: 0;
-    }
+  p {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin: 0 0 0.2rem 0;
+  line-height: 1.2;
+}
 
-    h3 {
-      font-size: 2rem;
-      color: #1e293b;
-      margin: 0.5rem 0;
-    }
+h3 {
+  font-size: 2rem;
+  color: #1e293b;
+  margin: 0 0 0.35rem 0;
+  line-height: 1;
+}
 
-    button {
-      background: none;
-      border: none;
-      padding: 0;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
+  button {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  line-height: 1;
 
       &.appointments { color: #3b82f6; }
       &.certificates { color: #10b981; }
       &.notifications { color: #f59e0b; }
 
-      &:hover { text-decoration: underline; }
+      &:hover { 
+        text-decoration: underline; 
+      }
+
+      i {
+        font-size: 0.9rem;
+      }
     }
   }
 }
@@ -133,7 +156,7 @@
     background: white;
     padding: 1.5rem;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 
     h3 {
       margin: 0 0 1.5rem 0;

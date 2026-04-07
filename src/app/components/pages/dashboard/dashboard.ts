@@ -48,6 +48,8 @@ export class Dashboard implements OnInit, OnDestroy {
   allActivities: ActivityItem[] = [];
 
   showAllActivitiesModal = false;
+  showAppointmentsModal = false;
+  showCertificatesModal = false;
 
   private subscriptions: Subscription[] = [];
   private authUnsubscribe: Unsubscribe | null = null;
@@ -371,14 +373,26 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
+
   viewAppointments(): void {
-    this.router.navigate(['/home/bookappointment']);
-  }
+  this.showAppointmentsModal = true;
+  this.cdr.detectChanges();
+}
 
-  viewCertificates(): void {
-    this.router.navigate(['/home/certificaterequest']);
-  }
+closeAppointmentsModal(): void {
+  this.showAppointmentsModal = false;
+  this.cdr.detectChanges();
+}
 
+viewCertificates(): void {
+  this.showCertificatesModal = true;
+  this.cdr.detectChanges();
+}
+
+closeCertificatesModal(): void {
+  this.showCertificatesModal = false;
+  this.cdr.detectChanges();
+}
   viewNotifications(): void {
     this.router.navigate(['/home/notification']);
   }

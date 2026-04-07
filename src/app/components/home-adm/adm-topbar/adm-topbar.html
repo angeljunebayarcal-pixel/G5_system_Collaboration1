@@ -1,22 +1,22 @@
 <div class="topbar">
-  <div class="topbar-left">
-    <div class="logo-wrapper">
-      <div class="logo-ring"></div>
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s" alt="Logo">
-    </div>
 
+  <!-- Brand -->
+  <div class="topbar-brand">
+    <div class="logo-wrapper">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyivuRsYg8eNvsDnaM1FF_mwAY7Yrd4tl__A&s" alt="BOACRS Logo">
+    </div>
     <div class="brand-text">
       <h1>BOACRS</h1>
       <span>Barangay Online Appointment & Certificate Request</span>
     </div>
   </div>
 
-  <div class="topbar-center">
-    <span class="center-line"></span>
-  </div>
+  <!-- Spacer -->
+  <div class="topbar-sep" aria-hidden="true"></div>
 
+  <!-- Actions -->
   <div class="topbar-action" *ngIf="isLoaded">
-    <!-- 🔔 ADMIN NOTIFICATION (APPROVAL QUEUE) -->
+
     <button
       class="notification-btn"
       type="button"
@@ -24,29 +24,21 @@
       aria-label="Approval Queue"
     >
       <i class="pi pi-bell"></i>
-
       <span class="notification-badge" *ngIf="notificationCount > 0">
         {{ notificationCount > 99 ? '99+' : notificationCount }}
       </span>
     </button>
 
-    <!-- 👤 USER DROPDOWN -->
+    <div class="topbar-divider" aria-hidden="true"></div>
+
     <div class="user-dropdown">
       <button class="user-pill" type="button" (click)="toggleMenu($event)">
-        
-        <!-- AVATAR (NO IMAGE) -->
         <div class="user-avatar" *ngIf="!photoURL">
           <span>{{ initials }}</span>
-          <div class="avatar-glow"></div>
         </div>
-
-        <!-- AVATAR (WITH IMAGE) -->
         <div class="user-avatar image-avatar" *ngIf="photoURL">
           <img [src]="photoURL" alt="Profile">
-          <div class="avatar-glow"></div>
         </div>
-
-        <!-- USER INFO -->
         <div class="user-details">
           <span class="name">{{ displayName }}</span>
           <span class="role">
@@ -54,31 +46,31 @@
             {{ displayRole }}
           </span>
         </div>
-
-        <!-- DROPDOWN ARROW -->
-        <span class="pill-arrow" [class.open]="menuOpen">›</span>
+        <i class="pi pi-chevron-down pill-chevron" [class.open]="menuOpen"></i>
       </button>
 
-      <!-- DROPDOWN MENU -->
       <div class="dropdown-menu" *ngIf="menuOpen">
-        <button
-          class="dropdown-item"
-          type="button"
-          (click)="goToSettings($event)"
-        >
-          <i class="pi pi-cog"></i>
+        <div class="dropdown-header">
+          <div class="dh-avatar" *ngIf="!photoURL">{{ initials }}</div>
+          <div class="dh-avatar image" *ngIf="photoURL">
+            <img [src]="photoURL" alt="Profile">
+          </div>
+          <div class="dh-info">
+            <span class="dh-name">{{ displayName }}</span>
+            <span class="dh-role">{{ displayRole }}</span>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item" type="button" (click)="goToSettings($event)">
+          <span class="item-icon"><i class="pi pi-cog"></i></span>
           <span>Settings</span>
         </button>
-
-        <button
-          class="dropdown-item logout"
-          type="button"
-          (click)="logout($event)"
-        >
-          <i class="pi pi-sign-out"></i>
+        <button class="dropdown-item logout" type="button" (click)="logout($event)">
+          <span class="item-icon"><i class="pi pi-sign-out"></i></span>
           <span>Logout</span>
         </button>
       </div>
     </div>
+
   </div>
 </div>
