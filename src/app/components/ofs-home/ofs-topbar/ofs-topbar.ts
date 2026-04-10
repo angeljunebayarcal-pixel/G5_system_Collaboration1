@@ -34,6 +34,9 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
   private notifSub?: Subscription;
   private officialId: string | null = null;
+  private isDestroyed = false;
+  private isLoggingOut = false;
+  private refreshTimer: any = null;
 
   constructor(
     private authService: AuthService,
@@ -43,6 +46,9 @@ export class OfsTopbar implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.isDestroyed = false;
+    this.isLoggingOut = false;
+
     window.addEventListener('profile-updated', this.handleProfileUpdated);
 
     this.loadFastThenFresh();
@@ -50,12 +56,24 @@ export class OfsTopbar implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.isDestroyed = true;
+
     window.removeEventListener('profile-updated', this.handleProfileUpdated);
     this.notifSub?.unsubscribe();
+
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
   }
 
   private async initNotifications() {
+    if (this.isDestroyed || this.isLoggingOut) return;
+
     const currentUser = await this.authService.getCurrentUserAsync();
+
+    if (this.isDestroyed || this.isLoggingOut) return;
+
     this.officialId = currentUser?.uid || null;
 
     if (!this.officialId) return;
@@ -64,27 +82,36 @@ export class OfsTopbar implements OnInit, OnDestroy {
       .loadNotifications('official', this.officialId)
       .subscribe({
         next: (data: AppNotification[]) => {
+          if (this.isDestroyed || this.isLoggingOut) return;
+
           this.zone.run(() => {
             this.notificationCount = data.filter(n => !n.isRead).length;
           });
         },
         error: (err) => {
+          if (this.isLoggingOut || this.isDestroyed) return;
           console.error('Official notification error:', err);
         }
       });
   }
 
   private handleProfileUpdated = () => {
+    if (this.isDestroyed || this.isLoggingOut) return;
     this.loadFastThenFresh();
   };
 
   private async loadFastThenFresh() {
+    if (this.isDestroyed || this.isLoggingOut) return;
+
     const currentUid = this.authService.getCurrentUserId();
 
     if (currentUid) {
       this.loadFromUserCacheByUid(currentUid);
 
       const authUser = await this.authService.getCurrentUserAsync();
+
+      if (this.isDestroyed || this.isLoggingOut) return;
+
       if (authUser) {
         this.zone.run(() => {
           if (authUser.displayName && (!this.displayName || this.displayName === 'Official User')) {
@@ -98,18 +125,14 @@ export class OfsTopbar implements OnInit, OnDestroy {
         });
       }
 
-      setTimeout(() => {
-        this.loadProfileFresh();
-      }, 0);
-
+      this.scheduleFreshProfileLoad();
       return;
     }
 
     const user = await this.authService.getCurrentUserAsync();
 
-    if (!user?.uid) {
-      return;
-    }
+    if (this.isDestroyed || this.isLoggingOut) return;
+    if (!user?.uid) return;
 
     this.loadFromUserCacheByUid(user.uid);
 
@@ -124,7 +147,21 @@ export class OfsTopbar implements OnInit, OnDestroy {
       }
     });
 
-    setTimeout(() => {
+    this.scheduleFreshProfileLoad();
+  }
+
+  private scheduleFreshProfileLoad() {
+    if (this.isDestroyed || this.isLoggingOut) return;
+
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+    }
+
+    this.refreshTimer = setTimeout(() => {
+      this.refreshTimer = null;
+
+      if (this.isDestroyed || this.isLoggingOut) return;
+
       this.loadProfileFresh();
     }, 0);
   }
@@ -144,6 +181,8 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
       const profile = JSON.parse(raw);
 
+      if (this.isDestroyed || this.isLoggingOut) return;
+
       this.zone.run(() => {
         this.displayName = profile.fullName || 'Official User';
         this.displayRole = this.mapRole(profile.role);
@@ -152,13 +191,22 @@ export class OfsTopbar implements OnInit, OnDestroy {
         this.isLoaded = true;
       });
     } catch (error) {
-      console.error('Official topbar cache load failed:', error);
+      if (!this.isLoggingOut && !this.isDestroyed) {
+        console.error('Official topbar cache load failed:', error);
+      }
     }
   }
 
   private async loadProfileFresh() {
+    if (this.isDestroyed || this.isLoggingOut) return;
+
     try {
+      const currentUid = this.authService.getCurrentUserId();
+      if (!currentUid) return;
+
       const profile = await this.authService.getProfileData();
+
+      if (this.isDestroyed || this.isLoggingOut) return;
 
       this.zone.run(() => {
         if (profile) {
@@ -180,7 +228,19 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
         this.isLoaded = true;
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (this.isDestroyed || this.isLoggingOut) return;
+
+      const errorCode = error?.code || '';
+      const errorMessage = String(error?.message || '');
+
+      if (
+        errorCode === 'permission-denied' ||
+        errorMessage.toLowerCase().includes('missing or insufficient permissions')
+      ) {
+        return;
+      }
+
       console.error('Official topbar load failed:', error);
 
       this.zone.run(() => {
@@ -216,6 +276,15 @@ export class OfsTopbar implements OnInit, OnDestroy {
   async logout(event: Event) {
     event.stopPropagation();
     this.menuOpen = false;
+    this.isLoggingOut = true;
+
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+
+    this.notifSub?.unsubscribe();
+    this.officialId = null;
 
     const uid = this.authService.getCurrentUserId();
     if (uid) {
@@ -229,11 +298,13 @@ export class OfsTopbar implements OnInit, OnDestroy {
     this.isLoaded = true;
     this.notificationCount = 0;
 
-    this.notifSub?.unsubscribe();
-    this.officialId = null;
-
-    await this.authService.logout();
-    this.router.navigate(['/login']);
+    try {
+      await this.authService.logout();
+    } catch (error) {
+      console.error('Official logout failed:', error);
+    } finally {
+      this.router.navigate(['/login']);
+    }
   }
 
   @HostListener('document:click')
