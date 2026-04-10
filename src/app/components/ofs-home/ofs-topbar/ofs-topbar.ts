@@ -23,11 +23,11 @@ import {
   styleUrl: './ofs-topbar.scss',
 })
 export class OfsTopbar implements OnInit, OnDestroy {
-  displayName = '';
-  displayRole = '';
-  initials = '';
+  displayName = 'Official User';
+  displayRole = 'Officials';
+  initials = 'OU';
   photoURL = '';
-  isLoaded = false;
+  isLoaded = true;
   menuOpen = false;
 
   notificationCount = 0;
@@ -43,10 +43,10 @@ export class OfsTopbar implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.loadFastThenFresh();
     window.addEventListener('profile-updated', this.handleProfileUpdated);
 
-    await this.initNotifications();
+    this.loadFastThenFresh();
+    this.initNotifications();
   }
 
   ngOnDestroy() {
@@ -83,15 +83,50 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
     if (currentUid) {
       this.loadFromUserCacheByUid(currentUid);
-    } else {
-      this.authService.getCurrentUserAsync().then((user) => {
-        if (user?.uid && !this.isLoaded) {
-          this.loadFromUserCacheByUid(user.uid);
-        }
-      });
+
+      const authUser = await this.authService.getCurrentUserAsync();
+      if (authUser) {
+        this.zone.run(() => {
+          if (authUser.displayName && (!this.displayName || this.displayName === 'Official User')) {
+            this.displayName = authUser.displayName;
+            this.initials = this.getInitials(this.displayName);
+          }
+
+          if (authUser.photoURL && !this.photoURL) {
+            this.photoURL = authUser.photoURL;
+          }
+        });
+      }
+
+      setTimeout(() => {
+        this.loadProfileFresh();
+      }, 0);
+
+      return;
     }
 
-    await this.loadProfileFresh();
+    const user = await this.authService.getCurrentUserAsync();
+
+    if (!user?.uid) {
+      return;
+    }
+
+    this.loadFromUserCacheByUid(user.uid);
+
+    this.zone.run(() => {
+      if (user.displayName && (!this.displayName || this.displayName === 'Official User')) {
+        this.displayName = user.displayName;
+        this.initials = this.getInitials(this.displayName);
+      }
+
+      if (user.photoURL && !this.photoURL) {
+        this.photoURL = user.photoURL;
+      }
+    });
+
+    setTimeout(() => {
+      this.loadProfileFresh();
+    }, 0);
   }
 
   private getProfileCacheKey(uid?: string): string | null {
@@ -130,7 +165,7 @@ export class OfsTopbar implements OnInit, OnDestroy {
           this.displayName = profile.fullName || 'Official User';
           this.displayRole = this.mapRole(profile.role);
           this.initials = this.getInitials(this.displayName);
-          this.photoURL = profile.photoURL || '';
+          this.photoURL = profile.photoURL || this.photoURL || '';
 
           const cacheKey = this.getProfileCacheKey(profile.uid);
           if (cacheKey) {
@@ -181,6 +216,21 @@ export class OfsTopbar implements OnInit, OnDestroy {
   async logout(event: Event) {
     event.stopPropagation();
     this.menuOpen = false;
+
+    const uid = this.authService.getCurrentUserId();
+    if (uid) {
+      localStorage.removeItem(`ofs_profile_cache_${uid}`);
+    }
+
+    this.displayName = 'Official User';
+    this.displayRole = 'Officials';
+    this.initials = 'OU';
+    this.photoURL = '';
+    this.isLoaded = true;
+    this.notificationCount = 0;
+
+    this.notifSub?.unsubscribe();
+    this.officialId = null;
 
     await this.authService.logout();
     this.router.navigate(['/login']);

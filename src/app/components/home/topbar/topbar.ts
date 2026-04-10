@@ -8,8 +8,6 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
-
-// ✅ ADDED
 import { NotificationService, AppNotification } from '../../../services/notification.service';
 import { Subscription } from 'rxjs';
 
@@ -21,17 +19,15 @@ import { Subscription } from 'rxjs';
   styleUrl: './topbar.scss',
 })
 export class Topbar implements OnInit, OnDestroy {
-  displayName = '';
-  displayRole = '';
-  initials = '';
+  displayName = 'Resident User';
+  displayRole = 'Residents';
+  initials = 'RU';
   photoURL = '';
-  isLoaded = false;
+  isLoaded = true;
+  photoReady = false;
   menuOpen = false;
-
-  // ✅ ADDED: notification count
   notificationCount = 0;
 
-  // ✅ ADDED
   private notifSub?: Subscription;
   private residentId: string | null = null;
 
@@ -39,27 +35,21 @@ export class Topbar implements OnInit, OnDestroy {
     private authService: AuthService,
     private zone: NgZone,
     private router: Router,
-
-    // ✅ ADDED
     private notifService: NotificationService
   ) {}
 
   async ngOnInit() {
-    this.loadFastThenFresh();
     window.addEventListener('profile-updated', this.handleProfileUpdated);
 
-    // ✅ ADDED: init notification system
-    await this.initNotifications();
+    this.loadFastThenFresh();
+    this.initNotifications();
   }
 
   ngOnDestroy() {
     window.removeEventListener('profile-updated', this.handleProfileUpdated);
-
-    // ✅ ADDED
     this.notifSub?.unsubscribe();
   }
 
-  // ✅ ADDED: initialize notification listener
   private async initNotifications() {
     const user = await this.authService.getCurrentUserAsync();
     this.residentId = user?.uid || null;
@@ -71,7 +61,6 @@ export class Topbar implements OnInit, OnDestroy {
       .subscribe({
         next: (data: AppNotification[]) => {
           this.zone.run(() => {
-            // count unread only
             this.notificationCount = data.filter(n => !n.isRead).length;
           });
         },
@@ -90,15 +79,41 @@ export class Topbar implements OnInit, OnDestroy {
 
     if (currentUid) {
       this.loadFromUserCacheByUid(currentUid);
-    } else {
-      this.authService.getCurrentUserAsync().then((user) => {
-        if (user?.uid && !this.isLoaded) {
-          this.loadFromUserCacheByUid(user.uid);
-        }
-      });
+
+      const authUser = await this.authService.getCurrentUserAsync();
+      if (authUser?.displayName && !this.displayName) {
+        this.displayName = authUser.displayName;
+        this.initials = this.getInitials(this.displayName);
+      }
+
+      if (authUser?.photoURL) {
+        this.setPhotoImmediately(authUser.photoURL);
+      }
+
+      setTimeout(() => {
+        this.loadProfileFresh();
+      }, 0);
+
+      return;
     }
 
-    await this.loadProfileFresh();
+    const user = await this.authService.getCurrentUserAsync();
+    if (!user?.uid) return;
+
+    this.loadFromUserCacheByUid(user.uid);
+
+    if (user.displayName && !this.displayName) {
+      this.displayName = user.displayName;
+      this.initials = this.getInitials(this.displayName);
+    }
+
+    if (user.photoURL) {
+      this.setPhotoImmediately(user.photoURL);
+    }
+
+    setTimeout(() => {
+      this.loadProfileFresh();
+    }, 0);
   }
 
   private getProfileCacheKey(uid?: string): string | null {
@@ -120,8 +135,11 @@ export class Topbar implements OnInit, OnDestroy {
         this.displayName = profile.fullName || 'Resident User';
         this.displayRole = this.mapRole(profile.role);
         this.initials = this.getInitials(this.displayName);
-        this.photoURL = profile.photoURL || '';
-        this.isLoaded = true;
+
+        if (profile.photoURL) {
+          this.photoURL = profile.photoURL;
+          this.photoReady = true;
+        }
       });
     } catch (error) {
       console.error('Topbar cache load failed:', error);
@@ -137,17 +155,25 @@ export class Topbar implements OnInit, OnDestroy {
           this.displayName = profile.fullName || 'Resident User';
           this.displayRole = this.mapRole(profile.role);
           this.initials = this.getInitials(this.displayName);
-          this.photoURL = profile.photoURL || '';
 
           const cacheKey = this.getProfileCacheKey(profile.uid);
           if (cacheKey) {
             localStorage.setItem(cacheKey, JSON.stringify(profile));
+          }
+
+          if (profile.photoURL) {
+            this.photoURL = profile.photoURL;
+            this.photoReady = true;
+          } else {
+            this.photoURL = '';
+            this.photoReady = false;
           }
         } else {
           this.displayName = 'Resident User';
           this.displayRole = 'Residents';
           this.initials = 'RU';
           this.photoURL = '';
+          this.photoReady = false;
         }
 
         this.isLoaded = true;
@@ -155,18 +181,25 @@ export class Topbar implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Topbar load failed:', error);
       this.zone.run(() => {
-        if (!this.displayName) {
-          this.displayName = 'Resident User';
-          this.displayRole = 'Residents';
-          this.initials = 'RU';
-          this.photoURL = '';
-        }
         this.isLoaded = true;
       });
     }
   }
 
-  // ✅ ALREADY ADDED BEFORE (keep this)
+  private setPhotoImmediately(url: string) {
+    if (!url) return;
+
+    this.zone.run(() => {
+      this.photoURL = url;
+      this.photoReady = true;
+    });
+  }
+
+  onProfileImageError() {
+    this.photoURL = '';
+    this.photoReady = false;
+  }
+
   goToNotifications(event: Event) {
     event.stopPropagation();
     this.menuOpen = false;
@@ -187,6 +220,24 @@ export class Topbar implements OnInit, OnDestroy {
   async logout(event: Event) {
     event.stopPropagation();
     this.menuOpen = false;
+
+    const uid = this.authService.getCurrentUserId();
+    const cacheKey = this.getProfileCacheKey(uid || undefined);
+
+    if (cacheKey) {
+      localStorage.removeItem(cacheKey);
+    }
+
+    this.displayName = 'Resident User';
+    this.displayRole = 'Residents';
+    this.initials = 'RU';
+    this.photoURL = '';
+    this.photoReady = false;
+    this.isLoaded = true;
+    this.notificationCount = 0;
+
+    this.notifSub?.unsubscribe();
+    this.residentId = null;
 
     await this.authService.logout();
     this.router.navigate(['/login']);

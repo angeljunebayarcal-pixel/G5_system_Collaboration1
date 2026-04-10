@@ -101,27 +101,33 @@ export class AuthService {
     }, {} as Record<string, any>);
   }
 
-  private async getAdminEmergencyPhone(): Promise<string> {
-    try {
-      const adminQuery = query(
-        collection(this.fs, 'users'),
-        where('role', '==', 'admin'),
-        limit(1)
-      );
+ private async getAdminEmergencyPhone(): Promise<string> {
+  try {
+    const currentUser = await this.getCurrentUserAsync();
 
-      const adminSnapshot = await getDocs(adminQuery);
-
-      if (!adminSnapshot.empty) {
-        const adminData = adminSnapshot.docs[0].data();
-        return adminData['contact'] || '09123456789';
-      }
-
-      return '09123456789';
-    } catch (error) {
-      console.error('Failed to fetch admin emergency phone:', error);
-      return '09123456789';
+    if (!currentUser) {
+      return '';
     }
+
+    const adminQuery = query(
+      collection(this.fs, 'users'),
+      where('role', '==', 'admin'),
+      limit(1)
+    );
+
+    const adminSnapshot = await getDocs(adminQuery);
+
+    if (!adminSnapshot.empty) {
+      const adminData = adminSnapshot.docs[0].data();
+      return adminData['contact'] || adminData['emergencyPhone'] || '';
+    }
+
+    return '';
+  } catch (error) {
+    console.error('Failed to fetch admin emergency phone:', error);
+    return '';
   }
+}
 
   async getAllUsersForDirectory(): Promise<DirectoryUserData[]> {
     const [usersSnapshot, residentsSnapshot, officialsSnapshot, settingsSnapshot] =
@@ -425,9 +431,11 @@ export class AuthService {
     const role = await this.getUserRole(userId);
     if (!role) return null;
 
-    const adminEmergencyPhone = await this.getAdminEmergencyPhone();
+    let adminEmergencyPhone = '';
 
     if (role === 'resident') {
+       adminEmergencyPhone = await this.getAdminEmergencyPhone();
+
       const [residentSnap, userSnap] = await Promise.all([
         getDoc(doc(this.fs, 'residents', userId)),
         getDoc(doc(this.fs, 'users', userId))
@@ -505,8 +513,8 @@ export class AuthService {
       validIdFileName: official['validIdFileName'] || '',
       validIdFileUrl: official['validIdFileUrl'] || '',
       photoURL: official['photoURL'] || user['photoURL'] || '',
-      emergencyContact: 'Barangay Admin Office',
-      emergencyPhone: adminEmergencyPhone
+      emergencyContact: '',
+      emergencyPhone: ''
     };
   }
 

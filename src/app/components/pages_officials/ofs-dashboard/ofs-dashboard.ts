@@ -208,9 +208,28 @@ export class OfsDashboard implements OnInit, OnDestroy {
 
   private async loadOfficialProfileSilently(): Promise<void> {
     try {
-      if (!this.officialId) return;
+      const currentUid = this.authService.getCurrentUserId();
 
-      const profile = await this.authService.getProfileData(this.officialId);
+      if (currentUid) {
+        this.officialId = currentUid;
+
+        const profile = await this.authService.getProfileData(currentUid);
+        this.officialName = profile?.fullName || this.officialName || 'Official User';
+
+        this.saveDashboardCache();
+        this.cdr.detectChanges();
+        return;
+      }
+
+      const user = await this.authService.getCurrentUserAsync();
+
+      if (!user?.uid) {
+        return;
+      }
+
+      this.officialId = user.uid;
+
+      const profile = await this.authService.getProfileData(user.uid);
       this.officialName = profile?.fullName || this.officialName || 'Official User';
 
       this.saveDashboardCache();

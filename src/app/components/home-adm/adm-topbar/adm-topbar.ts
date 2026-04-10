@@ -17,11 +17,11 @@ import { AuthService } from '../../../services/auth.service';
   styleUrl: './adm-topbar.scss',
 })
 export class AdmTopbar implements OnInit, OnDestroy {
-  displayName = '';
-  displayRole = '';
-  initials = '';
+  displayName = 'Admin User';
+  displayRole = 'Administrator';
+  initials = 'AU';
   photoURL = '';
-  isLoaded = false;
+  isLoaded = true;
   menuOpen = false;
 
   notificationCount = 0;
@@ -34,10 +34,10 @@ export class AdmTopbar implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.loadFastThenFresh();
     window.addEventListener('profile-updated', this.handleProfileUpdated);
 
-    await this.loadPendingApprovalCount();
+    this.loadFastThenFresh();
+    this.loadPendingApprovalCount();
     this.startNotificationAutoRefresh();
   }
 
@@ -58,9 +58,50 @@ export class AdmTopbar implements OnInit, OnDestroy {
 
     if (uid) {
       this.loadFromCache(uid);
+
+      const authUser = await this.authService.getCurrentUserAsync();
+      if (authUser) {
+        this.zone.run(() => {
+          if (authUser.displayName && (!this.displayName || this.displayName === 'Admin User')) {
+            this.displayName = authUser.displayName;
+            this.initials = this.getInitials(this.displayName);
+          }
+
+          if (authUser.photoURL && !this.photoURL) {
+            this.photoURL = authUser.photoURL;
+          }
+        });
+      }
+
+      setTimeout(() => {
+        this.loadProfileFresh();
+      }, 0);
+
+      return;
     }
 
-    await this.loadProfileFresh();
+    const user = await this.authService.getCurrentUserAsync();
+
+    if (!user?.uid) {
+      return;
+    }
+
+    this.loadFromCache(user.uid);
+
+    this.zone.run(() => {
+      if (user.displayName && (!this.displayName || this.displayName === 'Admin User')) {
+        this.displayName = user.displayName;
+        this.initials = this.getInitials(this.displayName);
+      }
+
+      if (user.photoURL && !this.photoURL) {
+        this.photoURL = user.photoURL;
+      }
+    });
+
+    setTimeout(() => {
+      this.loadProfileFresh();
+    }, 0);
   }
 
   private getCacheKey(uid: string) {
@@ -93,7 +134,7 @@ export class AdmTopbar implements OnInit, OnDestroy {
           this.displayName = profile.fullName || 'Admin User';
           this.displayRole = this.mapRole(profile.role);
           this.initials = this.getInitials(this.displayName);
-          this.photoURL = profile.photoURL || '';
+          this.photoURL = profile.photoURL || this.photoURL || '';
 
           localStorage.setItem(
             this.getCacheKey(profile.uid),
@@ -104,7 +145,9 @@ export class AdmTopbar implements OnInit, OnDestroy {
         this.isLoaded = true;
       });
     } catch {
-      this.isLoaded = true;
+      this.zone.run(() => {
+        this.isLoaded = true;
+      });
     }
   }
 
@@ -146,6 +189,18 @@ export class AdmTopbar implements OnInit, OnDestroy {
   async logout(event: Event) {
     event.stopPropagation();
     this.menuOpen = false;
+
+    const uid = this.authService.getCurrentUserId();
+    if (uid) {
+      localStorage.removeItem(this.getCacheKey(uid));
+    }
+
+    this.displayName = 'Admin User';
+    this.displayRole = 'Administrator';
+    this.initials = 'AU';
+    this.photoURL = '';
+    this.isLoaded = true;
+    this.notificationCount = 0;
 
     await this.authService.logout();
     this.router.navigate(['/login']);

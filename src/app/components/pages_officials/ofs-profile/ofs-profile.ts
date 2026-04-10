@@ -51,16 +51,55 @@ export class OfsProfile implements OnInit {
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }
 
-  private getProfileCacheKey(): string | null {
-    const uid = this.authService.getCurrentUserId();
-    return uid ? `ofs_profile_cache_${uid}` : null;
+  private getProfileCacheKey(uid?: string): string | null {
+    const resolvedUid = uid || this.authService.getCurrentUserId();
+    return resolvedUid ? `ofs_profile_cache_${resolvedUid}` : null;
   }
 
   async loadProfile() {
     try {
       this.loading = true;
 
-      const cacheKey = this.getProfileCacheKey();
+      const currentUid = this.authService.getCurrentUserId();
+
+      if (currentUid) {
+        const cacheKey = this.getProfileCacheKey(currentUid);
+        if (cacheKey) {
+          const cached = localStorage.getItem(cacheKey);
+
+          if (cached) {
+            const profile = JSON.parse(cached);
+            this.applyProfile(profile);
+            this.loading = false;
+            this.cdr.detectChanges();
+          }
+        }
+
+        const profile = await this.authService.getProfileData(currentUid);
+
+        if (profile) {
+          this.applyProfile(profile);
+
+          const freshCacheKey = this.getProfileCacheKey(currentUid);
+          if (freshCacheKey) {
+            localStorage.setItem(freshCacheKey, JSON.stringify(profile));
+          }
+        }
+
+        this.loading = false;
+        this.cdr.detectChanges();
+        return;
+      }
+
+      const user = await this.authService.getCurrentUserAsync();
+
+      if (!user?.uid) {
+        this.loading = false;
+        this.cdr.detectChanges();
+        return;
+      }
+
+      const cacheKey = this.getProfileCacheKey(user.uid);
       if (cacheKey) {
         const cached = localStorage.getItem(cacheKey);
 
@@ -72,12 +111,12 @@ export class OfsProfile implements OnInit {
         }
       }
 
-      const profile = await this.authService.getProfileData();
+      const profile = await this.authService.getProfileData(user.uid);
 
       if (profile) {
         this.applyProfile(profile);
 
-        const freshCacheKey = this.getProfileCacheKey();
+        const freshCacheKey = this.getProfileCacheKey(user.uid);
         if (freshCacheKey) {
           localStorage.setItem(freshCacheKey, JSON.stringify(profile));
         }
