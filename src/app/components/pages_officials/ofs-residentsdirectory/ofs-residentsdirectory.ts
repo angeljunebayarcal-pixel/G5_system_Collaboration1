@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AppointmentService, Appointment } from '../../../services/appointment.service';
 import { CertificationService, Certification } from '../../../services/certificate.service';
+import { AuthService } from '../../../services/auth.service';
+import { NotificationService } from '../../../services/notification.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -30,6 +32,8 @@ export class OfsResidentsdirectory implements OnInit, OnDestroy {
 
   private appointmentService = inject(AppointmentService);
   private certificationService = inject(CertificationService);
+  private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
   private zone = inject(NgZone);
 
   private appointmentSub?: Subscription;
@@ -71,14 +75,70 @@ export class OfsResidentsdirectory implements OnInit, OnDestroy {
     }, 3000);
   }
 
-  async approveAppointment(id: string) {
-    await this.appointmentService.approveAppointment(id);
-    this.showNotification('Appointment approved.');
+   async approveAppointment(id: string) {
+    try {
+      await this.appointmentService.approveAppointment(id);
+
+      const officialId = this.authService.getCurrentUserId();
+      if (officialId) {
+        await this.notificationService.showNotification(
+          'Appointment approved successfully.',
+          'official',
+          officialId
+        );
+      }
+
+      this.showNotification('Appointment approved.');
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Approved',
+        text: 'Appointment approved successfully.',
+        timer: 1800,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Approve appointment error:', error);
+
+      await Swal.fire({
+        icon: 'error',
+        title: 'Approval Failed',
+        text: 'Failed to approve appointment.'
+      });
+    }
   }
 
-  async cancelAppointment(id: string) {
-    await this.appointmentService.cancelAppointment(id);
-    this.showNotification('Appointment declined.');
+    async cancelAppointment(id: string) {
+    try {
+      await this.appointmentService.cancelAppointment(id);
+
+      const officialId = this.authService.getCurrentUserId();
+      if (officialId) {
+        await this.notificationService.showNotification(
+          'Appointment declined successfully.',
+          'official',
+          officialId
+        );
+      }
+
+      this.showNotification('Appointment declined.');
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Declined',
+        text: 'Appointment declined successfully.',
+        timer: 1800,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Cancel appointment error:', error);
+
+      await Swal.fire({
+        icon: 'error',
+        title: 'Decline Failed',
+        text: 'Failed to decline appointment.'
+      });
+    }
   }
 
   openReschedule(id: string) {
@@ -93,26 +153,110 @@ export class OfsResidentsdirectory implements OnInit, OnDestroy {
     this.newTime = '';
   }
 
-  async saveReschedule() {
+    async saveReschedule() {
     if (!this.selectedAppointmentId) return;
 
-    await this.appointmentService.rescheduleAppointment(this.selectedAppointmentId, {
-      date: this.newDate,
-      time: this.newTime
-    });
+    try {
+      await this.appointmentService.rescheduleAppointment(this.selectedAppointmentId, {
+        date: this.newDate,
+        time: this.newTime
+      });
 
-    this.showNotification(`Appointment rescheduled to ${this.newDate} at ${this.newTime}.`);
-    this.closeRescheduleModal();
+      const officialId = this.authService.getCurrentUserId();
+      if (officialId) {
+        await this.notificationService.showNotification(
+          `Appointment rescheduled to ${this.newDate} at ${this.newTime}.`,
+          'official',
+          officialId
+        );
+      }
+
+      this.showNotification(`Appointment rescheduled to ${this.newDate} at ${this.newTime}.`);
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Rescheduled',
+        text: `Appointment rescheduled to ${this.newDate} at ${this.newTime}.`,
+        timer: 1800,
+        showConfirmButton: false
+      });
+
+      this.closeRescheduleModal();
+    } catch (error) {
+      console.error('Reschedule appointment error:', error);
+
+      await Swal.fire({
+        icon: 'error',
+        title: 'Reschedule Failed',
+        text: 'Failed to reschedule appointment.'
+      });
+    }
   }
 
-  async approveCertificate(id: string) {
-    await this.certificationService.approveCertification(id);
-    this.showNotification('Certificate approved.');
+   async approveCertificate(id: string) {
+    try {
+      await this.certificationService.approveCertification(id);
+
+      const officialId = this.authService.getCurrentUserId();
+      if (officialId) {
+        await this.notificationService.showNotification(
+          'Certificate approved successfully.',
+          'official',
+          officialId
+        );
+      }
+
+      this.showNotification('Certificate approved.');
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Approved',
+        text: 'Certificate approved successfully.',
+        timer: 1800,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Approve certificate error:', error);
+
+      await Swal.fire({
+        icon: 'error',
+        title: 'Approval Failed',
+        text: 'Failed to approve certificate.'
+      });
+    }
   }
 
-  async cancelCertificate(id: string) {
-    await this.certificationService.cancelCertification(id);
-    this.showNotification('Certificate rejected.');
+    async cancelCertificate(id: string) {
+    try {
+      await this.certificationService.cancelCertification(id);
+
+      const officialId = this.authService.getCurrentUserId();
+      if (officialId) {
+        await this.notificationService.showNotification(
+          'Certificate rejected successfully.',
+          'official',
+          officialId
+        );
+      }
+
+      this.showNotification('Certificate rejected.');
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Rejected',
+        text: 'Certificate rejected successfully.',
+        timer: 1800,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Cancel certificate error:', error);
+
+      await Swal.fire({
+        icon: 'error',
+        title: 'Rejection Failed',
+        text: 'Failed to reject certificate.'
+      });
+    }
   }
 
   openCertificateReschedule(id: string) {
@@ -127,16 +271,44 @@ export class OfsResidentsdirectory implements OnInit, OnDestroy {
     this.newCertTime = '';
   }
 
-  async saveCertificateReschedule() {
+    async saveCertificateReschedule() {
     if (!this.selectedCertificateId) return;
 
-    await this.certificationService.rescheduleCertification(this.selectedCertificateId, {
-      date: this.newCertDate,
-      time: this.newCertTime
-    });
+    try {
+      await this.certificationService.rescheduleCertification(this.selectedCertificateId, {
+        date: this.newCertDate,
+        time: this.newCertTime
+      });
 
-    this.showNotification(`Certificate request rescheduled to ${this.newCertDate} at ${this.newCertTime}.`);
-    this.closeCertificateModal();
+      const officialId = this.authService.getCurrentUserId();
+      if (officialId) {
+        await this.notificationService.showNotification(
+          `Certificate request rescheduled to ${this.newCertDate} at ${this.newCertTime}.`,
+          'official',
+          officialId
+        );
+      }
+
+      this.showNotification(`Certificate request rescheduled to ${this.newCertDate} at ${this.newCertTime}.`);
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Rescheduled',
+        text: `Certificate request rescheduled to ${this.newCertDate} at ${this.newCertTime}.`,
+        timer: 1800,
+        showConfirmButton: false
+      });
+
+      this.closeCertificateModal();
+    } catch (error) {
+      console.error('Reschedule certificate error:', error);
+
+      await Swal.fire({
+        icon: 'error',
+        title: 'Reschedule Failed',
+        text: 'Failed to reschedule certificate request.'
+      });
+    }
   }
 
   getEmail(app: any): string {

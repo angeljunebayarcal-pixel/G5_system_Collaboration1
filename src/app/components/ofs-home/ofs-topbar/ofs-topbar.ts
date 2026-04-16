@@ -6,9 +6,9 @@ import {
   OnDestroy,
   OnInit
 } from '@angular/core';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-
 import { AuthService } from '../../../services/auth.service';
 import {
   NotificationService,
@@ -37,6 +37,7 @@ export class OfsTopbar implements OnInit, OnDestroy {
   private isDestroyed = false;
   private isLoggingOut = false;
   private refreshTimer: any = null;
+  private stopAuthListener: (() => void) | null = null;
 
   constructor(
     private authService: AuthService,
@@ -45,21 +46,45 @@ export class OfsTopbar implements OnInit, OnDestroy {
     private notifService: NotificationService
   ) {}
 
-  async ngOnInit() {
+    async ngOnInit() {
     this.isDestroyed = false;
     this.isLoggingOut = false;
 
     window.addEventListener('profile-updated', this.handleProfileUpdated);
 
     this.loadFastThenFresh();
-    this.initNotifications();
+
+    const auth = this.authService.getAuthInstance();
+
+    this.stopAuthListener = onAuthStateChanged(auth, (user: User | null) => {
+      if (this.isDestroyed) return;
+
+      this.notifSub?.unsubscribe();
+      this.notifSub = undefined;
+
+      if (!user?.uid) {
+        this.zone.run(() => {
+          this.officialId = null;
+          this.notificationCount = 0;
+        });
+        return;
+      }
+
+      this.zone.run(() => {
+        this.officialId = user.uid;
+      });
+
+      this.initNotifications();
+    });
   }
 
-  ngOnDestroy() {
+   ngOnDestroy() {
     this.isDestroyed = true;
 
     window.removeEventListener('profile-updated', this.handleProfileUpdated);
     this.notifSub?.unsubscribe();
+    this.stopAuthListener?.();
+    this.stopAuthListener = null;
 
     if (this.refreshTimer) {
       clearTimeout(this.refreshTimer);
@@ -67,19 +92,28 @@ export class OfsTopbar implements OnInit, OnDestroy {
     }
   }
 
-  private async initNotifications() {
+    private async initNotifications() {
     if (this.isDestroyed || this.isLoggingOut) return;
 
     const currentUser = await this.authService.getCurrentUserAsync();
 
     if (this.isDestroyed || this.isLoggingOut) return;
 
-    this.officialId = currentUser?.uid || null;
+    const uid = currentUser?.uid || null;
+    this.officialId = uid;
 
-    if (!this.officialId) return;
+    this.notifSub?.unsubscribe();
+    this.notifSub = undefined;
+
+    if (!uid) {
+      this.zone.run(() => {
+        this.notificationCount = 0;
+      });
+      return;
+    }
 
     this.notifSub = this.notifService
-      .loadNotifications('official', this.officialId)
+      .loadNotifications('official', uid)
       .subscribe({
         next: (data: AppNotification[]) => {
           if (this.isDestroyed || this.isLoggingOut) return;
@@ -88,8 +122,22 @@ export class OfsTopbar implements OnInit, OnDestroy {
             this.notificationCount = data.filter(n => !n.isRead).length;
           });
         },
-        error: (err) => {
+        error: (err: any) => {
           if (this.isLoggingOut || this.isDestroyed) return;
+
+          const errorCode = err?.code || '';
+          const errorMessage = String(err?.message || '').toLowerCase();
+
+          if (
+            errorCode === 'permission-denied' ||
+            errorMessage.includes('missing or insufficient permissions')
+          ) {
+            this.zone.run(() => {
+              this.notificationCount = 0;
+            });
+            return;
+          }
+
           console.error('Official notification error:', err);
         }
       });

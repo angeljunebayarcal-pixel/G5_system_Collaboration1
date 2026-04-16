@@ -423,40 +423,45 @@ export class AuthService {
   }
 
   async getProfileData(uid?: string): Promise<UserProfileData | null> {
-    const currentUser = await this.getCurrentUserAsync();
-    const userId = uid || currentUser?.uid;
+    const authUser = this.auth.currentUser ?? (await this.getCurrentUserAsync());
+    const userId = uid || authUser?.uid;
 
     if (!userId) return null;
 
-    const role = await this.getUserRole(userId);
+    const userSnap = await getDoc(doc(this.fs, 'users', userId));
+    if (!userSnap.exists()) return null;
+
+    const user = userSnap.data();
+    const role = (user['role'] as 'resident' | 'official' | 'admin' | undefined) ?? null;
+
     if (!role) return null;
 
-    let adminEmergencyPhone = '';
-
     if (role === 'resident') {
-       adminEmergencyPhone = await this.getAdminEmergencyPhone();
-
-      const [residentSnap, userSnap] = await Promise.all([
-        getDoc(doc(this.fs, 'residents', userId)),
-        getDoc(doc(this.fs, 'users', userId))
-      ]);
-
+      const residentSnap = await getDoc(doc(this.fs, 'residents', userId));
       if (!residentSnap.exists()) return null;
 
+      let adminEmergencyPhone = '';
+      try {
+        adminEmergencyPhone = await this.getAdminEmergencyPhone();
+      } catch {
+        adminEmergencyPhone = '';
+      }
+
       const resident = residentSnap.data();
-      const user = userSnap.exists() ? userSnap.data() : {};
 
       return {
         uid: userId,
-        fullName: resident['fullName'] || '',
-        address: resident['address'] || '',
-        contact: resident['contact'] || '',
-        email: resident['email'] || user['email'] || currentUser?.email || '',
+        fullName: resident['fullName'] || user['fullName'] || '',
+        address: resident['address'] || user['address'] || '',
+        contact: resident['contact'] || user['contact'] || '',
+        email: resident['email'] || user['email'] || authUser?.email || '',
         role: 'resident',
-        status: user['status'] || 'active',
-        username: resident['username'] || '',
-        dob: resident['dob'] || '',
-        gender: resident['gender'] || '',
+        status: user['status'] || resident['status'] || 'active',
+        username: resident['username'] || user['username'] || '',
+        dob: resident['dob'] || user['dob'] || '',
+        gender: resident['gender'] || user['gender'] || '',
+        validIdFileName: resident['validIdFileName'] || '',
+        validIdFileUrl: resident['validIdFileUrl'] || '',
         photoURL: resident['photoURL'] || user['photoURL'] || '',
         emergencyContact: 'Barangay Admin Office',
         emergencyPhone: adminEmergencyPhone
@@ -464,11 +469,6 @@ export class AuthService {
     }
 
     if (role === 'admin') {
-      const userSnap = await getDoc(doc(this.fs, 'users', userId));
-      if (!userSnap.exists()) return null;
-
-      const user = userSnap.data();
-
       return {
         uid: userId,
         fullName:
@@ -476,24 +476,19 @@ export class AuthService {
           (user['email'] ? String(user['email']).split('@')[0] : 'Admin User'),
         address: user['address'] || '',
         contact: user['contact'] || '',
-        email: user['email'] || currentUser?.email || '',
+        email: user['email'] || authUser?.email || '',
         role: 'admin',
         status: user['status'] || 'active',
         username: user['username'] || '',
         dob: user['dob'] || '',
         gender: user['gender'] || '',
-        photoURL: user['photoURL'] || ''
+        photoURL: user['photoURL'] || '',
+        emergencyContact: '',
+        emergencyPhone: ''
       };
     }
 
-    const [officialSnap, userSnap] = await Promise.all([
-      getDoc(doc(this.fs, 'officials', userId)),
-      getDoc(doc(this.fs, 'users', userId))
-    ]);
-
-    if (!userSnap.exists()) return null;
-
-    const user = userSnap.data();
+    const officialSnap = await getDoc(doc(this.fs, 'officials', userId));
     const official = officialSnap.exists() ? officialSnap.data() : {};
 
     return {
@@ -504,7 +499,7 @@ export class AuthService {
         (user['email'] ? String(user['email']).split('@')[0] : 'Official User'),
       address: official['address'] || user['address'] || '',
       contact: official['contact'] || user['contact'] || '',
-      email: official['email'] || user['email'] || currentUser?.email || '',
+      email: official['email'] || user['email'] || authUser?.email || '',
       role: 'official',
       status: official['status'] || user['status'] || 'pending',
       username: official['username'] || user['username'] || '',

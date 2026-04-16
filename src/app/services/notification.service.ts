@@ -13,7 +13,8 @@ import {
   doc,
   deleteDoc,
   getDocs,
-  Firestore
+  Firestore,
+  Query
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 
@@ -21,7 +22,7 @@ export interface AppNotification {
   id: string;
   message: string;
   role: 'resident' | 'official';
-  userId?: string;
+  userId?: string | null;
   timestamp: number;
   isRead: boolean;
 }
@@ -45,13 +46,12 @@ export class NotificationService {
     await addDoc(collection(this.firestore, 'notifications'), {
       message,
       role,
-      userId: userId || null,
+      userId: userId ?? null,
       timestamp: Date.now(),
       isRead: false
     });
   }
 
-  // ✅ ADDED: broadcast announcement to all residents
   async broadcastToResidents(
     message: string,
     senderId?: string,
@@ -66,17 +66,33 @@ export class NotificationService {
 
     for (const residentDoc of residentsSnapshot.docs) {
       await addDoc(collection(this.firestore, 'notifications'), {
-        message: senderName
-          ? `${senderName}: ${message}`
-          : message,
+        message: senderName ? `${senderName}: ${message}` : message,
         role: 'resident',
         userId: residentDoc.id,
         timestamp: Date.now(),
         isRead: false,
-        senderId: senderId || null,
-        senderName: senderName || null
+        senderId: senderId ?? null,
+        senderName: senderName ?? null
       });
     }
+  }
+
+  private buildNotificationQuery(
+    role: 'resident' | 'official',
+    userId?: string
+  ): Query {
+    const notificationsRef = collection(this.firestore, 'notifications');
+
+    if (!userId) {
+      throw new Error(`Cannot load ${role} notifications without a userId.`);
+    }
+
+    return query(
+      notificationsRef,
+      where('role', '==', role),
+      where('userId', '==', userId),
+      orderBy('timestamp', 'desc')
+    );
   }
 
   loadNotifications(
@@ -84,30 +100,23 @@ export class NotificationService {
     userId?: string
   ): Observable<AppNotification[]> {
     return new Observable<AppNotification[]>((observer) => {
-      let q;
+      let notificationsQuery: Query;
 
-      if (role === 'resident') {
-        q = query(
-          collection(this.firestore, 'notifications'),
-          where('role', '==', 'resident'),
-          where('userId', '==', userId || ''),
-          orderBy('timestamp', 'desc')
-        );
-      } else {
-        q = query(
-          collection(this.firestore, 'notifications'),
-          where('role', '==', 'official'),
-          orderBy('timestamp', 'desc')
-        );
+      try {
+        notificationsQuery = this.buildNotificationQuery(role, userId);
+      } catch (error) {
+        observer.error(error);
+        return;
       }
 
       const unsubscribe = onSnapshot(
-        q,
+        notificationsQuery,
         (snapshot) => {
           const notifications: AppNotification[] = snapshot.docs.map((docSnap) => ({
             id: docSnap.id,
             ...(docSnap.data() as Omit<AppNotification, 'id'>)
           }));
+
           observer.next(notifications);
         },
         (error) => {
@@ -120,23 +129,12 @@ export class NotificationService {
     });
   }
 
-  async markAllAsRead(role: 'resident' | 'official', userId?: string): Promise<void> {
-    let q;
-
-    if (role === 'resident') {
-      q = query(
-        collection(this.firestore, 'notifications'),
-        where('role', '==', 'resident'),
-        where('userId', '==', userId || '')
-      );
-    } else {
-      q = query(
-        collection(this.firestore, 'notifications'),
-        where('role', '==', 'official')
-      );
-    }
-
-    const snapshot = await getDocs(q);
+  async markAllAsRead(
+    role: 'resident' | 'official',
+    userId?: string
+  ): Promise<void> {
+    const notificationsQuery = this.buildNotificationQuery(role, userId);
+    const snapshot = await getDocs(notificationsQuery);
 
     for (const notif of snapshot.docs) {
       await updateDoc(doc(this.firestore, 'notifications', notif.id), {
@@ -145,23 +143,12 @@ export class NotificationService {
     }
   }
 
-  async clearNotifications(role: 'resident' | 'official', userId?: string): Promise<void> {
-    let q;
-
-    if (role === 'resident') {
-      q = query(
-        collection(this.firestore, 'notifications'),
-        where('role', '==', 'resident'),
-        where('userId', '==', userId || '')
-      );
-    } else {
-      q = query(
-        collection(this.firestore, 'notifications'),
-        where('role', '==', 'official')
-      );
-    }
-
-    const snapshot = await getDocs(q);
+  async clearNotifications(
+    role: 'resident' | 'official',
+    userId?: string
+  ): Promise<void> {
+    const notificationsQuery = this.buildNotificationQuery(role, userId);
+    const snapshot = await getDocs(notificationsQuery);
 
     for (const notif of snapshot.docs) {
       await deleteDoc(doc(this.firestore, 'notifications', notif.id));

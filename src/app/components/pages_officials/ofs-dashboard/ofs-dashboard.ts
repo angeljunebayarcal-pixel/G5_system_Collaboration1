@@ -208,29 +208,43 @@ export class OfsDashboard implements OnInit, OnDestroy {
 
   private async loadOfficialProfileSilently(): Promise<void> {
     try {
-      const currentUid = this.authService.getCurrentUserId();
+      const auth = this.authService.getAuthInstance();
+      const currentUser = auth.currentUser ?? (await this.authService.getCurrentUserAsync());
 
-      if (currentUid) {
-        this.officialId = currentUid;
-
-        const profile = await this.authService.getProfileData(currentUid);
-        this.officialName = profile?.fullName || this.officialName || 'Official User';
-
-        this.saveDashboardCache();
-        this.cdr.detectChanges();
+      if (!currentUser?.uid) {
         return;
       }
 
-      const user = await this.authService.getCurrentUserAsync();
+      this.officialId = currentUser.uid;
 
-      if (!user?.uid) {
-        return;
+      try {
+        const profile = await this.authService.getProfileData(currentUser.uid);
+
+        this.officialName =
+          profile?.fullName?.trim() ||
+          currentUser.displayName?.trim() ||
+          this.officialName ||
+          'Official User';
+      } catch (profileError: any) {
+        const errorCode = profileError?.code || '';
+        const errorMessage = String(profileError?.message || '').toLowerCase();
+
+        if (
+          errorCode === 'permission-denied' ||
+          errorMessage.includes('missing or insufficient permissions')
+        ) {
+          this.officialName =
+            currentUser.displayName?.trim() ||
+            this.officialName ||
+            'Official User';
+
+          this.saveDashboardCache();
+          this.cdr.detectChanges();
+          return;
+        }
+
+        throw profileError;
       }
-
-      this.officialId = user.uid;
-
-      const profile = await this.authService.getProfileData(user.uid);
-      this.officialName = profile?.fullName || this.officialName || 'Official User';
 
       this.saveDashboardCache();
       this.cdr.detectChanges();
