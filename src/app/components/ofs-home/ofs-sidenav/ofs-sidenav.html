@@ -5,6 +5,8 @@
   *ngIf="isMobileOrTablet && !isSidebarOpen"
   (click)="toggleSidebar()"
   aria-label="Open Main Menu"
+  [attr.aria-expanded]="isSidebarOpen"
+  aria-controls="ofs-main-sidenav"
 >
   <span></span>
   <span></span>
@@ -19,6 +21,7 @@
 ></div>
 
 <div
+  id="ofs-main-sidenav"
   class="sidenav"
   [class.mobile-hidden]="isMobileOrTablet && !isSidebarOpen"
   [class.mobile-open]="isMobileOrTablet && isSidebarOpen"

@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  initializeApp,
+  getApps,
+  getApp,
+  deleteApp,
+  FirebaseApp
+} from 'firebase/app';
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -10,11 +16,10 @@ import {
   getFirestore,
   doc,
   setDoc,
-  Firestore
+  Firestore,
+  serverTimestamp
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
-
-
 
 export interface ResidentProfileData {
   fullName: string;
@@ -30,46 +35,76 @@ export interface ResidentProfileData {
   providedIn: 'root'
 })
 export class CreateProfileService {
-  private auth: Auth;
   private firestore: Firestore;
 
   constructor() {
-    const app = getApps().length ? getApp() : initializeApp(environment.firebase);
-    this.auth = getAuth(app);
-    this.firestore = getFirestore(app);
+    const mainApp = getApps().length ? getApp() : initializeApp(environment.firebase);
+    this.firestore = getFirestore(mainApp);
   }
 
   async createResidentProfile(
     profile: ResidentProfileData,
     password: string
   ): Promise<string> {
-    const cred = await createUserWithEmailAndPassword(
-      this.auth,
-      profile.email,
-      password
-    );
+    const secondaryAppName = `resident-creator-${Date.now()}`;
+    const secondaryApp: FirebaseApp = initializeApp(environment.firebase, secondaryAppName);
+    const secondaryAuth: Auth = getAuth(secondaryApp);
 
-    const uid = cred.user.uid;
+    try {
+      const cred = await createUserWithEmailAndPassword(
+        secondaryAuth,
+        profile.email.trim(),
+        password
+      );
 
-    await setDoc(doc(this.firestore, 'users', uid), {
-      email: profile.email,
-      role: 'resident',
-      createdAt: new Date()
-    });
+      const uid = cred.user.uid;
 
-    await setDoc(doc(this.firestore, 'residents', uid), {
-      fullName: profile.fullName,
-      dob: profile.dob,
-      gender: profile.gender,
-      address: profile.address,
-      contact: profile.contact,
-      email: profile.email,
-      username: profile.username,
-      createdAt: new Date()
-    });
+      await setDoc(doc(this.firestore, 'users', uid), {
+        uid,
+        email: profile.email.trim(),
+        role: 'resident',
+        createdAt: serverTimestamp()
+      });
 
-    await signOut(this.auth);
+      await setDoc(doc(this.firestore, 'residents', uid), {
+        uid,
+        fullName: profile.fullName.trim(),
+        dob: profile.dob,
+        gender: profile.gender,
+        address: profile.address.trim(),
+        contact: profile.contact.trim(),
+        email: profile.email.trim(),
+        username: profile.username.trim(),
+        createdAt: serverTimestamp()
+      });
 
-    return uid;
+      await signOut(secondaryAuth);
+
+      return uid;
+    } catch (error: any) {
+      if (error?.code === 'auth/email-already-in-use') {
+        throw new Error('That email is already registered.');
+      }
+
+      if (error?.code === 'auth/invalid-email') {
+        throw new Error('Please enter a valid email address.');
+      }
+
+      if (error?.code === 'auth/weak-password') {
+        throw new Error('Password must be at least 6 characters.');
+      }
+
+      throw error;
+    } finally {
+      try {
+        await signOut(secondaryAuth);
+      } catch {
+      }
+
+      try {
+        await deleteApp(secondaryApp);
+      } catch {
+      }
+    }
   }
 }

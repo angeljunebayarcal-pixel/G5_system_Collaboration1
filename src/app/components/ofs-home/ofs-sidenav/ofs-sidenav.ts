@@ -19,7 +19,6 @@ export class OfsSidenav implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.checkScreenSize();
 
-    // Re-check after every route change
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
@@ -30,15 +29,28 @@ export class OfsSidenav implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Re-check once view is fully rendered
     setTimeout(() => {
       this.checkScreenSize();
     }, 0);
   }
 
+  private blurActiveElement(): void {
+    const active = document.activeElement as HTMLElement | null;
+    if (active) {
+      active.blur();
+    }
+  }
+
   @HostListener('window:resize')
   onResize(): void {
+    const wasMobileOrTablet = this.isMobileOrTablet;
+    const wasSidebarOpen = this.isSidebarOpen;
+
     this.checkScreenSize();
+
+    if (wasMobileOrTablet && wasSidebarOpen && this.isMobileOrTablet && !this.isSidebarOpen) {
+      this.blurActiveElement();
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -52,27 +64,41 @@ export class OfsSidenav implements OnInit, AfterViewInit {
     const clickedToggleButton = !!target.closest('.menu-toggle');
 
     if (!clickedInsideSidebar && !clickedToggleButton) {
+      this.blurActiveElement();
       this.isSidebarOpen = false;
     }
   }
 
   checkScreenSize(): void {
-    this.isMobileOrTablet = window.innerWidth <= 768;
-    this.isSidebarOpen = !this.isMobileOrTablet;
+    const isNowMobileOrTablet = window.innerWidth <= 768;
+
+    this.isMobileOrTablet = isNowMobileOrTablet;
+
+    if (!isNowMobileOrTablet) {
+      this.isSidebarOpen = true;
+    } else if (this.isSidebarOpen !== false && this.isSidebarOpen !== true) {
+      this.isSidebarOpen = false;
+    }
   }
 
   toggleSidebar(): void {
+    if (this.isSidebarOpen) {
+      this.blurActiveElement();
+    }
+
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 
   closeSidebar(): void {
     if (this.isMobileOrTablet) {
+      this.blurActiveElement();
       this.isSidebarOpen = false;
     }
   }
 
   handleNavClick(): void {
     if (this.isMobileOrTablet) {
+      this.blurActiveElement();
       this.isSidebarOpen = false;
     }
   }

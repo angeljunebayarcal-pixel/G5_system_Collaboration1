@@ -60,46 +60,16 @@ export class OfsProfile implements OnInit {
     try {
       this.loading = true;
 
-      const currentUid = this.authService.getCurrentUserId();
+      const auth = this.authService.getAuthInstance();
+      const currentUser = auth.currentUser ?? (await this.authService.getCurrentUserAsync());
 
-      if (currentUid) {
-        const cacheKey = this.getProfileCacheKey(currentUid);
-        if (cacheKey) {
-          const cached = localStorage.getItem(cacheKey);
-
-          if (cached) {
-            const profile = JSON.parse(cached);
-            this.applyProfile(profile);
-            this.loading = false;
-            this.cdr.detectChanges();
-          }
-        }
-
-        const profile = await this.authService.getProfileData(currentUid);
-
-        if (profile) {
-          this.applyProfile(profile);
-
-          const freshCacheKey = this.getProfileCacheKey(currentUid);
-          if (freshCacheKey) {
-            localStorage.setItem(freshCacheKey, JSON.stringify(profile));
-          }
-        }
-
+      if (!currentUser?.uid) {
         this.loading = false;
         this.cdr.detectChanges();
         return;
       }
 
-      const user = await this.authService.getCurrentUserAsync();
-
-      if (!user?.uid) {
-        this.loading = false;
-        this.cdr.detectChanges();
-        return;
-      }
-
-      const cacheKey = this.getProfileCacheKey(user.uid);
+      const cacheKey = this.getProfileCacheKey(currentUser.uid);
       if (cacheKey) {
         const cached = localStorage.getItem(cacheKey);
 
@@ -111,15 +81,55 @@ export class OfsProfile implements OnInit {
         }
       }
 
-      const profile = await this.authService.getProfileData(user.uid);
+      try {
+        const profile = await this.authService.getProfileData(currentUser.uid);
 
-      if (profile) {
-        this.applyProfile(profile);
+        if (profile) {
+          this.applyProfile(profile);
 
-        const freshCacheKey = this.getProfileCacheKey(user.uid);
-        if (freshCacheKey) {
-          localStorage.setItem(freshCacheKey, JSON.stringify(profile));
+          const freshCacheKey = this.getProfileCacheKey(currentUser.uid);
+          if (freshCacheKey) {
+            localStorage.setItem(freshCacheKey, JSON.stringify(profile));
+          }
+        } else {
+          this.applyProfile({
+            fullName: currentUser.displayName || 'Official User',
+            address: '',
+            contact: '',
+            email: currentUser.email || '',
+            role: 'official',
+            username: '',
+            dob: '',
+            gender: '',
+            photoURL: currentUser.photoURL || ''
+          });
         }
+      } catch (profileError: any) {
+        const errorCode = profileError?.code || '';
+        const errorMessage = String(profileError?.message || '').toLowerCase();
+
+        if (
+          errorCode === 'permission-denied' ||
+          errorMessage.includes('missing or insufficient permissions')
+        ) {
+          this.applyProfile({
+            fullName: currentUser.displayName || 'Official User',
+            address: '',
+            contact: '',
+            email: currentUser.email || '',
+            role: 'official',
+            username: '',
+            dob: '',
+            gender: '',
+            photoURL: currentUser.photoURL || ''
+          });
+
+          this.loading = false;
+          this.cdr.detectChanges();
+          return;
+        }
+
+        throw profileError;
       }
 
       this.loading = false;

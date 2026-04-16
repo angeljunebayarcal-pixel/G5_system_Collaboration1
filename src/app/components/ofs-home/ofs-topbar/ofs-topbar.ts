@@ -46,7 +46,7 @@ export class OfsTopbar implements OnInit, OnDestroy {
     private notifService: NotificationService
   ) {}
 
-    async ngOnInit() {
+  async ngOnInit() {
     this.isDestroyed = false;
     this.isLoggingOut = false;
 
@@ -78,7 +78,7 @@ export class OfsTopbar implements OnInit, OnDestroy {
     });
   }
 
-   ngOnDestroy() {
+  ngOnDestroy() {
     this.isDestroyed = true;
 
     window.removeEventListener('profile-updated', this.handleProfileUpdated);
@@ -92,7 +92,19 @@ export class OfsTopbar implements OnInit, OnDestroy {
     }
   }
 
-    private async initNotifications() {
+  private blurActiveElement(): void {
+    const active = document.activeElement as HTMLElement | null;
+    if (active) {
+      active.blur();
+    }
+  }
+
+  private closeMenuSafely(): void {
+    this.blurActiveElement();
+    this.menuOpen = false;
+  }
+
+  private async initNotifications() {
     if (this.isDestroyed || this.isLoggingOut) return;
 
     const currentUser = await this.authService.getCurrentUserAsync();
@@ -167,7 +179,7 @@ export class OfsTopbar implements OnInit, OnDestroy {
             this.initials = this.getInitials(this.displayName);
           }
 
-          if (authUser.photoURL && !this.photoURL) {
+          if (authUser.photoURL) {
             this.photoURL = authUser.photoURL;
           }
         });
@@ -190,7 +202,7 @@ export class OfsTopbar implements OnInit, OnDestroy {
         this.initials = this.getInitials(this.displayName);
       }
 
-      if (user.photoURL && !this.photoURL) {
+      if (user.photoURL) {
         this.photoURL = user.photoURL;
       }
     });
@@ -200,18 +212,7 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
   private scheduleFreshProfileLoad() {
     if (this.isDestroyed || this.isLoggingOut) return;
-
-    if (this.refreshTimer) {
-      clearTimeout(this.refreshTimer);
-    }
-
-    this.refreshTimer = setTimeout(() => {
-      this.refreshTimer = null;
-
-      if (this.isDestroyed || this.isLoggingOut) return;
-
-      this.loadProfileFresh();
-    }, 0);
+    this.loadProfileFresh();
   }
 
   private getProfileCacheKey(uid?: string): string | null {
@@ -231,13 +232,15 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
       if (this.isDestroyed || this.isLoggingOut) return;
 
-      this.zone.run(() => {
-        this.displayName = profile.fullName || 'Official User';
-        this.displayRole = this.mapRole(profile.role);
-        this.initials = this.getInitials(this.displayName);
-        this.photoURL = profile.photoURL || '';
-        this.isLoaded = true;
-      });
+      this.displayName = profile.fullName || 'Official User';
+      this.displayRole = this.mapRole(profile.role);
+      this.initials = this.getInitials(this.displayName);
+
+      if (profile.photoURL) {
+        this.photoURL = profile.photoURL;
+      }
+
+      this.isLoaded = true;
     } catch (error) {
       if (!this.isLoggingOut && !this.isDestroyed) {
         console.error('Official topbar cache load failed:', error);
@@ -306,24 +309,30 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
   goToNotifications(event: Event) {
     event.stopPropagation();
-    this.menuOpen = false;
+    this.closeMenuSafely();
     this.router.navigate(['/ofs-home/ofs-notification']);
   }
 
   toggleMenu(event: Event) {
     event.stopPropagation();
-    this.menuOpen = !this.menuOpen;
+
+    if (this.menuOpen) {
+      this.closeMenuSafely();
+      return;
+    }
+
+    this.menuOpen = true;
   }
 
   goToSettings(event: Event) {
     event.stopPropagation();
-    this.menuOpen = false;
+    this.closeMenuSafely();
     this.router.navigate(['/ofs-home/ofs-settings']);
   }
 
   async logout(event: Event) {
     event.stopPropagation();
-    this.menuOpen = false;
+    this.closeMenuSafely();
     this.isLoggingOut = true;
 
     if (this.refreshTimer) {
@@ -357,7 +366,9 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
   @HostListener('document:click')
   closeMenuOnOutsideClick() {
-    this.menuOpen = false;
+    if (this.menuOpen) {
+      this.closeMenuSafely();
+    }
   }
 
   private mapRole(role: string): string {
