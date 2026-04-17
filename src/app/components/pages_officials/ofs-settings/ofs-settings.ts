@@ -109,13 +109,16 @@ export class OfsSettings implements OnInit {
       }
 
       Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Setting updated',
-        showConfirmButton: false,
-        timer: 1500
-      });
+                  icon: 'success',
+                  title: 'Setting updated',
+                  text: 'Your setting has been saved successfully.',
+                  showConfirmButton: false,
+                  timer: 1400,
+                  timerProgressBar: true,
+                  customClass: {
+                  popup: 'settings-center-swal-popup'
+               }
+            });
     } catch (error) {
       console.error('Failed to save toggle:', error);
       Swal.fire('Error', 'Failed to save setting.', 'error');

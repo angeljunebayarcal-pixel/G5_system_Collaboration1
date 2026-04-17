@@ -12,8 +12,8 @@ import {
   where,
   onSnapshot,
   Firestore,
-  orderBy,
-  deleteDoc
+  deleteDoc,
+  serverTimestamp
 } from 'firebase/firestore';
 
 import { NotificationService } from './notification.service';
@@ -58,7 +58,7 @@ export class AppointmentService {
       details,
       email: residentEmail,
       status: 'pending',
-      createdAt: new Date()
+      createdAt: serverTimestamp()
     });
 
     await this.notificationService.showNotification(
@@ -92,19 +92,26 @@ export class AppointmentService {
 
   getResidentAppointments(residentId: string): Observable<Appointment[]> {
     return new Observable<Appointment[]>((observer) => {
+      if (!residentId?.trim()) {
+        observer.next([]);
+        return () => {};
+      }
+
       const q = query(
         collection(this.firestore, 'appointments'),
-        where('residentId', '==', residentId),
-        orderBy('createdAt', 'desc')
+        where('residentId', '==', residentId.trim())
       );
 
       const unsubscribe = onSnapshot(
         q,
         (snapshot) => {
-          const data: Appointment[] = snapshot.docs.map((docSnap) => ({
-            id: docSnap.id,
-            ...(docSnap.data() as Omit<Appointment, 'id'>)
-          }));
+          const data: Appointment[] = snapshot.docs
+            .map((docSnap) => ({
+              id: docSnap.id,
+              ...(docSnap.data() as Omit<Appointment, 'id'>)
+            }))
+            .sort((a, b) => this.toMillis(b.createdAt) - this.toMillis(a.createdAt));
+
           observer.next(data);
         },
         (error) => observer.error(error)

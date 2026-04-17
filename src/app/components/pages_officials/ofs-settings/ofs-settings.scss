@@ -959,3 +959,36 @@
     font-size: 15px !important;
   }
 }
+
+:host ::ng-deep .settings-center-swal-popup {
+  width: 410px !important;
+  max-width: calc(100vw - 32px) !important;
+  border-radius: 16px !important;
+  padding: 24px 20px !important;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18) !important;
+}
+
+:host ::ng-deep .settings-center-swal-popup .swal2-title {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #1f2937 !important;
+}
+
+:host ::ng-deep .settings-center-swal-popup .swal2-html-container,
+:host ::ng-deep .settings-center-swal-popup .swal2-text {
+  font-size: 1rem !important;
+  color: #6b7280 !important;
+}
+
+:host ::ng-deep .settings-center-swal-popup .swal2-confirm {
+  background: #2563eb !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 10px 22px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22) !important;
+}
+
+:host ::ng-deep .settings-center-swal-popup .swal2-confirm:focus {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+}
