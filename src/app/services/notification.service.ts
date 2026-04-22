@@ -119,10 +119,27 @@ export class NotificationService {
 
           observer.next(notifications);
         },
-        (error) => {
-          console.error('Notification load error:', error);
-          observer.error(error);
-        }
+       (error) => {
+  const errorCode = error?.code || '';
+  const errorMessage = String(error?.message || '').toLowerCase();
+
+  const isTransientListenError =
+    errorCode === 'unavailable' ||
+    errorCode === 'cancelled' ||
+    errorMessage.includes('webchannelconnection') ||
+    errorMessage.includes("rpc 'listen' transport errored") ||
+    errorMessage.includes('listen/channel') ||
+    errorMessage.includes('404') ||
+    errorMessage.includes('net::err_aborted');
+
+  if (isTransientListenError) {
+    console.warn('Notification listener interrupted temporarily:', error);
+    return;
+  }
+
+  console.error('Notification load error:', error);
+  observer.error(error);
+}
       );
 
       return () => unsubscribe();

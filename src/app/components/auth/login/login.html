@@ -1,4 +1,19 @@
 <div class="login-container">
+  <div class="login-bg-overlay"></div>
+  <div class="login-grid"></div>
+  <div class="login-frame frame-top">
+  <span class="frame-diamond center"></span>
+</div>
+<div class="login-frame frame-bottom">
+  <span class="frame-diamond center"></span>
+</div>
+
+  <div class="login-radar">
+    <div class="radar-ring ring-1"></div>
+    <div class="radar-ring ring-2"></div>
+    <div class="radar-ring ring-3"></div>
+    <div class="radar-dots"></div>
+  </div>
 
   <!-- LOGIN FORM -->
   <form (ngSubmit)="login()" #loginForm="ngForm" novalidate>

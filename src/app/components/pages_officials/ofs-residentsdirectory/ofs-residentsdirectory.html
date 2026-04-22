@@ -13,9 +13,19 @@
   <div class="card">
     <h2 class="section-title">Pending Appointments</h2>
 
+    <div class="search-bar-wrap">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by resident ID, email, date, time, purpose, or file name..."
+        [(ngModel)]="appointmentSearch"
+        (ngModelChange)="onAppointmentSearchChange($event)"
+      />
+    </div>
+
     <div class="request-list">
 
-      <div class="request-item" *ngFor="let app of pendingAppointments">
+      <div class="request-item" *ngFor="let app of filteredAppointments">
 
         <div class="request-left">
 
@@ -79,6 +89,9 @@
         No pending appointments.
       </div>
 
+      <div *ngIf="pendingAppointments.length > 0 && filteredAppointments.length === 0" class="no-requests">
+        No matching pending appointments found.
+      </div>
     </div>
   </div>
 
@@ -89,9 +102,19 @@
   <div class="card">
     <h2 class="section-title">Pending Certificate Requests</h2>
 
+    <div class="search-bar-wrap">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by resident ID, email, certificate, date, time, purpose, or file name..."
+        [(ngModel)]="certificateSearch"
+        (ngModelChange)="onCertificateSearchChange($event)"
+      />
+    </div>
+
     <div class="request-list">
 
-      <div class="request-item" *ngFor="let cert of pendingCertificates">
+      <div class="request-item" *ngFor="let cert of filteredCertificates">
 
         <div class="request-left">
 
@@ -160,14 +183,13 @@
         No pending certificate requests.
       </div>
 
+      <div *ngIf="pendingCertificates.length > 0 && filteredCertificates.length === 0" class="no-requests">
+        No matching certificate requests found.
+      </div>
     </div>
   </div>
 
 </div>
-
-<!-- ========================= -->
-<!-- APPOINTMENT RESCHEDULE MODAL -->
-<!-- ========================= -->
 
 <div class="modal-overlay" *ngIf="showAppointmentModal">
   <div class="modal">
@@ -185,10 +207,6 @@
     </div>
   </div>
 </div>
-
-<!-- ========================= -->
-<!-- CERTIFICATE RESCHEDULE MODAL -->
-<!-- ========================= -->
 
 <div class="modal-overlay" *ngIf="showCertificateModal">
   <div class="modal">

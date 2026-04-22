@@ -46,7 +46,26 @@ export class OfficialDashboardService {
         (snapshot) => {
           observer.next(snapshot.size);
         },
-        (error) => observer.error(error)
+        (error) => {
+  const errorCode = error?.code || '';
+  const errorMessage = String(error?.message || '').toLowerCase();
+
+  const isTransientListenError =
+    errorCode === 'unavailable' ||
+    errorCode === 'cancelled' ||
+    errorMessage.includes('webchannelconnection') ||
+    errorMessage.includes("rpc 'listen' transport errored") ||
+    errorMessage.includes('listen/channel') ||
+    errorMessage.includes('404') ||
+    errorMessage.includes('net::err_aborted');
+
+  if (isTransientListenError) {
+    console.warn('Resident count listener interrupted temporarily:', error);
+    return;
+  }
+
+  observer.error(error);
+}
       );
 
       return () => unsubscribe();
@@ -111,7 +130,26 @@ export class OfficialDashboardService {
 
           observer.next(logs);
         },
-        (error) => observer.error(error)
+        (error) => {
+  const errorCode = error?.code || '';
+  const errorMessage = String(error?.message || '').toLowerCase();
+
+  const isTransientListenError =
+    errorCode === 'unavailable' ||
+    errorCode === 'cancelled' ||
+    errorMessage.includes('webchannelconnection') ||
+    errorMessage.includes("rpc 'listen' transport errored") ||
+    errorMessage.includes('listen/channel') ||
+    errorMessage.includes('404') ||
+    errorMessage.includes('net::err_aborted');
+
+  if (isTransientListenError) {
+    console.warn('Audit logs listener interrupted temporarily:', error);
+    return;
+  }
+
+  observer.error(error);
+}
       );
 
       return () => unsubscribe();

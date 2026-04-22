@@ -131,7 +131,7 @@
 <div class="all-activities-modal" *ngIf="showAllRequestsModal">
   <div class="modal-overlay" (click)="closeAllRequests()"></div>
 
-  <div class="modal-content large-modal">
+  <div class="modal-content large-modal" role="dialog" aria-modal="true" tabindex="-1">
     <button class="modal-close" (click)="closeAllRequests()">
       <i class="pi pi-times"></i>
     </button>
@@ -191,7 +191,7 @@
 <div class="all-activities-modal" *ngIf="showAuditLogsModal">
   <div class="modal-overlay" (click)="closeAuditLogs()"></div>
 
-  <div class="modal-content">
+  <div class="modal-content" role="dialog" aria-modal="true" tabindex="-1">
     <button class="modal-close" (click)="closeAuditLogs()">
       <i class="pi pi-times"></i>
     </button>

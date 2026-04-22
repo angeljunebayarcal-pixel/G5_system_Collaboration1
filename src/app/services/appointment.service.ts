@@ -83,7 +83,26 @@ export class AppointmentService {
           }));
           observer.next(data);
         },
-        (error) => observer.error(error)
+        (error) => {
+  const errorCode = error?.code || '';
+  const errorMessage = String(error?.message || '').toLowerCase();
+
+  const isTransientListenError =
+    errorCode === 'unavailable' ||
+    errorCode === 'cancelled' ||
+    errorMessage.includes('webchannelconnection') ||
+    errorMessage.includes("rpc 'listen' transport errored") ||
+    errorMessage.includes('listen/channel') ||
+    errorMessage.includes('404') ||
+    errorMessage.includes('net::err_aborted');
+
+  if (isTransientListenError) {
+    console.warn('Firestore appointments listener interrupted temporarily:', error);
+    return;
+  }
+
+  observer.error(error);
+}
       );
 
       return () => unsubscribe();
@@ -114,7 +133,26 @@ export class AppointmentService {
 
           observer.next(data);
         },
-        (error) => observer.error(error)
+        (error) => {
+  const errorCode = error?.code || '';
+  const errorMessage = String(error?.message || '').toLowerCase();
+
+  const isTransientListenError =
+    errorCode === 'unavailable' ||
+    errorCode === 'cancelled' ||
+    errorMessage.includes('webchannelconnection') ||
+    errorMessage.includes("rpc 'listen' transport errored") ||
+    errorMessage.includes('listen/channel') ||
+    errorMessage.includes('404') ||
+    errorMessage.includes('net::err_aborted');
+
+  if (isTransientListenError) {
+    console.warn('Firestore appointments listener interrupted temporarily:', error);
+    return;
+  }
+
+  observer.error(error);
+}
       );
 
       return () => unsubscribe();
@@ -135,7 +173,26 @@ export class AppointmentService {
 
           observer.next(data);
         },
-        (error) => observer.error(error)
+        (error) => {
+  const errorCode = error?.code || '';
+  const errorMessage = String(error?.message || '').toLowerCase();
+
+  const isTransientListenError =
+    errorCode === 'unavailable' ||
+    errorCode === 'cancelled' ||
+    errorMessage.includes('webchannelconnection') ||
+    errorMessage.includes("rpc 'listen' transport errored") ||
+    errorMessage.includes('listen/channel') ||
+    errorMessage.includes('404') ||
+    errorMessage.includes('net::err_aborted');
+
+  if (isTransientListenError) {
+    console.warn('Firestore appointments listener interrupted temporarily:', error);
+    return;
+  }
+
+  observer.error(error);
+}
       );
 
       return () => unsubscribe();

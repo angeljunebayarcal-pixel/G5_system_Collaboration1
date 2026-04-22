@@ -2,17 +2,19 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-approvalqueue',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,FormsModule],
   templateUrl: './approvalqueue.html',
   styleUrl: './approvalqueue.scss',
 })
 export class Approvalqueue implements OnInit {
   loading = true;
   pendingOfficials: any[] = [];
+  officialSearch = '';
 
   constructor(
     private authService: AuthService,
@@ -23,6 +25,7 @@ export class Approvalqueue implements OnInit {
   async ngOnInit(): Promise<void> {
     this.loading = true;
     this.cdr.detectChanges();
+    
 
     setTimeout(() => {
       if (this.loading) {
@@ -33,6 +36,30 @@ export class Approvalqueue implements OnInit {
 
     await this.loadPendingOfficials();
   }
+
+  get filteredPendingOfficials(): any[] {
+  const keyword = this.officialSearch.trim().toLowerCase();
+
+  if (!keyword) {
+    return this.pendingOfficials;
+  }
+
+  return this.pendingOfficials.filter((official) => {
+    const fullName = (official.fullName || '').toLowerCase();
+    const email = (official.email || '').toLowerCase();
+    const role = 'official';
+    const status = (official.status || '').toLowerCase();
+    const fileName = (official.validIdFileName || '').toLowerCase();
+
+    return (
+      fullName.includes(keyword) ||
+      email.includes(keyword) ||
+      role.includes(keyword) ||
+      status.includes(keyword) ||
+      fileName.includes(keyword)
+    );
+  });
+}
 
   async loadPendingOfficials(): Promise<void> {
     try {

@@ -128,6 +128,11 @@ export class OfsDashboard implements OnInit, OnDestroy {
     this.subs = [];
   }
 
+  private clearFocus(): void {
+  const active = document.activeElement as HTMLElement | null;
+  active?.blur();
+}
+
   private resetDashboard(): void {
     this.pendingCertsCount = 0;
     this.todaysAppointmentsCount = 0;
@@ -395,9 +400,12 @@ export class OfsDashboard implements OnInit, OnDestroy {
   }
 
   async refreshData(): Promise<void> {
+    this.clearFocus();
     this.clearSubscriptions();
-    this.loadDashboardData();
-    this.cdr.detectChanges();
+     setTimeout(() => {
+      this.loadDashboardData();
+      this.cdr.detectChanges();
+    }, 50);
 
     await this.officialDashboardService.addAuditLog(
       'Refreshed official dashboard',
@@ -415,16 +423,25 @@ export class OfsDashboard implements OnInit, OnDestroy {
   }
 
   viewAllRequests(): void {
-    this.showAllRequestsModal = true;
-    this.cdr.detectChanges();
-  }
+  this.clearFocus();
+  this.showAllRequestsModal = true;
+  this.cdr.detectChanges();
+
+  setTimeout(() => {
+    const modal = document.querySelector('.large-modal') as HTMLElement | null;
+    modal?.focus();
+  });
+}
 
   closeAllRequests(): void {
-    this.showAllRequestsModal = false;
-    this.cdr.detectChanges();
-  }
+  this.clearFocus();
+  this.showAllRequestsModal = false;
+  this.cdr.detectChanges();
+}
 
   async reviewRequest(item: RecentApplicationItem): Promise<void> {
+    this.clearFocus();
+
     await this.officialDashboardService.addAuditLog(
       'Reviewed request',
       this.officialId,
@@ -445,6 +462,8 @@ export class OfsDashboard implements OnInit, OnDestroy {
   }
 
   async deleteRequest(item: RecentApplicationItem): Promise<void> {
+    this.clearFocus();
+
     const result = await Swal.fire({
       title: 'Delete Request?',
       text: `This will remove ${item.document} for ${item.residentName}.`,
@@ -493,6 +512,8 @@ export class OfsDashboard implements OnInit, OnDestroy {
   }
 
   async announce(): Promise<void> {
+    this.clearFocus();
+
     const result = await Swal.fire({
       title: 'Broadcast Announcement',
       input: 'textarea',
@@ -537,18 +558,26 @@ export class OfsDashboard implements OnInit, OnDestroy {
   }
 
   async systemLogs(): Promise<void> {
-    await this.officialDashboardService.addAuditLog(
-      'Viewed audit logs',
-      this.officialId,
-      this.officialName
-    );
+  this.clearFocus();
 
-    this.showAuditLogsModal = true;
-    this.cdr.detectChanges();
-  }
+  await this.officialDashboardService.addAuditLog(
+    'Viewed audit logs',
+    this.officialId,
+    this.officialName
+  );
+
+  this.showAuditLogsModal = true;
+  this.cdr.detectChanges();
+
+  setTimeout(() => {
+    const modal = document.querySelector('.modal-content') as HTMLElement | null;
+    modal?.focus();
+  });
+}
 
   closeAuditLogs(): void {
-    this.showAuditLogsModal = false;
-    this.cdr.detectChanges();
-  }
+  this.clearFocus();
+  this.showAuditLogsModal = false;
+  this.cdr.detectChanges();
+}
 }

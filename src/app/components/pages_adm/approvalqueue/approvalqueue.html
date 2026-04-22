@@ -3,13 +3,22 @@
   <h1 class="page-title">Approval Queue Notifications</h1>
 
   <div class="card">
-    <h2 class="section-title">Pending Official Requests</h2>
+  <h2 class="section-title">Pending Official Requests</h2>
 
-    <div *ngIf="!loading; else loadingBlock">
+  <div class="search-bar-wrap">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by full name, email, role, status, or file name..."
+      [(ngModel)]="officialSearch"
+    />
+  </div>
+
+  <div *ngIf="!loading; else loadingBlock">
 
       <div *ngIf="pendingOfficials.length > 0; else emptyBlock" class="queue-list">
 
-        <div class="queue-item" *ngFor="let official of pendingOfficials">
+        <div class="queue-item" *ngFor="let official of filteredPendingOfficials">
 
           <!-- LEFT SIDE -->
           <div class="queue-left">
@@ -74,8 +83,13 @@
 
     <!-- EMPTY STATE -->
     <ng-template #emptyBlock>
-      <div class="no-queue">
+      <div class="no-queue" *ngIf="pendingOfficials.length === 0; else noSearchMatchBlock">
         No pending official requests found.
+      </div>
+    </ng-template>
+    <ng-template #noSearchMatchBlock>
+      <div class="no-queue">
+        No matching official requests found.
       </div>
     </ng-template>
 

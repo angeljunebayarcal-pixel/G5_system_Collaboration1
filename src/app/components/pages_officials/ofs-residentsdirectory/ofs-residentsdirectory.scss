@@ -27,6 +27,32 @@
   color: #1e293b;
 }
 
+.search-bar-wrap {
+  margin-bottom: 18px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
+}
+
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
 .card {
   background: #e9e9e9;
   border-radius: 14px;
@@ -333,6 +359,24 @@ button {
     transform: none !important;
   }
   
+.search-bar-wrap {
+  margin-bottom: 16px !important;
+}
+
+.search-input {
+  width: 100% !important;
+  padding: 11px 14px !important;
+  font-size: 13px !important;
+  border-radius: 9px !important;
+}
+
+.card {
+  padding: 20px !important;
+}
+
+.section-title {
+  margin-bottom: 14px !important;
+}
 }
 
 /* ================= TABLET ================= */
@@ -348,6 +392,16 @@ button {
     margin-bottom: 12px !important;
     line-height: 1.2 !important;
   }
+
+  .search-bar-wrap {
+  margin-bottom: 14px !important;
+}
+
+.search-input {
+  padding: 10px 12px !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+}
 
   .card {
     padding: 16px !important;
@@ -462,6 +516,16 @@ button {
     margin-bottom: 10px !important;
     line-height: 1.15 !important;
   }
+
+  .search-bar-wrap {
+  margin-bottom: 12px !important;
+}
+
+.search-input {
+  padding: 9px 10px !important;
+  font-size: 11px !important;
+  border-radius: 7px !important;
+}
 
   .card {
     padding: 12px !important;
@@ -584,6 +648,11 @@ button {
     margin-bottom: 9px !important;
   }
 
+  .search-input {
+  font-size: 10px !important;
+  padding: 8px 9px !important;
+}
+
   .card {
     padding: 10px !important;
     border-radius: 9px !important;
@@ -655,6 +724,12 @@ button {
     font-size: 13px !important;
     margin-bottom: 8px !important;
   }
+
+  .search-input {
+  font-size: 9.5px !important;
+  padding: 7px 8px !important;
+  border-radius: 6px !important;
+}
 
   .card {
     padding: 9px !important;

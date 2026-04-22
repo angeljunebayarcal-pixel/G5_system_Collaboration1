@@ -53,11 +53,11 @@ export class Bookappointment {
         return;
       }
 
-      if (file.size > 900 * 1024) {
+      if (file.size > 800 * 1024) {
         Swal.fire({
           icon: 'warning',
           title: 'File Too Large',
-          text: 'Please upload a file smaller than 900 KB.'
+          text: 'Please upload a file smaller than 800 KB.'
         });
         this.uploadedFile = null;
         this.uploadedFileName = '';
