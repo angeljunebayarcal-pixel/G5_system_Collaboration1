@@ -17,6 +17,7 @@ import {
   sendPasswordResetEmail
 } from 'firebase/auth';
 import {
+  initializeFirestore,
   getFirestore,
   doc,
   getDoc,
@@ -88,7 +89,15 @@ export class AuthService {
   constructor() {
     const app = getApps().length ? getApp() : initializeApp(environment.firebase);
     this.auth = getAuth(app);
-    this.fs = getFirestore(app);
+
+    try {
+      this.fs = initializeFirestore(app, {
+        experimentalAutoDetectLongPolling: true
+      });
+    } catch {
+      this.fs = getFirestore(app);
+    }
+
     this.storage = getStorage(app);
   }
 
@@ -101,33 +110,43 @@ export class AuthService {
     }, {} as Record<string, any>);
   }
 
- private async getAdminEmergencyPhone(): Promise<string> {
-  try {
-    const currentUser = await this.getCurrentUserAsync();
+  private async getAdminEmergencyPhone(): Promise<string> {
+    try {
+      const currentUser = await this.getCurrentUserAsync();
 
-    if (!currentUser) {
+      if (!currentUser) {
+        return '';
+      }
+
+      const adminQuery = query(
+        collection(this.fs, 'users'),
+        where('role', '==', 'admin'),
+        limit(1)
+      );
+
+      const adminSnapshot = await getDocs(adminQuery);
+
+      if (!adminSnapshot.empty) {
+        const adminData = adminSnapshot.docs[0].data();
+        return adminData['contact'] || adminData['emergencyPhone'] || '';
+      }
+
+      return '';
+    } catch (error) {
+      const errorCode = (error as any)?.code || '';
+      const errorMessage = String((error as any)?.message || '').toLowerCase();
+
+      if (
+        errorCode === 'permission-denied' ||
+        errorMessage.includes('missing or insufficient permissions')
+      ) {
+        return '';
+      }
+
+      console.error('Failed to fetch admin emergency phone:', error);
       return '';
     }
-
-    const adminQuery = query(
-      collection(this.fs, 'users'),
-      where('role', '==', 'admin'),
-      limit(1)
-    );
-
-    const adminSnapshot = await getDocs(adminQuery);
-
-    if (!adminSnapshot.empty) {
-      const adminData = adminSnapshot.docs[0].data();
-      return adminData['contact'] || adminData['emergencyPhone'] || '';
-    }
-
-    return '';
-  } catch (error) {
-    console.error('Failed to fetch admin emergency phone:', error);
-    return '';
   }
-}
 
   async getAllUsersForDirectory(): Promise<DirectoryUserData[]> {
     const [usersSnapshot, residentsSnapshot, officialsSnapshot, settingsSnapshot] =

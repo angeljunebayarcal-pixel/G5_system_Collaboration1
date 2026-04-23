@@ -96,7 +96,20 @@ export class Dashboard implements OnInit, OnDestroy {
 
         this.loadDashboardData();
         this.cdr.detectChanges();
-      } catch (error) {
+      } catch (error: any) {
+        const errorCode = error?.code || '';
+        const errorMessage = String(error?.message || '').toLowerCase();
+
+        if (
+          errorCode === 'permission-denied' ||
+          errorMessage.includes('missing or insufficient permissions')
+        ) {
+          this.resetDashboard();
+          this.clearSubscriptions();
+          this.router.navigate(['/login']);
+          return;
+        }
+
         console.error('Role check error:', error);
         this.resetDashboard();
         this.clearSubscriptions();
@@ -201,6 +214,8 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   private loadDashboardData(): void {
+    if (this.subscriptions.length > 0) return;
+
     const appointmentsSub = this.appointmentService
       .getResidentAppointments(this.residentId)
       .subscribe({
@@ -361,8 +376,11 @@ export class Dashboard implements OnInit, OnDestroy {
 
   async refreshData(): Promise<void> {
     this.clearSubscriptions();
-    this.loadDashboardData();
-    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.loadDashboardData();
+      this.cdr.detectChanges();
+    }, 200);
 
     Swal.fire({
       icon: 'success',
@@ -373,26 +391,26 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
-
   viewAppointments(): void {
-  this.showAppointmentsModal = true;
-  this.cdr.detectChanges();
-}
+    this.showAppointmentsModal = true;
+    this.cdr.detectChanges();
+  }
 
-closeAppointmentsModal(): void {
-  this.showAppointmentsModal = false;
-  this.cdr.detectChanges();
-}
+  closeAppointmentsModal(): void {
+    this.showAppointmentsModal = false;
+    this.cdr.detectChanges();
+  }
 
-viewCertificates(): void {
-  this.showCertificatesModal = true;
-  this.cdr.detectChanges();
-}
+  viewCertificates(): void {
+    this.showCertificatesModal = true;
+    this.cdr.detectChanges();
+  }
 
-closeCertificatesModal(): void {
-  this.showCertificatesModal = false;
-  this.cdr.detectChanges();
-}
+  closeCertificatesModal(): void {
+    this.showCertificatesModal = false;
+    this.cdr.detectChanges();
+  }
+
   viewNotifications(): void {
     this.router.navigate(['/home/notification']);
   }
