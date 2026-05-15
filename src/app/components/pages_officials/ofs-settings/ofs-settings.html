@@ -14,54 +14,6 @@
       </div>
       <button type="button" (click)="editFullName()">Edit</button>
     </div>
-
-    <div class="setting-item clickable">
-      <div>
-        <span>Email Address</span>
-        <p id="officialEmailDisplay">{{ email || 'No email set' }}</p>
-      </div>
-      <button type="button" (click)="editEmail()">Edit</button>
-    </div>
-  </div>
-
-  <div class="settings-card">
-    <div class="card-header">
-      <h2>Notifications</h2>
-    </div>
-
-    <div class="setting-item">
-      <div>
-        <label for="officialEmailNotifications">Email Notifications</label>
-        <p>Receive updates through email</p>
-      </div>
-
-      <label class="switch" for="officialEmailNotifications">
-        <input
-          id="officialEmailNotifications"
-          type="checkbox"
-          [(ngModel)]="settings.emailNotifications"
-          (change)="saveToggle('emailNotifications')"
-        >
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <div class="setting-item">
-      <div>
-        <label for="officialSmsNotifications">SMS Notifications</label>
-        <p>Receive SMS alerts</p>
-      </div>
-
-      <label class="switch" for="officialSmsNotifications">
-        <input
-          id="officialSmsNotifications"
-          type="checkbox"
-          [(ngModel)]="settings.smsNotifications"
-          (change)="saveToggle('smsNotifications')"
-        >
-        <span class="slider"></span>
-      </label>
-    </div>
   </div>
 
   <div class="settings-card">
@@ -101,7 +53,7 @@
     <div class="setting-item">
       <div>
         <label for="officialShowContactInfo">Show Contact Information</label>
-        <p>Allow authorized staff to view your contact details</p>
+        <p>Allow administrators to view your contact details in the user directory</p>
       </div>
 
       <label class="switch" for="officialShowContactInfo">

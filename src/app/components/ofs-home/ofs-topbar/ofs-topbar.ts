@@ -36,7 +36,6 @@ export class OfsTopbar implements OnInit, OnDestroy {
   private officialId: string | null = null;
   private isDestroyed = false;
   private isLoggingOut = false;
-  private refreshTimer: any = null;
   private stopAuthListener: (() => void) | null = null;
 
   constructor(
@@ -52,12 +51,16 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
     window.addEventListener('profile-updated', this.handleProfileUpdated);
 
-    this.loadFastThenFresh();
-
     const auth = this.authService.getAuthInstance();
 
+    const instantUser = auth.currentUser;
+    if (instantUser?.uid) {
+      this.loadFastThenFresh(instantUser);
+      this.initNotifications(instantUser.uid);
+    }
+
     this.stopAuthListener = onAuthStateChanged(auth, (user: User | null) => {
-      if (this.isDestroyed) return;
+      if (this.isDestroyed || this.isLoggingOut) return;
 
       this.notifSub?.unsubscribe();
       this.notifSub = undefined;
@@ -66,15 +69,17 @@ export class OfsTopbar implements OnInit, OnDestroy {
         this.zone.run(() => {
           this.officialId = null;
           this.notificationCount = 0;
+          this.displayName = 'Official User';
+          this.displayRole = 'Officials';
+          this.initials = 'OU';
+          this.photoURL = '';
+          this.isLoaded = true;
         });
         return;
       }
 
-      this.zone.run(() => {
-        this.officialId = user.uid;
-      });
-
-      this.initNotifications();
+      this.loadFastThenFresh(user);
+      this.initNotifications(user.uid);
     });
   }
 
@@ -85,11 +90,6 @@ export class OfsTopbar implements OnInit, OnDestroy {
     this.notifSub?.unsubscribe();
     this.stopAuthListener?.();
     this.stopAuthListener = null;
-
-    if (this.refreshTimer) {
-      clearTimeout(this.refreshTimer);
-      this.refreshTimer = null;
-    }
   }
 
   private blurActiveElement(): void {
@@ -104,14 +104,9 @@ export class OfsTopbar implements OnInit, OnDestroy {
     this.menuOpen = false;
   }
 
-  private async initNotifications() {
+  private initNotifications(uid: string | null) {
     if (this.isDestroyed || this.isLoggingOut) return;
 
-    const currentUser = await this.authService.getCurrentUserAsync();
-
-    if (this.isDestroyed || this.isLoggingOut) return;
-
-    const uid = currentUser?.uid || null;
     this.officialId = uid;
 
     this.notifSub?.unsubscribe();
@@ -157,137 +152,134 @@ export class OfsTopbar implements OnInit, OnDestroy {
 
   private handleProfileUpdated = () => {
     if (this.isDestroyed || this.isLoggingOut) return;
-    this.loadFastThenFresh();
+
+    const uid = this.authService.getCurrentUserId() || this.officialId;
+    if (uid) {
+      this.loadFromUserCacheByUid(uid);
+      void this.loadProfileFresh(uid);
+    }
   };
 
-  private async loadFastThenFresh() {
-    if (this.isDestroyed || this.isLoggingOut) return;
+  private loadFastThenFresh(user: User) {
+    if (this.isDestroyed || this.isLoggingOut || !user?.uid) return;
 
-    const currentUid = this.authService.getCurrentUserId();
+    this.officialId = user.uid;
 
-    if (currentUid) {
-      this.loadFromUserCacheByUid(currentUid);
+    const hasCache = this.loadFromUserCacheByUid(user.uid);
 
-      const authUser = await this.authService.getCurrentUserAsync();
-
-      if (this.isDestroyed || this.isLoggingOut) return;
-
-      if (authUser) {
-        this.zone.run(() => {
-          if (authUser.displayName && (!this.displayName || this.displayName === 'Official User')) {
-            this.displayName = authUser.displayName;
-            this.initials = this.getInitials(this.displayName);
-          }
-
-          if (authUser.photoURL) {
-            this.photoURL = authUser.photoURL;
-          }
-        });
-      }
-
-      this.scheduleFreshProfileLoad();
-      return;
+    if (!hasCache) {
+      this.applyAuthUserInstant(user);
     }
 
-    const user = await this.authService.getCurrentUserAsync();
+    void this.loadProfileFresh(user.uid);
+  }
 
+  private applyAuthUserInstant(user: User) {
     if (this.isDestroyed || this.isLoggingOut) return;
-    if (!user?.uid) return;
-
-    this.loadFromUserCacheByUid(user.uid);
 
     this.zone.run(() => {
-      if (user.displayName && (!this.displayName || this.displayName === 'Official User')) {
-        this.displayName = user.displayName;
-        this.initials = this.getInitials(this.displayName);
-      }
+      const name = user.displayName || this.displayName || 'Official User';
+
+      this.displayName = name;
+      this.displayRole = 'Officials';
+      this.initials = this.getInitials(name);
 
       if (user.photoURL) {
         this.photoURL = user.photoURL;
       }
+
+      this.isLoaded = true;
     });
-
-    this.scheduleFreshProfileLoad();
-  }
-
-  private scheduleFreshProfileLoad() {
-    if (this.isDestroyed || this.isLoggingOut) return;
-    this.loadProfileFresh();
   }
 
   private getProfileCacheKey(uid?: string): string | null {
-    const resolvedUid = uid || this.authService.getCurrentUserId();
+    const resolvedUid = uid || this.officialId || this.authService.getCurrentUserId();
     return resolvedUid ? `ofs_profile_cache_${resolvedUid}` : null;
   }
 
-  private loadFromUserCacheByUid(uid: string) {
+  private loadFromUserCacheByUid(uid: string): boolean {
     try {
       const cacheKey = this.getProfileCacheKey(uid);
-      if (!cacheKey) return;
+      if (!cacheKey) return false;
 
       const raw = localStorage.getItem(cacheKey);
-      if (!raw) return;
+      if (!raw) return false;
 
       const profile = JSON.parse(raw);
 
-      if (this.isDestroyed || this.isLoggingOut) return;
+      if (this.isDestroyed || this.isLoggingOut) return false;
 
-      this.displayName = profile.fullName || 'Official User';
-      this.displayRole = this.mapRole(profile.role);
-      this.initials = this.getInitials(this.displayName);
+      this.zone.run(() => {
+        this.displayName = profile.fullName || 'Official User';
+        this.displayRole = this.mapRole(profile.role || 'official');
+        this.initials = this.getInitials(this.displayName);
+        this.photoURL = profile.photoURL || '';
+        this.isLoaded = true;
+      });
 
-      if (profile.photoURL) {
-        this.photoURL = profile.photoURL;
+      return true;
+    } catch (error) {
+      const cacheKey = this.getProfileCacheKey(uid);
+      if (cacheKey) {
+        localStorage.removeItem(cacheKey);
       }
 
-      this.isLoaded = true;
-    } catch (error) {
       if (!this.isLoggingOut && !this.isDestroyed) {
         console.error('Official topbar cache load failed:', error);
       }
+
+      return false;
     }
   }
 
-  private async loadProfileFresh() {
-    if (this.isDestroyed || this.isLoggingOut) return;
+  private async loadProfileFresh(uid: string) {
+    if (this.isDestroyed || this.isLoggingOut || !uid) return;
 
     try {
-      const currentUid = this.authService.getCurrentUserId();
-      if (!currentUid) return;
-
-      const profile = await this.authService.getProfileData();
+      const profile = await this.authService.getProfileData(uid);
 
       if (this.isDestroyed || this.isLoggingOut) return;
 
+      if (!profile) {
+        this.zone.run(() => {
+          this.isLoaded = true;
+        });
+        return;
+      }
+
+      const normalizedProfile = {
+        fullName: profile.fullName || 'Official User',
+        address: profile.address || '',
+        contact: profile.contact || '',
+        email: profile.email || '',
+        username: profile.username || '',
+        dob: profile.dob || '',
+        gender: profile.gender || '',
+        photoURL: profile.photoURL || '',
+        role: 'official'
+      };
+
+      const cacheKey = this.getProfileCacheKey(uid);
+      if (cacheKey) {
+        localStorage.setItem(cacheKey, JSON.stringify(normalizedProfile));
+      }
+
       this.zone.run(() => {
-        if (profile) {
-          this.displayName = profile.fullName || 'Official User';
-          this.displayRole = this.mapRole(profile.role);
-          this.initials = this.getInitials(this.displayName);
-          this.photoURL = profile.photoURL || this.photoURL || '';
-
-          const cacheKey = this.getProfileCacheKey(profile.uid);
-          if (cacheKey) {
-            localStorage.setItem(cacheKey, JSON.stringify(profile));
-          }
-        } else {
-          this.displayName = 'Official User';
-          this.displayRole = 'Officials';
-          this.initials = 'OU';
-          this.photoURL = '';
-        }
-
+        this.displayName = normalizedProfile.fullName;
+        this.displayRole = this.mapRole(normalizedProfile.role);
+        this.initials = this.getInitials(this.displayName);
+        this.photoURL = normalizedProfile.photoURL;
         this.isLoaded = true;
       });
     } catch (error: any) {
       if (this.isDestroyed || this.isLoggingOut) return;
 
       const errorCode = error?.code || '';
-      const errorMessage = String(error?.message || '');
+      const errorMessage = String(error?.message || '').toLowerCase();
 
       if (
         errorCode === 'permission-denied' ||
-        errorMessage.toLowerCase().includes('missing or insufficient permissions')
+        errorMessage.includes('missing or insufficient permissions')
       ) {
         return;
       }
@@ -295,13 +287,6 @@ export class OfsTopbar implements OnInit, OnDestroy {
       console.error('Official topbar load failed:', error);
 
       this.zone.run(() => {
-        if (!this.displayName) {
-          this.displayName = 'Official User';
-          this.displayRole = 'Officials';
-          this.initials = 'OU';
-          this.photoURL = '';
-        }
-
         this.isLoaded = true;
       });
     }
@@ -335,18 +320,8 @@ export class OfsTopbar implements OnInit, OnDestroy {
     this.closeMenuSafely();
     this.isLoggingOut = true;
 
-    if (this.refreshTimer) {
-      clearTimeout(this.refreshTimer);
-      this.refreshTimer = null;
-    }
-
     this.notifSub?.unsubscribe();
     this.officialId = null;
-
-    const uid = this.authService.getCurrentUserId();
-    if (uid) {
-      localStorage.removeItem(`ofs_profile_cache_${uid}`);
-    }
 
     this.displayName = 'Official User';
     this.displayRole = 'Officials';
@@ -372,18 +347,23 @@ export class OfsTopbar implements OnInit, OnDestroy {
   }
 
   private mapRole(role: string): string {
-    if (role === 'resident') return 'Residents';
-    if (role === 'official') return 'Officials';
-    if (role === 'admin') return 'Administrator';
+    const normalizedRole = String(role || '').toLowerCase();
+
+    if (normalizedRole === 'resident') return 'Residents';
+    if (normalizedRole === 'official') return 'Officials';
+    if (normalizedRole === 'admin') return 'Administrator';
+
     return 'Officials';
   }
 
   private getInitials(name: string): string {
-    return name
+    const initials = String(name || '')
       .split(' ')
       .filter(Boolean)
       .slice(0, 2)
       .map(part => part[0].toUpperCase())
       .join('');
+
+    return initials || 'OU';
   }
 }

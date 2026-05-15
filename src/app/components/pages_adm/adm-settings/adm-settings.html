@@ -15,55 +15,6 @@
       </div>
       <button type="button" (click)="editFullName()">Edit</button>
     </div>
-
-    <div class="setting-item clickable">
-      <div>
-        <span>Email Address</span>
-        <p id="adminEmailDisplay">{{ email || 'No email set' }}</p>
-      </div>
-      <button type="button" (click)="editEmail()">Edit</button>
-    </div>
-  </div>
-
-  <!-- NOTIFICATIONS -->
-  <div class="settings-card">
-    <div class="card-header">
-      <h2>Notifications</h2>
-    </div>
-
-    <div class="setting-item">
-      <div>
-        <label for="adminEmailNotifications">Email Notifications</label>
-        <p>Receive updates through email</p>
-      </div>
-
-      <label class="switch" for="adminEmailNotifications">
-        <input
-          id="adminEmailNotifications"
-          type="checkbox"
-          [(ngModel)]="settings.emailNotifications"
-          (change)="saveToggle('emailNotifications')"
-        >
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <div class="setting-item">
-      <div>
-        <label for="adminSmsNotifications">SMS Notifications</label>
-        <p>Receive SMS alerts</p>
-      </div>
-
-      <label class="switch" for="adminSmsNotifications">
-        <input
-          id="adminSmsNotifications"
-          type="checkbox"
-          [(ngModel)]="settings.smsNotifications"
-          (change)="saveToggle('smsNotifications')"
-        >
-        <span class="slider"></span>
-      </label>
-    </div>
   </div>
 
   <!-- SECURITY -->

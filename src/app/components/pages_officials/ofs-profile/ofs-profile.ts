@@ -16,6 +16,8 @@ export class OfsProfile implements OnInit {
   saving = false;
   uploadingImage = false;
 
+  private currentUid = '';
+
   personal = {
     fullname: '',
     address: '',
@@ -52,7 +54,7 @@ export class OfsProfile implements OnInit {
   }
 
   private getProfileCacheKey(uid?: string): string | null {
-    const resolvedUid = uid || this.authService.getCurrentUserId();
+    const resolvedUid = uid || this.currentUid || this.authService.getCurrentUserId();
     return resolvedUid ? `ofs_profile_cache_${resolvedUid}` : null;
   }
 
@@ -69,16 +71,42 @@ export class OfsProfile implements OnInit {
         return;
       }
 
+      this.currentUid = currentUser.uid;
+
       const cacheKey = this.getProfileCacheKey(currentUser.uid);
+      let hasDisplayedCachedProfile = false;
+
       if (cacheKey) {
         const cached = localStorage.getItem(cacheKey);
 
         if (cached) {
-          const profile = JSON.parse(cached);
-          this.applyProfile(profile);
-          this.loading = false;
-          this.cdr.detectChanges();
+          try {
+            const profile = JSON.parse(cached);
+            this.applyProfile(profile);
+            hasDisplayedCachedProfile = true;
+            this.loading = false;
+            this.cdr.detectChanges();
+          } catch {
+            localStorage.removeItem(cacheKey);
+          }
         }
+      }
+
+      if (!hasDisplayedCachedProfile) {
+        this.applyProfile({
+          fullName: currentUser.displayName || 'Official User',
+          address: '',
+          contact: '',
+          email: currentUser.email || '',
+          role: 'official',
+          username: '',
+          dob: '',
+          gender: '',
+          photoURL: currentUser.photoURL || ''
+        });
+
+        this.loading = false;
+        this.cdr.detectChanges();
       }
 
       try {
@@ -89,20 +117,21 @@ export class OfsProfile implements OnInit {
 
           const freshCacheKey = this.getProfileCacheKey(currentUser.uid);
           if (freshCacheKey) {
-            localStorage.setItem(freshCacheKey, JSON.stringify(profile));
+            localStorage.setItem(freshCacheKey, JSON.stringify({
+              fullName: this.personal.fullname,
+              address: this.personal.address,
+              contact: this.personal.contact,
+              email: this.personal.email,
+              username: this.personal.username,
+              dob: this.personal.dob,
+              gender: this.personal.gender,
+              photoURL: this.personal.photoURL,
+              role: 'official'
+            }));
           }
-        } else {
-          this.applyProfile({
-            fullName: currentUser.displayName || 'Official User',
-            address: '',
-            contact: '',
-            email: currentUser.email || '',
-            role: 'official',
-            username: '',
-            dob: '',
-            gender: '',
-            photoURL: currentUser.photoURL || ''
-          });
+
+          window.dispatchEvent(new Event('profile-updated'));
+          this.cdr.detectChanges();
         }
       } catch (profileError: any) {
         const errorCode = profileError?.code || '';
@@ -112,18 +141,6 @@ export class OfsProfile implements OnInit {
           errorCode === 'permission-denied' ||
           errorMessage.includes('missing or insufficient permissions')
         ) {
-          this.applyProfile({
-            fullName: currentUser.displayName || 'Official User',
-            address: '',
-            contact: '',
-            email: currentUser.email || '',
-            role: 'official',
-            username: '',
-            dob: '',
-            gender: '',
-            photoURL: currentUser.photoURL || ''
-          });
-
           this.loading = false;
           this.cdr.detectChanges();
           return;
@@ -192,16 +209,25 @@ export class OfsProfile implements OnInit {
 
       this.personal.photoURL = base64;
 
-      await this.authService.saveProfileImageBase64(base64);
-
       const cacheKey = this.getProfileCacheKey();
       if (cacheKey) {
-        const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
-        cached.photoURL = base64;
-        localStorage.setItem(cacheKey, JSON.stringify(cached));
+        localStorage.setItem(cacheKey, JSON.stringify({
+          fullName: this.personal.fullname,
+          address: this.personal.address,
+          contact: this.personal.contact,
+          email: this.personal.email,
+          username: this.personal.username,
+          dob: this.personal.dob,
+          gender: this.personal.gender,
+          photoURL: base64,
+          role: 'official'
+        }));
       }
 
       window.dispatchEvent(new Event('profile-updated'));
+      this.cdr.detectChanges();
+
+      await this.authService.saveProfileImageBase64(base64);
 
       Swal.close();
       Swal.fire({
@@ -224,8 +250,34 @@ export class OfsProfile implements OnInit {
   async savePersonal() {
     if (this.saving || this.uploadingImage) return;
 
-    if (!this.personal.fullname.trim() || !this.personal.email.trim()) {
-      Swal.fire('Missing Fields', 'Full name and email are required.', 'warning');
+    const requiredFields = [
+      { label: 'Full Name', value: this.personal.fullname },
+      { label: 'Contact Number', value: this.personal.contact },
+      { label: 'Home Address', value: this.personal.address },
+      { label: 'Email Address', value: this.personal.email },
+      { label: 'Username', value: this.personal.username },
+      { label: 'Role', value: this.personal.role },
+      { label: 'Date of Birth', value: this.personal.dob },
+      { label: 'Gender', value: this.personal.gender }
+    ];
+
+    const missingFields = requiredFields
+      .filter(field => !String(field.value || '').trim())
+      .map(field => field.label);
+
+    if (missingFields.length > 0) {
+      Swal.fire(
+        'Missing Fields',
+        `Please complete all required information before saving.\n\nMissing: ${missingFields.join(', ')}`,
+        'warning'
+      );
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(this.personal.email.trim())) {
+      Swal.fire('Invalid Email', 'Please enter a valid email address.', 'warning');
       return;
     }
 
@@ -238,28 +290,30 @@ export class OfsProfile implements OnInit {
         didOpen: () => Swal.showLoading()
       });
 
-      await this.authService.updateProfileData({
-        fullName: this.personal.fullname,
-        address: this.personal.address,
-        contact: this.personal.contact,
-        email: this.personal.email,
-        username: this.personal.username,
+      const profileData = {
+        fullName: this.personal.fullname.trim(),
+        address: this.personal.address.trim(),
+        contact: this.personal.contact.trim(),
+        email: this.personal.email.trim(),
+        username: this.personal.username.trim(),
         dob: this.personal.dob,
-        gender: this.personal.gender
-      });
+        gender: this.personal.gender.trim()
+      };
+
+      await this.authService.updateProfileData(profileData);
 
       const cacheKey = this.getProfileCacheKey();
       if (cacheKey) {
         localStorage.setItem(cacheKey, JSON.stringify({
-          fullName: this.personal.fullname,
-          address: this.personal.address,
-          contact: this.personal.contact,
-          email: this.personal.email,
-          username: this.personal.username,
-          dob: this.personal.dob,
-          gender: this.personal.gender,
+          fullName: profileData.fullName,
+          address: profileData.address,
+          contact: profileData.contact,
+          email: profileData.email,
+          username: profileData.username,
+          dob: profileData.dob,
+          gender: profileData.gender,
           photoURL: this.personal.photoURL,
-          role: this.personal.role.toLowerCase()
+          role: 'official'
         }));
       }
 

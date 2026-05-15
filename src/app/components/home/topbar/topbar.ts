@@ -7,6 +7,7 @@ import {
   OnDestroy
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { AuthService } from '../../../services/auth.service';
 import { NotificationService, AppNotification } from '../../../services/notification.service';
 import { Subscription } from 'rxjs';
@@ -30,6 +31,9 @@ export class Topbar implements OnInit, OnDestroy {
 
   private notifSub?: Subscription;
   private residentId: string | null = null;
+  private isDestroyed = false;
+  private isLoggingOut = false;
+  private stopAuthListener: (() => void) | null = null;
 
   constructor(
     private authService: AuthService,
@@ -39,160 +43,247 @@ export class Topbar implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.isDestroyed = false;
+    this.isLoggingOut = false;
+
     window.addEventListener('profile-updated', this.handleProfileUpdated);
 
-    this.loadFastThenFresh();
-    this.initNotifications();
+    const auth = this.authService.getAuthInstance();
+
+    const instantUser = auth.currentUser;
+    if (instantUser?.uid) {
+      this.loadFastThenFresh(instantUser);
+      this.initNotifications(instantUser.uid);
+    }
+
+    this.stopAuthListener = onAuthStateChanged(auth, (user: User | null) => {
+      if (this.isDestroyed || this.isLoggingOut) return;
+
+      this.notifSub?.unsubscribe();
+      this.notifSub = undefined;
+
+      if (!user?.uid) {
+        this.zone.run(() => {
+          this.residentId = null;
+          this.notificationCount = 0;
+          this.displayName = 'Resident User';
+          this.displayRole = 'Residents';
+          this.initials = 'RU';
+          this.photoURL = '';
+          this.photoReady = false;
+          this.isLoaded = true;
+        });
+        return;
+      }
+
+      this.loadFastThenFresh(user);
+      this.initNotifications(user.uid);
+    });
   }
 
   ngOnDestroy() {
+    this.isDestroyed = true;
+
     window.removeEventListener('profile-updated', this.handleProfileUpdated);
     this.notifSub?.unsubscribe();
+    this.stopAuthListener?.();
+    this.stopAuthListener = null;
   }
 
-  private async initNotifications() {
-    const user = await this.authService.getCurrentUserAsync();
-    this.residentId = user?.uid || null;
+  private initNotifications(uid: string | null) {
+    if (this.isDestroyed || this.isLoggingOut) return;
 
-    if (!this.residentId) return;
+    this.residentId = uid;
+
+    this.notifSub?.unsubscribe();
+    this.notifSub = undefined;
+
+    if (!uid) {
+      this.zone.run(() => {
+        this.notificationCount = 0;
+      });
+      return;
+    }
 
     this.notifSub = this.notifService
-      .loadNotifications('resident', this.residentId)
+      .loadNotifications('resident', uid)
       .subscribe({
         next: (data: AppNotification[]) => {
+          if (this.isDestroyed || this.isLoggingOut) return;
+
           this.zone.run(() => {
             this.notificationCount = data.filter(n => !n.isRead).length;
           });
         },
-        error: (err) => {
+        error: (err: any) => {
+          if (this.isDestroyed || this.isLoggingOut) return;
+
+          const errorCode = err?.code || '';
+          const errorMessage = String(err?.message || '').toLowerCase();
+
+          if (
+            errorCode === 'permission-denied' ||
+            errorMessage.includes('missing or insufficient permissions')
+          ) {
+            this.zone.run(() => {
+              this.notificationCount = 0;
+            });
+            return;
+          }
+
           console.error('Topbar notification error:', err);
         }
       });
   }
 
   private handleProfileUpdated = () => {
-    this.loadFastThenFresh();
+    if (this.isDestroyed || this.isLoggingOut) return;
+
+    const uid = this.authService.getCurrentUserId() || this.residentId;
+    if (uid) {
+      this.loadFromUserCacheByUid(uid);
+      void this.loadProfileFresh(uid);
+    }
   };
 
-  private async loadFastThenFresh() {
-    const currentUid = this.authService.getCurrentUserId();
+  private loadFastThenFresh(user: User) {
+    if (this.isDestroyed || this.isLoggingOut || !user?.uid) return;
 
-    if (currentUid) {
-      this.loadFromUserCacheByUid(currentUid);
+    this.residentId = user.uid;
 
-      const authUser = await this.authService.getCurrentUserAsync();
-      if (authUser?.displayName && !this.displayName) {
-        this.displayName = authUser.displayName;
-        this.initials = this.getInitials(this.displayName);
+    const hasCache = this.loadFromUserCacheByUid(user.uid);
+
+    if (!hasCache) {
+      this.applyAuthUserInstant(user);
+    }
+
+    void this.loadProfileFresh(user.uid);
+  }
+
+  private applyAuthUserInstant(user: User) {
+    if (this.isDestroyed || this.isLoggingOut) return;
+
+    this.zone.run(() => {
+      const name = user.displayName || this.displayName || 'Resident User';
+
+      this.displayName = name;
+      this.displayRole = 'Residents';
+      this.initials = this.getInitials(name);
+
+      if (user.photoURL) {
+        this.photoURL = user.photoURL;
+        this.photoReady = true;
       }
 
-      if (authUser?.photoURL) {
-        this.setPhotoImmediately(authUser.photoURL);
-      }
-
-      setTimeout(() => {
-        this.loadProfileFresh();
-      }, 0);
-
-      return;
-    }
-
-    const user = await this.authService.getCurrentUserAsync();
-    if (!user?.uid) return;
-
-    this.loadFromUserCacheByUid(user.uid);
-
-    if (user.displayName && !this.displayName) {
-      this.displayName = user.displayName;
-      this.initials = this.getInitials(this.displayName);
-    }
-
-    if (user.photoURL) {
-      this.setPhotoImmediately(user.photoURL);
-    }
-
-    setTimeout(() => {
-      this.loadProfileFresh();
-    }, 0);
+      this.isLoaded = true;
+    });
   }
 
   private getProfileCacheKey(uid?: string): string | null {
-    const resolvedUid = uid || this.authService.getCurrentUserId();
+    const resolvedUid = uid || this.residentId || this.authService.getCurrentUserId();
     return resolvedUid ? `profile_cache_${resolvedUid}` : null;
   }
 
-  private loadFromUserCacheByUid(uid: string) {
+  private loadFromUserCacheByUid(uid: string): boolean {
     try {
       const cacheKey = this.getProfileCacheKey(uid);
-      if (!cacheKey) return;
+      if (!cacheKey) return false;
 
       const raw = localStorage.getItem(cacheKey);
-      if (!raw) return;
+      if (!raw) return false;
 
       const profile = JSON.parse(raw);
 
+      if (this.isDestroyed || this.isLoggingOut) return false;
+
       this.zone.run(() => {
         this.displayName = profile.fullName || 'Resident User';
-        this.displayRole = this.mapRole(profile.role);
+        this.displayRole = this.mapRole(profile.role || 'resident');
         this.initials = this.getInitials(this.displayName);
-
-        if (profile.photoURL) {
-          this.photoURL = profile.photoURL;
-          this.photoReady = true;
-        }
+        this.photoURL = profile.photoURL || '';
+        this.photoReady = !!profile.photoURL;
+        this.isLoaded = true;
       });
+
+      return true;
     } catch (error) {
-      console.error('Topbar cache load failed:', error);
+      const cacheKey = this.getProfileCacheKey(uid);
+      if (cacheKey) {
+        localStorage.removeItem(cacheKey);
+      }
+
+      if (!this.isLoggingOut && !this.isDestroyed) {
+        console.error('Topbar cache load failed:', error);
+      }
+
+      return false;
     }
   }
 
-  private async loadProfileFresh() {
+  private async loadProfileFresh(uid: string) {
+    if (this.isDestroyed || this.isLoggingOut || !uid) return;
+
     try {
-      const profile = await this.authService.getProfileData();
+      const profile = await this.authService.getProfileData(uid);
+
+      if (this.isDestroyed || this.isLoggingOut) return;
+
+      if (!profile) {
+        this.zone.run(() => {
+          this.isLoaded = true;
+        });
+        return;
+      }
+
+      const normalizedProfile = {
+        fullName: profile.fullName || 'Resident User',
+        address: profile.address || '',
+        contact: profile.contact || '',
+        email: profile.email || '',
+        username: profile.username || '',
+        dob: profile.dob || '',
+        gender: profile.gender || '',
+        photoURL: profile.photoURL || '',
+        emergencyContact: profile.emergencyContact || 'Barangay Admin Office',
+        emergencyPhone: profile.emergencyPhone || '09123456789',
+        role: 'resident'
+      };
+
+      const cacheKey = this.getProfileCacheKey(uid);
+      if (cacheKey) {
+        localStorage.setItem(cacheKey, JSON.stringify(normalizedProfile));
+      }
 
       this.zone.run(() => {
-        if (profile) {
-          this.displayName = profile.fullName || 'Resident User';
-          this.displayRole = this.mapRole(profile.role);
-          this.initials = this.getInitials(this.displayName);
-
-          const cacheKey = this.getProfileCacheKey(profile.uid);
-          if (cacheKey) {
-            localStorage.setItem(cacheKey, JSON.stringify(profile));
-          }
-
-          if (profile.photoURL) {
-            this.photoURL = profile.photoURL;
-            this.photoReady = true;
-          } else {
-            this.photoURL = '';
-            this.photoReady = false;
-          }
-        } else {
-          this.displayName = 'Resident User';
-          this.displayRole = 'Residents';
-          this.initials = 'RU';
-          this.photoURL = '';
-          this.photoReady = false;
-        }
-
+        this.displayName = normalizedProfile.fullName;
+        this.displayRole = this.mapRole(normalizedProfile.role);
+        this.initials = this.getInitials(this.displayName);
+        this.photoURL = normalizedProfile.photoURL;
+        this.photoReady = !!normalizedProfile.photoURL;
         this.isLoaded = true;
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (this.isDestroyed || this.isLoggingOut) return;
+
+      const errorCode = error?.code || '';
+      const errorMessage = String(error?.message || '').toLowerCase();
+
+      if (
+        errorCode === 'permission-denied' ||
+        errorMessage.includes('missing or insufficient permissions')
+      ) {
+        this.zone.run(() => {
+          this.isLoaded = true;
+        });
+        return;
+      }
+
       console.error('Topbar load failed:', error);
+
       this.zone.run(() => {
         this.isLoaded = true;
       });
     }
-  }
-
-  private setPhotoImmediately(url: string) {
-    if (!url) return;
-
-    this.zone.run(() => {
-      this.photoURL = url;
-      this.photoReady = true;
-    });
   }
 
   onProfileImageError() {
@@ -220,13 +311,7 @@ export class Topbar implements OnInit, OnDestroy {
   async logout(event: Event) {
     event.stopPropagation();
     this.menuOpen = false;
-
-    const uid = this.authService.getCurrentUserId();
-    const cacheKey = this.getProfileCacheKey(uid || undefined);
-
-    if (cacheKey) {
-      localStorage.removeItem(cacheKey);
-    }
+    this.isLoggingOut = true;
 
     this.displayName = 'Resident User';
     this.displayRole = 'Residents';
@@ -239,8 +324,13 @@ export class Topbar implements OnInit, OnDestroy {
     this.notifSub?.unsubscribe();
     this.residentId = null;
 
-    await this.authService.logout();
-    this.router.navigate(['/login']);
+    try {
+      await this.authService.logout();
+    } catch (error) {
+      console.error('Resident logout failed:', error);
+    } finally {
+      this.router.navigate(['/login']);
+    }
   }
 
   @HostListener('document:click')
@@ -249,18 +339,23 @@ export class Topbar implements OnInit, OnDestroy {
   }
 
   private mapRole(role: string): string {
-    if (role === 'resident') return 'Residents';
-    if (role === 'official') return 'Officials';
-    if (role === 'admin') return 'Administrator';
+    const normalizedRole = String(role || '').toLowerCase();
+
+    if (normalizedRole === 'resident') return 'Residents';
+    if (normalizedRole === 'official') return 'Officials';
+    if (normalizedRole === 'admin') return 'Administrator';
+
     return 'Residents';
   }
 
   private getInitials(name: string): string {
-    return name
+    const initials = String(name || '')
       .split(' ')
       .filter(Boolean)
       .slice(0, 2)
       .map(part => part[0].toUpperCase())
       .join('');
+
+    return initials || 'RU';
   }
 }

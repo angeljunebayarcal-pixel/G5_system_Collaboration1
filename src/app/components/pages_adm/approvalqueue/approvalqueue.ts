@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-approvalqueue',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './approvalqueue.html',
   styleUrl: './approvalqueue.scss',
 })
@@ -16,6 +16,8 @@ export class Approvalqueue implements OnInit {
   pendingOfficials: any[] = [];
   officialSearch = '';
 
+  private readonly pendingOfficialsCacheKey = 'approval_queue_pending_officials_cache_v1';
+
   constructor(
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
@@ -23,53 +25,74 @@ export class Approvalqueue implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.loading = true;
+    this.loadPendingOfficialsCache();
+
+    this.loading = false;
     this.cdr.detectChanges();
-    
 
-    setTimeout(() => {
-      if (this.loading) {
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    }, 8000);
-
-    await this.loadPendingOfficials();
+    await this.loadPendingOfficials(false);
   }
 
   get filteredPendingOfficials(): any[] {
-  const keyword = this.officialSearch.trim().toLowerCase();
+    const keyword = this.officialSearch.trim().toLowerCase();
 
-  if (!keyword) {
-    return this.pendingOfficials;
+    if (!keyword) {
+      return this.pendingOfficials;
+    }
+
+    return this.pendingOfficials.filter((official) => {
+      const fullName = (official.fullName || '').toLowerCase();
+      const email = (official.email || '').toLowerCase();
+      const role = 'official';
+      const status = (official.status || '').toLowerCase();
+      const fileName = (official.validIdFileName || '').toLowerCase();
+
+      return (
+        fullName.includes(keyword) ||
+        email.includes(keyword) ||
+        role.includes(keyword) ||
+        status.includes(keyword) ||
+        fileName.includes(keyword)
+      );
+    });
   }
 
-  return this.pendingOfficials.filter((official) => {
-    const fullName = (official.fullName || '').toLowerCase();
-    const email = (official.email || '').toLowerCase();
-    const role = 'official';
-    const status = (official.status || '').toLowerCase();
-    const fileName = (official.validIdFileName || '').toLowerCase();
-
-    return (
-      fullName.includes(keyword) ||
-      email.includes(keyword) ||
-      role.includes(keyword) ||
-      status.includes(keyword) ||
-      fileName.includes(keyword)
-    );
-  });
-}
-
-  async loadPendingOfficials(): Promise<void> {
+  private loadPendingOfficialsCache(): void {
     try {
-      this.loading = true;
-      this.cdr.detectChanges();
+      const cached = localStorage.getItem(this.pendingOfficialsCacheKey);
+
+      if (cached) {
+        this.pendingOfficials = JSON.parse(cached) || [];
+      }
+    } catch (error) {
+      console.error('Failed to load approval queue cache:', error);
+      localStorage.removeItem(this.pendingOfficialsCacheKey);
+    }
+  }
+
+  private savePendingOfficialsCache(): void {
+    try {
+      localStorage.setItem(
+        this.pendingOfficialsCacheKey,
+        JSON.stringify(this.pendingOfficials || [])
+      );
+    } catch (error) {
+      console.error('Failed to save approval queue cache:', error);
+    }
+  }
+
+  async loadPendingOfficials(showLoader: boolean = true): Promise<void> {
+    try {
+      if (showLoader) {
+        this.loading = true;
+        this.cdr.detectChanges();
+      }
 
       const officials = await this.authService.getPendingOfficials();
 
       this.ngZone.run(() => {
         this.pendingOfficials = officials || [];
+        this.savePendingOfficialsCache();
         this.loading = false;
         this.cdr.detectChanges();
       });
@@ -78,11 +101,12 @@ export class Approvalqueue implements OnInit {
 
       this.ngZone.run(() => {
         this.loading = false;
-        this.pendingOfficials = [];
         this.cdr.detectChanges();
       });
 
-      Swal.fire('Error', 'Failed to load approval queue.', 'error');
+      if (showLoader) {
+        Swal.fire('Error', 'Failed to load approval queue.', 'error');
+      }
     }
   }
 
@@ -133,7 +157,13 @@ export class Approvalqueue implements OnInit {
 
     if (!result.isConfirmed) return;
 
+    const backupOfficials = [...this.pendingOfficials];
+
     try {
+      this.pendingOfficials = this.pendingOfficials.filter((official) => official.uid !== uid);
+      this.savePendingOfficialsCache();
+      this.cdr.detectChanges();
+
       await this.authService.updateUserStatus(uid, 'active');
 
       await Swal.fire(
@@ -142,9 +172,14 @@ export class Approvalqueue implements OnInit {
         'success'
       );
 
-      await this.loadPendingOfficials();
+      void this.loadPendingOfficials(false);
     } catch (error) {
       console.error('Approval failed:', error);
+
+      this.pendingOfficials = backupOfficials;
+      this.savePendingOfficialsCache();
+      this.cdr.detectChanges();
+
       Swal.fire('Error', 'Failed to approve official.', 'error');
     }
   }
@@ -161,7 +196,13 @@ export class Approvalqueue implements OnInit {
 
     if (!result.isConfirmed) return;
 
+    const backupOfficials = [...this.pendingOfficials];
+
     try {
+      this.pendingOfficials = this.pendingOfficials.filter((official) => official.uid !== uid);
+      this.savePendingOfficialsCache();
+      this.cdr.detectChanges();
+
       await this.authService.updateUserStatus(uid, 'declined');
 
       await Swal.fire(
@@ -170,9 +211,14 @@ export class Approvalqueue implements OnInit {
         'success'
       );
 
-      await this.loadPendingOfficials();
+      void this.loadPendingOfficials(false);
     } catch (error) {
       console.error('Decline failed:', error);
+
+      this.pendingOfficials = backupOfficials;
+      this.savePendingOfficialsCache();
+      this.cdr.detectChanges();
+
       Swal.fire('Error', 'Failed to decline official.', 'error');
     }
   }
